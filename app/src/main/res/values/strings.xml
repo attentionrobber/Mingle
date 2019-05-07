@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Mingle</string>
+    <string name="tab_text_1">즐겨찾기</string>
+    <string name="tab_text_2">플레이리스트</string>
+    <string name="tab_text_3">곡</string>
+    <string name="tab_text_4">앨범</string>
+    <string name="tab_text_5">아티스트</string>
+    <string name="tab_text_6">폴더</string>
+
+</resources>
