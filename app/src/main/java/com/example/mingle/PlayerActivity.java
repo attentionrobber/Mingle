@@ -8,12 +8,14 @@ import android.widget.Button;
 
 public class PlayerActivity extends AppCompatActivity {
 
-    Button btn_play, btn_pause;
+    PlayerInterface playerInterface;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
+
+        playerInterface = new PlayerService();
 
         setWidget();
     }
@@ -21,7 +23,7 @@ public class PlayerActivity extends AppCompatActivity {
     private void setWidget() {
 
         findViewById(R.id.btn_play).setOnClickListener(this::btnClick);
-        btn_pause = findViewById(R.id.btn_pause);
+        findViewById(R.id.btn_pause).setOnClickListener(this::btnClick);
     }
 
     private void playMusic(String action) {
@@ -34,8 +36,10 @@ public class PlayerActivity extends AppCompatActivity {
     private void btnClick(View v) {
         switch (v.getId()) {
             case R.id.btn_play:
+                playMusic(PlayerService.ACTION_PLAY);
                 break;
             case R.id.btn_pause:
+                playerInterface.pause();
                 break;
             default: break;
         }

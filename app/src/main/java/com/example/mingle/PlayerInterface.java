@@ -5,4 +5,5 @@ public interface PlayerInterface {
     void pause();
     void prev();
     void next();
+    void stop();
 }
