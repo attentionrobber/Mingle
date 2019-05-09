@@ -2,7 +2,7 @@ package com.example.mingle.domain;
 
 import android.net.Uri;
 
-public class Music {
+public class Music extends Common {
 
     // Music Info.
     private int id; // MediaStore.Audio.Media._ID
@@ -12,7 +12,7 @@ public class Music {
     private int artist_id; // MediaStore.Audio.Media.ARTIST_ID
     private String artist_key; // MediaStore.Audio.Media.ARTIST_KEY
     private int album_id; // MediaStore.Audio.Media.ALBUM_ID
-    private Uri album_img_uri; // Uri.parse("content://media/external/audio/albumart/" + music.album_id);
+    private Uri album_img; // Uri.parse("content://media/external/audio/albumart/" + music.album_id);
     private int genre_id;
     private String composer; // MediaStore.Audio.Media.COMPOSER
     private String content_type;
@@ -80,12 +80,12 @@ public class Music {
         this.album_id = album_id;
     }
 
-    public Uri getAlbum_img_uri() {
-        return album_img_uri;
+    public Uri getAlbum_img() {
+        return album_img;
     }
 
-    public void setAlbum_img_uri(Uri album_img_uri) {
-        this.album_img_uri = album_img_uri;
+    public void setAlbum_img(Uri album_img) {
+        this.album_img = album_img;
     }
 
     public int getGenre_id() {

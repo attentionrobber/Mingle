@@ -16,7 +16,7 @@ import com.example.mingle.R;
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @StringRes
-    private static final int[] TAB_TITLES = new int[]{R.string.tab_text_1, R.string.tab_text_2};
+    private static final int[] TABS = new int[]{R.string.tab_favorite, R.string.tab_playlist, R.string.tab_song, R.string.tab_album, R.string.tab_artist, R.string.tab_folder};
     private final Context mContext;
 
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
@@ -26,20 +26,38 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
+         //getItem is called to instantiate the fragment for the given page.
+         //Return a PlaceholderFragment (defined as a static inner class below).
         return PlaceholderFragment.newInstance(position + 1);
+
+
+
+//        switch (TABS[position]) {
+//            case R.string.tab_text_1:
+//                return SongFragment.newInstance(position);
+//            case R.string.tab_text_2:
+//                //return CallsFragment.newInstance();
+//            case R.string.tab_text_3:
+//                //return ChatsFragment.newInstance();
+//            case R.string.tab_text_4:
+//                //return
+//            case R.string.tab_text_5:
+//                //return
+//            case R.string.tab_text_6:
+//                //return
+//        }
+//        return null;
     }
 
     @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
-        return mContext.getResources().getString(TAB_TITLES[position]);
+        return mContext.getResources().getString(TABS[position]);
     }
 
     @Override
     public int getCount() {
         // Show 2 total pages.
-        return 2;
+        return TABS.length;
     }
 }
