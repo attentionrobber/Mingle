@@ -13,13 +13,13 @@ import com.example.mingle.R;
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
  * one of the sections/tabs/pages.
  */
-public class SectionsPagerAdapter extends FragmentPagerAdapter {
+public class TabPagerAdapter extends FragmentPagerAdapter {
 
     @StringRes
     private static final int[] TABS = new int[]{R.string.tab_favorite, R.string.tab_playlist, R.string.tab_song, R.string.tab_album, R.string.tab_artist, R.string.tab_folder};
     private final Context mContext;
 
-    public SectionsPagerAdapter(Context context, FragmentManager fm) {
+    public TabPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         mContext = context;
     }
@@ -29,8 +29,6 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
          //getItem is called to instantiate the fragment for the given page.
          //Return a PlaceholderFragment (defined as a static inner class below).
         return PlaceholderFragment.newInstance(position + 1);
-
-
 
 //        switch (TABS[position]) {
 //            case R.string.tab_text_1:
