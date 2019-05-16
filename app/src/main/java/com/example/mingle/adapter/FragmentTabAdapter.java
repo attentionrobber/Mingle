@@ -1,9 +1,8 @@
-package com.example.mingle;
+package com.example.mingle.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,18 +10,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.example.mingle.R;
 import com.example.mingle.domain.Common;
 
 import java.util.List;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.ViewHolder> {
 
     private Context context;
     private List<?> musicList;
     private int item_frag_layout;
 
-    public RecyclerViewAdapter(Context context, List<?> musicList, int resLayout) {
+    public FragmentTabAdapter(Context context, List<?> musicList, int resLayout) {
         this.context = context;
         this.musicList = musicList;
         //Log.i("TESTS", "size: "+musicList.size());

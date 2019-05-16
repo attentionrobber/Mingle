@@ -62,13 +62,12 @@ public class MainActivity extends AppCompatActivity {
         //mediaLoader = new MediaLoader(this);
         MediaLoader.load(this);
 
-        Uri uri = MediaLoader.musics.get(0).getMusic_uri();
-        String artist = MediaLoader.musics.get(0).getArtist();
-        String title = MediaLoader.musics.get(0).getTitle();
 
-        tv_title.setText("");tv_artist.setText("");
-
-        Log.i("TESTS", uri+""+artist+""+title);
+//        Uri uri = MediaLoader.musics.get(0).getMusic_uri();
+//        String artist = MediaLoader.musics.get(0).getArtist();
+//        String title = MediaLoader.musics.get(0).getTitle();
+//        tv_title.setText("");tv_artist.setText("");
+//        Log.i("TESTS", uri+""+artist+""+title);
     }
 
     private void btnClick(View v) {

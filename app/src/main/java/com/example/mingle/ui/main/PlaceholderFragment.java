@@ -1,24 +1,19 @@
 package com.example.mingle.ui.main;
 
-import android.arch.lifecycle.Observer;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.support.annotation.Nullable;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.arch.lifecycle.ViewModelProviders;
-import android.widget.TextView;
 
 import com.example.mingle.MediaLoader;
 import com.example.mingle.R;
-import com.example.mingle.RecyclerViewAdapter;
-import com.example.mingle.domain.Music;
+import com.example.mingle.adapter.AlbumAdapter;
+import com.example.mingle.adapter.FragmentTabAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +25,7 @@ public class PlaceholderFragment extends Fragment {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
 
-    private List<Music> album = new ArrayList<>();
+    private List<?> musics = new ArrayList<>();
     private int resLayout = R.layout.item_frag_song;
 
     public static PlaceholderFragment newInstance(int index) {
@@ -48,6 +43,7 @@ public class PlaceholderFragment extends Fragment {
         if (getArguments() != null) {
             index = getArguments().getInt(ARG_SECTION_NUMBER);
 
+            // TODO: Tab 마다 알맞은 데이터 로드
             switch (index) {
                 case 1: // Favorite
                     resLayout = R.layout.item_frag_favorite;
@@ -57,11 +53,13 @@ public class PlaceholderFragment extends Fragment {
                     break;
                 case 3: // Song
                     resLayout = R.layout.item_frag_song;
-                    //MediaLoader.load(getContext());
+                    musics = MediaLoader.musics;
+                    //Log.i("TESTS", "song: "+musics.size());
                     break;
                 case 4: // Album
-                    resLayout = R.layout.item_frag_song;
-                    MediaLoader.selectionByAlbum(getContext());
+                    resLayout = R.layout.item_frag_album;
+                    musics = MediaLoader.selectionByAlbum();
+                    //Log.i("TESTS", "album: "+musics.size());
                     break;
                 case 5: // Artist
                     resLayout = R.layout.item_frag_artist;
@@ -71,21 +69,41 @@ public class PlaceholderFragment extends Fragment {
                     break;
             }
         }
-
-        // TODO: Tab 마다 알맞은 데이터 로드
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_main, container, false);
 
-        // TODO: Tab 마다 알맞은 layout 설정
-        Log.i("TESTS", "PlaceHolderFragment"+MediaLoader.musicsByAlbum.size());
-
+        // Tab 마다 알맞은 layout 설정
         final RecyclerView rv_song = root.findViewById(R.id.rv_song);
-        rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-        rv_song.setAdapter(new RecyclerViewAdapter(getContext(), MediaLoader.musics, resLayout));
 
+        switch (resLayout) {
+            case R.layout.item_frag_favorite:
+                rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
+                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                break;
+            case R.layout.item_frag_playlist:
+                rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
+                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                break;
+            case R.layout.item_frag_song:
+                rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
+                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                break;
+            case R.layout.item_frag_album:
+                rv_song.setLayoutManager(new GridLayoutManager(root.getContext(), 2));
+                rv_song.setAdapter(new AlbumAdapter(getContext(), musics));
+                break;
+            case R.layout.item_frag_artist:
+                rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
+                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                break;
+            case R.layout.item_frag_folder:
+                rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
+                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                break;
+        }
         return root;
     }
 }
