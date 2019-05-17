@@ -73,6 +73,17 @@ public class MediaLoader {
         }
     }
 
+    public static List<Music> loadFavorite() {
+        // TODO: 음악마다 즐겨찾기 설정 or 취소 기능 추가
+        List<Music> favorite = new ArrayList<>(musics);
+
+        for (int i = 0; i < favorite.size(); i++) {
+
+        }
+
+
+        return favorite;
+    }
     public static List<Album> selectionByAlbum() {
 
         // TODO: musics 에 담겨있는 List 로 Album 분류한다.

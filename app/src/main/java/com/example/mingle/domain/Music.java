@@ -21,9 +21,6 @@ public class Music extends Common {
     //private int genre_id;
     //private String content_type;
 
-    // Additional Info.
-    private boolean favorite; // 즐겨찾기
-
     public int getId() {
         return id;
     }
@@ -129,13 +126,5 @@ public class Music extends Common {
 
     public void setIsMusic(String is_music) {
         this.isMusic = is_music;
-    }
-
-    public boolean isFavorite() {
-        return favorite;
-    }
-
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
     }
 }

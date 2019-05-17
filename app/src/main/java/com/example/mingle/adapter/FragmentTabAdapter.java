@@ -1,6 +1,7 @@
 package com.example.mingle.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.mingle.PlayerService;
 import com.example.mingle.R;
 import com.example.mingle.domain.Common;
 
@@ -88,6 +90,12 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
             iv_albumCover = view.findViewById(R.id.iv_albumCover);
             tv_title = view.findViewById(R.id.tv_title);
             tv_artist = view.findViewById(R.id.tv_artist);
+
+            layout_item.setOnClickListener(v -> {
+                Intent intent = new Intent(context, PlayerService.class);
+                intent.setAction(PlayerService.ACTION_PLAY);
+                context.startService(intent);
+            });
         }
     }
 }

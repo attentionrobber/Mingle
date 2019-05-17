@@ -24,12 +24,16 @@ public class MainActivity extends AppCompatActivity {
     // Glide for Using Adapter
     public RequestManager glideRequestManger;
 
+    // Interface to Control Music
+    PlayerInterface playerInterface;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         glideRequestManger = Glide.with(this);
+        playerInterface = new PlayerService();
 
         TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
@@ -40,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
 
         setWidget();
         init();
-
 
     }
 
@@ -79,8 +82,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.btn_next:
                 break;
             case R.id.layout_player_bot:
-                Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
-                startActivity(intent);
+                playerInterface.stop();
+//                Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+//                startActivity(intent);
                 break;
             default: break;
         }
