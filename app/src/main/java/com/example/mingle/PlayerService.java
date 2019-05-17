@@ -48,11 +48,10 @@ public class PlayerService extends Service implements PlayerInterface {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         Log.i("Service", "StartCommand");
 
-        if (mMediaPlayer == null)
-            init();
+        //if (mMediaPlayer == null)
+            init(intent);
 
         handleAction(intent);
 
@@ -62,12 +61,18 @@ public class PlayerService extends Service implements PlayerInterface {
     /**
      * 초기화
      */
-    private void init() {
-        Log.i("Service", "init");
+    private void init(Intent intent) {
+        //Log.i("Service", "init");
         if (mMediaPlayer != null)
             mMediaPlayer.release();
 
-        String strUri = "content://media/external/audio/media/967";
+//        String strUri = "content://media/external/audio/media/967";
+        String strUri = "";
+        if (intent.getExtras() != null) {
+            strUri = intent.getStringExtra("MusicUri");
+        } else
+            strUri = "content://media/external/audio/media/967";
+        Log.i("ServiceInit", ""+strUri);
         Uri mediaUri = Uri.parse(strUri);
         mMediaPlayer = MediaPlayer.create(this, mediaUri);
     }
@@ -91,7 +96,7 @@ public class PlayerService extends Service implements PlayerInterface {
         else if (action.equalsIgnoreCase(ACTION_STOP)) {
             stop();
         }
-        Log.i("Service", "init"+action);
+        //Log.i("Service", "init"+action);
 
 //        switch (intent.getAction()) {
 //            case Constants.ACTION.STARTFOREGROUND_ACTION: showNotification();
@@ -255,7 +260,7 @@ public class PlayerService extends Service implements PlayerInterface {
     @Override
     public void stop() {
         mMediaPlayer.stop();
-        stopForeground(true);
-        stopSelf();
+        //stopForeground(true);
+        //stopSelf();
     }
 }

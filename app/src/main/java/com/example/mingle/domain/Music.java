@@ -29,6 +29,7 @@ public class Music extends Common {
         this.id = id;
     }
 
+    @Override
     public Uri getUri() {
         return uri;
     }
