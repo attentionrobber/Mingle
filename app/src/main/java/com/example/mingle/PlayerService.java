@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -15,6 +16,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RemoteViews;
 
 import com.example.mingle.domain.Music;
@@ -272,21 +274,48 @@ public class PlayerService extends Service implements PlayerInterface {
 
     // update the Notification's UI
     private void updateNotification(){
+        // 현재 음악 재생중이면
         if (mMediaPlayer.isPlaying())
-            mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_pause);
+            mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_pause); // 노티바 버튼 변경
         else if (!mMediaPlayer.isPlaying())
-            mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_play);
+            mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_play); // 노티바 버튼 변경
 
-        Log.i("Service updateNoti", current_musics.get(position).getAlbumImgUri());
-        if (current_musics.get(position).getAlbumImgUri() != null)
-            mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(current_musics.get(position).getAlbumImgUri())); // notification's icon
+        // 앨범아트가 있는지 없는지 검사한다. 없으면 null 반환
+        Uri albumArtUri = existAlbumArt(getBaseContext(), current_musics.get(position).getAlbumImgUri());
+        if (albumArtUri != null)
+            mRemoteViews.setImageViewUri(R.id.iv_noti, albumArtUri); // set Album Artwork
         else
-            mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // notification's icon
+            mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // set default image
 
         mRemoteViews.setTextViewText(R.id.tv_notiTitle, current_musics.get(position).getTitle()); /// update the title
         mRemoteViews.setTextViewText(R.id.tv_notiContent, current_musics.get(position).getArtist()); // update the content
 
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());  // update the notification
+    }
+
+    /**
+     * check if AlbumArt is exist
+     * 앨범아트가 존재하는지 검사하는 함수.
+     */
+    private Uri existAlbumArt(Context mContext, String strUri) {
+        Uri mUri = Uri.parse(strUri);
+        Drawable d = null;
+        if (mUri != null) {
+            if ("content".equals(mUri.getScheme())) {
+                try {
+                    d = Drawable.createFromStream(mContext.getContentResolver().openInputStream(mUri), null);
+                } catch (Exception e) {
+                    Log.w("checkUriExists", "Unable to open content: " + mUri, e);
+                    mUri = null;
+                }
+            } else
+                d = Drawable.createFromPath(mUri.toString());
+
+            if (d == null)
+                mUri = null;
+        }
+
+        return mUri;
     }
 
 

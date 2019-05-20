@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="64dp"
     android:orientation="horizontal"
@@ -10,7 +12,7 @@
         android:id="@+id/iv_noti"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/default_album_image"/>
+        tools:src="@drawable/default_album_image"/>
 
     <GridLayout
         android:layout_width="0dp"
