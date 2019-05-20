@@ -24,7 +24,7 @@ public class Constants {
         BitmapFactory.Options options = new BitmapFactory.Options();
         try {
             bm = BitmapFactory.decodeResource(context.getResources(),
-                    R.mipmap.ic_launcher_round, options);
+                    R.drawable.default_album_image, options);
         } catch (Error ignored) {
         } catch (Exception ignored) {
         }

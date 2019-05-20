@@ -3,6 +3,7 @@ package com.example.mingle.domain;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+
 /**
  * Music 별표시 Favorite 체크
  */

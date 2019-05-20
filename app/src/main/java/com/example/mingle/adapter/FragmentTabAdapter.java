@@ -2,6 +2,9 @@ package com.example.mingle.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,16 +18,19 @@ import android.widget.TextView;
 import com.example.mingle.PlayerService;
 import com.example.mingle.R;
 import com.example.mingle.domain.Common;
+import com.example.mingle.domain.Music;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.ViewHolder> {
 
     private Context context;
-    private List<?> musicList;
+    private List<Music> musicList;
     private int item_frag_layout;
 
-    public FragmentTabAdapter(Context context, List<?> musicList, int resLayout) {
+    public FragmentTabAdapter(Context context, List<Music> musicList, int resLayout) {
         this.context = context;
         this.musicList = musicList;
         //Log.i("TESTS", "size: "+musicList.size());
@@ -61,11 +67,11 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
-        Common common = (Common) musicList.get(position);
+        Common common = musicList.get(position);
 
         holder.tv_title.setText(common.getTitle());
         holder.tv_artist.setText(common.getArtist());
-        holder.iv_albumCover.setImageURI(common.getAlbum_img());
+        holder.iv_albumCover.setImageURI(Uri.parse(common.getAlbumImgUri()));
         // TODO: Glide didn't Work. Need to Fix
 //        Glide.with(context).load(common.getAlbum_img())
 //                .placeholder(R.drawable.default_album_image)
@@ -75,10 +81,13 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, PlayerService.class);
-                intent.putExtra("MusicUri", common.getUri().toString());
+                Bundle extras = new Bundle();
+//                extras.putString("MusicUri", common.getMusicUri());
+                extras.putInt("position", position);
+                intent.putExtras(extras);
                 intent.setAction(PlayerService.ACTION_PLAY);
                 context.startService(intent);
-                Log.i("Service", ""+common.getUri().toString());
+                Log.i("Service", ""+position+" ee "+((Common) musicList.get(position)).getMusicUri());
             }
         });
     }

@@ -1,19 +1,18 @@
 package com.example.mingle.domain;
 
-import android.net.Uri;
 
 public class Music extends Common {
 
     // Music Info.
-    private int id; // MediaStore.Audio.Media._ID
-    private Uri uri; // Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, music_id+"");
+    private String path; // MediaStore.Audio.Media.DATA
+    private String musicUri; // Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, MediaStore.Audio.Media._ID).toString();
     private String title; // MediaStore.Audio.Media.TITLE
     private int artist_id; // MediaStore.Audio.Media.ARTIST_ID
     private String artist; // MediaStore.Audio.Media.ARTIST
     private String artist_key; // MediaStore.Audio.Media.ARTIST_KEY
     private int album_id; // MediaStore.Audio.Media.ALBUM_ID
     private String album; // MediaStore.Audio.Media.ALBUM
-    private Uri album_img; // Uri.parse("content://media/external/audio/albumart/" + music.album_id);
+    private String albumImgUri; // Uri.parse("content://media/external/audio/albumart/" + music.album_id);
     private String composer; // MediaStore.Audio.Media.COMPOSER
     private String year; // MediaStore.Audio.Media.YEAR
     private int duration; // MediaStore.Audio.Media.DURATION
@@ -21,21 +20,22 @@ public class Music extends Common {
     //private int genre_id;
     //private String content_type;
 
-    public int getId() {
-        return id;
+
+    public String getPath() {
+        return path;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     @Override
-    public Uri getUri() {
-        return uri;
+    public String getMusicUri() {
+        return musicUri;
     }
 
-    public void setUri(Uri music_uri) {
-        this.uri = music_uri;
+    public void setMusicUri(String musicUri) {
+        this.musicUri = musicUri;
     }
 
     @Override
@@ -89,12 +89,12 @@ public class Music extends Common {
     }
 
     @Override
-    public Uri getAlbum_img() {
-        return album_img;
+    public String getAlbumImgUri() {
+        return albumImgUri;
     }
 
-    public void setAlbum_img(Uri album_img) {
-        this.album_img = album_img;
+    public void setAlbumImgUri(String albumImgUri) {
+        this.albumImgUri = albumImgUri;
     }
 
     public String getComposer() {
@@ -128,4 +128,5 @@ public class Music extends Common {
     public void setIsMusic(String is_music) {
         this.isMusic = is_music;
     }
+
 }

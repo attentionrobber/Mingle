@@ -14,6 +14,7 @@ import com.example.mingle.MediaLoader;
 import com.example.mingle.R;
 import com.example.mingle.adapter.AlbumAdapter;
 import com.example.mingle.adapter.FragmentTabAdapter;
+import com.example.mingle.domain.Music;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public class PlaceholderFragment extends Fragment {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
 
-    private List<?> musics = new ArrayList<>();
+    private List<Music> musics = new ArrayList<>();
     private int resLayout = R.layout.item_frag_song;
 
     public static PlaceholderFragment newInstance(int index) {

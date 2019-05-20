@@ -1,6 +1,7 @@
 package com.example.mingle.adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -40,7 +41,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
 
         holder.tv_albumTitle.setText(album.getAlbum());
         holder.tv_artist.setText(album.getArtist()+" "+album.getCount()+"곡");
-        holder.iv_albumCover.setImageURI(album.getAlbum_img());
+        holder.iv_albumCover.setImageURI(Uri.parse(album.getAlbumImgUri()));
         // TODO: Glide didn't Work. Need to Fix
 //        Glide.with(context).load(common.getAlbum_img())
 //                .placeholder(R.drawable.default_album_image)

@@ -4,14 +4,21 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
+
+import com.example.mingle.domain.Music;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 서비스로 실행되는 음악 플레이어 (노티바도 포함)
@@ -21,6 +28,8 @@ public class PlayerService extends Service implements PlayerInterface {
 
     // Media
     public static MediaPlayer mMediaPlayer = null;
+    private List<Music> current_musics = new ArrayList<>();
+    private int position = 0;
 
     // Actions to control media
     public static final String ACTION_INIT = "ACTION_INIT";
@@ -48,10 +57,10 @@ public class PlayerService extends Service implements PlayerInterface {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("Service", "StartCommand");
+        Log.i("Service", "StartCommand. flags:"+flags+" startId: "+startId);
 
-        //if (mMediaPlayer == null)
-            init(intent);
+
+        init(intent);
 
         handleAction(intent);
 
@@ -66,15 +75,21 @@ public class PlayerService extends Service implements PlayerInterface {
         if (mMediaPlayer != null)
             mMediaPlayer.release();
 
-//        String strUri = "content://media/external/audio/media/967";
-        String strUri = "";
+        String strUri;
         if (intent.getExtras() != null) {
-            strUri = intent.getStringExtra("MusicUri");
-        } else
+            Bundle extras = intent.getExtras();
+            current_musics = MediaLoader.musics; // TODO: Fix it
+            position = extras.getInt("position");
+//            strUri = extras.getString("MusicUri");
+            strUri = current_musics.get(position).getMusicUri();
+        } else // Noti Bar 에서 Intent 가 여기로 오고있는 중. 수정필요
             strUri = "content://media/external/audio/media/967";
+
+
         Log.i("ServiceInit", ""+strUri);
         Uri mediaUri = Uri.parse(strUri);
         mMediaPlayer = MediaPlayer.create(this, mediaUri);
+        mMediaPlayer.setOnCompletionListener(mp -> next());
     }
 
     // Intent Action 에 넘어온 명령어를 분기시키는 함수
@@ -84,7 +99,7 @@ public class PlayerService extends Service implements PlayerInterface {
 
         String action = intent.getAction();
         if (action.equalsIgnoreCase(ACTION_PLAY)) {
-            showNotification();
+            createNotification();
             play();
         }
         else if (action.equalsIgnoreCase(ACTION_PAUSE))
@@ -168,7 +183,7 @@ public class PlayerService extends Service implements PlayerInterface {
 //    }
 
 
-    private void showNotification() {
+    private void createNotification() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             // Using RemoteViews to bind custom layouts into Notification
@@ -186,60 +201,60 @@ public class PlayerService extends Service implements PlayerInterface {
             PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, notificationIntent, 0);
 
             Intent prevIntent = new Intent(this, PlayerService.class);
-            Intent playIntent = new Intent(this, PlayerService.class);
-            Intent nextIntent = new Intent(this, PlayerService.class);
-            Intent stopIntent = new Intent(this, PlayerService.class);
             prevIntent.setAction(ACTION_PREV);
-            playIntent.setAction(ACTION_PLAY);
-            nextIntent.setAction(ACTION_NEXT);
-            stopIntent.setAction(ACTION_STOP);
             PendingIntent pPrevIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, prevIntent, 0);
-            PendingIntent pPlayIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, playIntent, 0);
-            PendingIntent pNextIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, nextIntent, 0);
-            PendingIntent pStopIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, stopIntent, 0);
-
-            views.setOnClickPendingIntent(R.id.status_bar_play, pPlayIntent);
-            bigViews.setOnClickPendingIntent(R.id.status_bar_play, pPlayIntent);
-
-            views.setOnClickPendingIntent(R.id.status_bar_next, pNextIntent);
-            bigViews.setOnClickPendingIntent(R.id.status_bar_next, pNextIntent);
-
             views.setOnClickPendingIntent(R.id.status_bar_prev, pPrevIntent);
             bigViews.setOnClickPendingIntent(R.id.status_bar_prev, pPrevIntent);
 
+            Intent playIntent = new Intent(this, PlayerService.class);
+            playIntent.setAction(ACTION_PLAY);
+            PendingIntent pPlayIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, playIntent, 0);
+            views.setOnClickPendingIntent(R.id.status_bar_play, pPlayIntent);
+            bigViews.setOnClickPendingIntent(R.id.status_bar_play, pPlayIntent);
+
+            Intent nextIntent = new Intent(this, PlayerService.class);
+            nextIntent.setAction(ACTION_NEXT);
+            PendingIntent pNextIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, nextIntent, 0);
+            views.setOnClickPendingIntent(R.id.status_bar_next, pNextIntent);
+            bigViews.setOnClickPendingIntent(R.id.status_bar_next, pNextIntent);
+
+            Intent stopIntent = new Intent(this, PlayerService.class);
+            stopIntent.setAction(ACTION_STOP);
+            PendingIntent pStopIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, stopIntent, 0);
             views.setOnClickPendingIntent(R.id.status_bar_collapse, pStopIntent);
             bigViews.setOnClickPendingIntent(R.id.status_bar_collapse, pStopIntent);
 
             views.setImageViewResource(R.id.status_bar_play, R.drawable.apollo_holo_dark_pause);
             bigViews.setImageViewResource(R.id.status_bar_play, R.drawable.apollo_holo_dark_pause);
 
-            views.setTextViewText(R.id.status_bar_track_name, "Song Title");
-            bigViews.setTextViewText(R.id.status_bar_track_name, "Song Title");
-
-            views.setTextViewText(R.id.status_bar_artist_name, "Artist Name");
-            bigViews.setTextViewText(R.id.status_bar_artist_name, "Artist Name");
-
-            bigViews.setTextViewText(R.id.status_bar_album_name, "Album Name");
+            views.setTextViewText(R.id.status_bar_track_name, current_musics.get(position).getTitle());
+            bigViews.setTextViewText(R.id.status_bar_track_name, current_musics.get(position).getTitle());
+            views.setTextViewText(R.id.status_bar_artist_name, current_musics.get(position).getArtist());
+            bigViews.setTextViewText(R.id.status_bar_artist_name, current_musics.get(position).getArtist());
+            bigViews.setTextViewText(R.id.status_bar_album_name, current_musics.get(position).getAlbum());
 
             Notification status = new Notification.Builder(this).build();
+
             status.contentView = views;
             status.bigContentView = bigViews;
-            //status.flags = Notification.FLAG_ONGOING_EVENT;
-            status.icon = R.mipmap.ic_launcher; // TODO: SET ALBUM COVER
+            status.flags = Notification.FLAG_ONGOING_EVENT;
+            status.icon = R.mipmap.ic_launcher; // TODO 앨범커버로 바꾸기
+            //status.icon = convertUriToResInt(current_musics.get(position).getAlbumImgUri());
             status.contentIntent = pendingIntent;
             startForeground(NOTIFICATION_ID, status);
         }
     }
 
+    /**
+     * Uri 를 Resource ID 로 바꿔주는 함수(not working)
+     */
+    private int convertUriToResInt(String uriStr) {
+        return getResources().getIdentifier(uriStr, "raw", getBaseContext().getPackageName());
+    }
+
     @Override
     public void play() {
-        //createNotification(ACTION_PLAY);
         mMediaPlayer.start();
-
-//        if (mMediaPlayer.isPlaying()) {
-//            //createNotification(ACTION_PAUSE);
-//            mMediaPlayer.pause();
-//        }
     }
 
     @Override
@@ -249,18 +264,44 @@ public class PlayerService extends Service implements PlayerInterface {
 
     @Override
     public void prev() {
-        // TODO: add prev
+        if (position > 0)
+            position = position - 1;
+
+        Uri uri = Uri.parse(current_musics.get(position).getMusicUri());
+        mMediaPlayer.release();
+        mMediaPlayer = MediaPlayer.create(this, uri);
+        //mMediaPlayer.setDataSource(this, uri);
+        mMediaPlayer.start();
+
+        createNotification();
     }
 
     @Override
     public void next() {
-        // TODO: add next
+        if (current_musics.size() > position)
+            position = position + 1;
+
+        Uri uri = Uri.parse(current_musics.get(position).getMusicUri());
+        mMediaPlayer.release();
+        mMediaPlayer = MediaPlayer.create(this, uri);
+        mMediaPlayer.start();
+
+        createNotification();
     }
 
     @Override
     public void stop() {
         mMediaPlayer.stop();
-        //stopForeground(true);
-        //stopSelf();
+        stopForeground(true);
+        stopSelf();
     }
+
+    @Override
+    public void onDestroy() {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+    }
+
 }

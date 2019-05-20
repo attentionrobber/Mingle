@@ -1,12 +1,10 @@
 package com.example.mingle.domain;
 
-import android.net.Uri;
-
 public class Album extends Music {
 
     private int album_id; // MediaStore.Audio.Media.ALBUM_ID
     private String album; // MediaStore.Audio.Media.ALBUM
-    private Uri album_img; // Uri.parse("content://media/external/audio/albumart/" + music.album_id);
+    private String albumImgUri; // Uri.parse("content://media/external/audio/albumart/" + music.album_id);
     private String artist; // MediaStore.Audio.Media.ARTIST
     private int artist_id; // MediaStore.Audio.Media.ARTIST_ID
     private String title; // MediaStore.Audio.Media.TITLE
@@ -33,13 +31,13 @@ public class Album extends Music {
     }
 
     @Override
-    public Uri getAlbum_img() {
-        return album_img;
+    public String getAlbumImgUri() {
+        return albumImgUri;
     }
 
     @Override
-    public void setAlbum_img(Uri album_img) {
-        this.album_img = album_img;
+    public void setAlbumImgUri(String albumImgUri) {
+        this.albumImgUri = albumImgUri;
     }
 
     @Override

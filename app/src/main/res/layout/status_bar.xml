@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:background="#000000">
+    android:background="#22000000">
 
     <ImageView
         android:id="@+id/status_bar_album_art"
