@@ -39,6 +39,7 @@ public class PlayerService extends Service implements PlayerInterface {
     public static final String ACTION_MAIN = "ACTION_INIT";
     public static final String ACTION_PLAY = "ACTION_PLAY";
     public static final String ACTION_PAUSE = "ACTION_PAUSE";
+    public static final String ACTION_PLAYPAUSE = "ACTION_PLAYPAUSE";
     public static final String ACTION_STOP = "ACTION_STOP";
     public static final String ACTION_PREV = "ACTION_PREV";
     public static final String ACTION_NEXT = "ACTION_NEXT";
@@ -56,6 +57,7 @@ public class PlayerService extends Service implements PlayerInterface {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.i("Service", "onBind");
         // Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
@@ -64,9 +66,12 @@ public class PlayerService extends Service implements PlayerInterface {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i("Service", "StartCommand. flags:"+flags+" startId: "+startId);
 
-        init(intent);
-
-        handleAction(intent);
+        if (intent.getExtras() != null && intent.getAction() != null) {
+            init(intent); // both extras and action
+            handleAction(intent);
+        } else if (intent.getExtras() == null && intent.getAction() != null) {
+            handleAction(intent); // only action
+        }
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -75,7 +80,9 @@ public class PlayerService extends Service implements PlayerInterface {
      * 초기화
      */
     private void init(Intent intent) {
-        //Log.i("Service", "init");
+        if(intent == null || intent.getExtras() == null)
+            return;
+
         if (mMediaPlayer != null)
             mMediaPlayer.release();
 
@@ -85,11 +92,10 @@ public class PlayerService extends Service implements PlayerInterface {
             current_musics = MediaLoader.musics; // TODO: Fix it
             position = extras.getInt("position");
             strUri = current_musics.get(position).getMusicUri();
-        } else // Noti Bar 에서 Intent 가 여기로 오고있는 중. 수정필요
+        } else // Noti Bar 에서 명령한 Intent 가 여기로 오고있는 중. 수정필요
             strUri = "content://media/external/audio/media/967";
 
-
-        Log.i("ServiceInit", ""+strUri);
+        Log.i("Service init()", ""+strUri);
         Uri mediaUri = Uri.parse(strUri);
         mMediaPlayer = MediaPlayer.create(this, mediaUri);
         mMediaPlayer.setOnCompletionListener(mp -> next());
@@ -107,6 +113,8 @@ public class PlayerService extends Service implements PlayerInterface {
         }
         else if (action.equalsIgnoreCase(ACTION_PAUSE))
             pause();
+        else if (action.equalsIgnoreCase(ACTION_PLAYPAUSE))
+            playPause();
         else if (action.equalsIgnoreCase(ACTION_PREV))
             prev();
         else if (action.equalsIgnoreCase(ACTION_NEXT))
@@ -190,7 +198,7 @@ public class PlayerService extends Service implements PlayerInterface {
             status.contentView = views;
             status.bigContentView = bigViews;
             status.flags = Notification.FLAG_ONGOING_EVENT;
-            status.icon = R.mipmap.ic_launcher; // TODO 앨범커버로 바꾸기
+            status.icon = R.mipmap.ic_launcher;
             //status.icon = convertUriToResInt(current_musics.get(position).getAlbumImgUri());
             status.contentIntent = pendingIntent;
             startForeground(NOTIFICATION_ID, status);
@@ -220,7 +228,11 @@ public class PlayerService extends Service implements PlayerInterface {
 
         // Set Notification's layout
         mRemoteViews = new RemoteViews(getPackageName(), R.layout.notification_small);
-        mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(current_musics.get(position).getAlbumImgUri())); // notification's icon
+        if (current_musics.get(position).getAlbumImgUri() != null) {
+            mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(current_musics.get(position).getAlbumImgUri())); // notification's icon
+        } else {
+            mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // notification's icon
+        }
         mRemoteViews.setTextViewText(R.id.tv_notiTitle, current_musics.get(position).getTitle()); // notification's title
         mRemoteViews.setTextViewText(R.id.tv_notiContent, current_musics.get(position).getArtist()); // notification's content
 
@@ -230,10 +242,10 @@ public class PlayerService extends Service implements PlayerInterface {
         PendingIntent pPrevIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, prevIntent, 0);
         mRemoteViews.setOnClickPendingIntent(R.id.btn_notiPrev, pPrevIntent);
         // Add Button Pause
-        Intent playIntent = new Intent(this, PlayerService.class);
-        playIntent.setAction(ACTION_PAUSE);
-        PendingIntent pPlayIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, playIntent, 0);
-        mRemoteViews.setOnClickPendingIntent(R.id.btn_notiPause, pPlayIntent);
+        Intent pauseIntent = new Intent(this, PlayerService.class);
+        pauseIntent.setAction(ACTION_PLAYPAUSE);
+        PendingIntent pPauseIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, pauseIntent, 0);
+        mRemoteViews.setOnClickPendingIntent(R.id.btn_notiPlayPause, pPauseIntent);
         // Add Button Next
         Intent nextIntent = new Intent(this, PlayerService.class);
         nextIntent.setAction(ACTION_NEXT);
@@ -259,15 +271,18 @@ public class PlayerService extends Service implements PlayerInterface {
     }
 
     // update the Notification's UI
-    private void updateNotification(String action){
+    private void updateNotification(){
+        if (mMediaPlayer.isPlaying())
+            mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_pause);
+        else if (!mMediaPlayer.isPlaying())
+            mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_play);
 
-        if (action.equals(ACTION_PAUSE)) {
-            mRemoteViews.setImageViewResource(R.id.btn_notiPause, android.R.drawable.ic_media_play);
-        } else if (action.equals(ACTION_PLAY)) {
-            mRemoteViews.setImageViewResource(R.id.btn_notiPause, android.R.drawable.ic_media_pause);
-        }
+        Log.i("Service updateNoti", current_musics.get(position).getAlbumImgUri());
+        if (current_musics.get(position).getAlbumImgUri() != null)
+            mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(current_musics.get(position).getAlbumImgUri())); // notification's icon
+        else
+            mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // notification's icon
 
-        //mRemoteViews.setImageViewResource(R.id.notif_icon, R.drawable.icon_off2); // update the icon
         mRemoteViews.setTextViewText(R.id.tv_notiTitle, current_musics.get(position).getTitle()); /// update the title
         mRemoteViews.setTextViewText(R.id.tv_notiContent, current_musics.get(position).getArtist()); // update the content
 
@@ -278,12 +293,23 @@ public class PlayerService extends Service implements PlayerInterface {
     @Override
     public void play() {
         mMediaPlayer.start();
+        updateNotification();
     }
 
     @Override
     public void pause() {
         mMediaPlayer.pause();
-        updateNotification(ACTION_PAUSE);
+        updateNotification();
+    }
+
+    @Override
+    public void playPause() {
+        if (mMediaPlayer.isPlaying())
+            mMediaPlayer.pause();
+        else
+            mMediaPlayer.start();
+
+        updateNotification();
     }
 
     @Override
@@ -301,7 +327,7 @@ public class PlayerService extends Service implements PlayerInterface {
             e.printStackTrace();
         }
 
-        updateNotification(ACTION_PREV);
+        updateNotification();
     }
 
     @Override
@@ -319,18 +345,19 @@ public class PlayerService extends Service implements PlayerInterface {
             e.printStackTrace();
         }
 
-        updateNotification(ACTION_NEXT);
+        updateNotification();
     }
 
     @Override
     public void stop() {
         mMediaPlayer.stop();
         stopForeground(true);
-        stopSelf();
+        stopSelf(); // Stop Service
     }
 
     @Override
     public void onDestroy() {
+        Log.i("Service", "onDestroy");
         if (mMediaPlayer != null) {
             mMediaPlayer.release();
             mMediaPlayer = null;

@@ -83,9 +83,11 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.layout_player_bot:
 //                playerInterface.stop();
-                if (PlayerService.mMediaPlayer.isPlaying())
-                    PlayerService.mMediaPlayer.pause();
-                else PlayerService.mMediaPlayer.start();
+                if (PlayerService.mMediaPlayer != null) {
+                    if (PlayerService.mMediaPlayer.isPlaying())
+                        PlayerService.mMediaPlayer.pause();
+                    else PlayerService.mMediaPlayer.start();
+                }
 //                Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
 //                startActivity(intent);
                 break;

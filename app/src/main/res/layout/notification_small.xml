@@ -50,7 +50,7 @@
             android:contentDescription="@string/cd_play"
             android:src="@android:drawable/ic_media_previous" />
         <ImageButton
-            android:id="@+id/btn_notiPause"
+            android:id="@+id/btn_notiPlayPause"
             android:layout_width="45dp"
             android:layout_height="wrap_content"
             android:contentDescription="@string/cd_next"

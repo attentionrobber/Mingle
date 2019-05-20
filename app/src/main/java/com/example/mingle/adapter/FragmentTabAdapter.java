@@ -87,7 +87,7 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
                 intent.putExtras(extras);
                 intent.setAction(PlayerService.ACTION_PLAY);
                 context.startService(intent);
-                Log.i("Service", ""+position+" ee "+((Common) musicList.get(position)).getMusicUri());
+                Log.i("Service - TabAdapter", ""+position+" | "+((Common) musicList.get(position)).getMusicUri());
             }
         });
     }
