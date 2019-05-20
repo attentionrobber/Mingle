@@ -1,8 +1,10 @@
 package com.example.mingle;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
@@ -17,6 +19,7 @@ import android.widget.RemoteViews;
 
 import com.example.mingle.domain.Music;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,9 +44,11 @@ public class PlayerService extends Service implements PlayerInterface {
     public static final String ACTION_NEXT = "ACTION_NEXT";
 
     // Notification
-    private Notification.Builder builder;
-    private NotificationCompat.Builder builder2;
-    private static final int NOTIFICATION_ID = 1;
+    private static final int NOTIFICATION_ID = 1234;
+    private NotificationCompat.Builder mBuilder;
+    private NotificationManager mNotificationManager;
+    private RemoteViews mRemoteViews;
+    private Notification mNotification;
 
 
     public PlayerService() {
@@ -58,7 +63,6 @@ public class PlayerService extends Service implements PlayerInterface {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i("Service", "StartCommand. flags:"+flags+" startId: "+startId);
-
 
         init(intent);
 
@@ -80,7 +84,6 @@ public class PlayerService extends Service implements PlayerInterface {
             Bundle extras = intent.getExtras();
             current_musics = MediaLoader.musics; // TODO: Fix it
             position = extras.getInt("position");
-//            strUri = extras.getString("MusicUri");
             strUri = current_musics.get(position).getMusicUri();
         } else // Noti Bar 에서 Intent 가 여기로 오고있는 중. 수정필요
             strUri = "content://media/external/audio/media/967";
@@ -99,7 +102,7 @@ public class PlayerService extends Service implements PlayerInterface {
 
         String action = intent.getAction();
         if (action.equalsIgnoreCase(ACTION_PLAY)) {
-            createNotification();
+            setUpNotification();
             play();
         }
         else if (action.equalsIgnoreCase(ACTION_PAUSE))
@@ -132,57 +135,6 @@ public class PlayerService extends Service implements PlayerInterface {
     /**
      * NotificationBar 만드는 함수
      */
-//    private void createNotification(String action) {
-//
-//        NotificationManager notificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
-//
-//        if (Build.VERSION.SDK_INT >= 20) {
-//            builder = new Notification.Builder(this);
-//            builder.setStyle(new Notification.BigTextStyle(builder))
-//                    .setSmallIcon(R.mipmap.ic_launcher)
-//                    .setContentTitle("setTitle")
-//                    .setContentText("setText");
-//            builder.addAction(generateAction(ACTION_PREV, android.R.drawable.ic_media_previous, ""));
-//            builder.addAction(generateAction(action, android.R.drawable.ic_media_pause, ""));
-//            builder.addAction(generateAction(ACTION_NEXT, android.R.drawable.ic_media_next, ""));
-//
-//            notificationManager.notify(NOTIFICATION_ID, builder.build()); // 노티바를 띄운다. 첫번째 인자는 notification 닫을 때 id 값이 들어간다.
-//            Log.i("Service", "builder1");
-//        } else {
-//            builder2 = new NotificationCompat.Builder(this);
-//            builder2.setSmallIcon(R.mipmap.ic_launcher)
-//                    .setContentTitle("setTitle")
-//                    .setContentText("setText");
-//            builder2.addAction(generateAction2(ACTION_PREV, android.R.drawable.ic_media_previous, ""));
-//            builder2.addAction(generateAction2(action, android.R.drawable.ic_media_pause, ""));
-//            builder2.addAction(generateAction2(ACTION_NEXT, android.R.drawable.ic_media_next, ""));
-//
-//            notificationManager.notify(NOTIFICATION_ID, builder2.build()); // 노티바를 띄운다. 첫번째 인자는 notification 닫을 때 id 값이 들어간다.
-//        }
-//    }
-//
-//    /**
-//     * Notification Action 을 생성한다.
-//     */
-//    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH) // API 20
-//    private Notification.Action generateAction(String action, int icon, String title) {
-//        Intent intent = new Intent(getApplicationContext(), PlayerService.class);
-//        intent.setAction(action);
-//        // PendingIntent : 실행 대상이 되는 인텐트를 지연시키는 역할
-//        PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
-//
-//        return new Notification.Action.Builder(icon, title, pendingIntent).build();
-//    }
-//    private NotificationCompat.Action generateAction2(String action, int icon, String title) {
-//        Intent intent = new Intent(getApplicationContext(), PlayerService.class);
-//        intent.setAction(action);
-//        // PendingIntent : 실행 대상이 되는 인텐트를 지연시키는 역할
-//        PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
-//
-//        return new NotificationCompat.Action.Builder(icon, title, pendingIntent).build();
-//    }
-
-
     private void createNotification() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -252,6 +204,77 @@ public class PlayerService extends Service implements PlayerInterface {
         return getResources().getIdentifier(uriStr, "raw", getBaseContext().getPackageName());
     }
 
+
+    /**
+     * init Notification
+     */
+    private void setUpNotification(){
+
+        // TODO 위에있는 노티바함수 이걸로 바꾸기
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Create Notification
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Set Notification's layout
+        mRemoteViews = new RemoteViews(getPackageName(), R.layout.notification_small);
+        mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(current_musics.get(position).getAlbumImgUri())); // notification's icon
+        mRemoteViews.setTextViewText(R.id.tv_notiTitle, current_musics.get(position).getTitle()); // notification's title
+        mRemoteViews.setTextViewText(R.id.tv_notiContent, current_musics.get(position).getArtist()); // notification's content
+
+        // Add Button Preview
+        Intent prevIntent = new Intent(this, PlayerService.class);
+        prevIntent.setAction(ACTION_PREV);
+        PendingIntent pPrevIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, prevIntent, 0);
+        mRemoteViews.setOnClickPendingIntent(R.id.btn_notiPrev, pPrevIntent);
+        // Add Button Pause
+        Intent playIntent = new Intent(this, PlayerService.class);
+        playIntent.setAction(ACTION_PAUSE);
+        PendingIntent pPlayIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, playIntent, 0);
+        mRemoteViews.setOnClickPendingIntent(R.id.btn_notiPause, pPlayIntent);
+        // Add Button Next
+        Intent nextIntent = new Intent(this, PlayerService.class);
+        nextIntent.setAction(ACTION_NEXT);
+        PendingIntent pNextIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, nextIntent, 0);
+        mRemoteViews.setOnClickPendingIntent(R.id.btn_notiNext, pNextIntent);
+        // Add Button Close
+        Intent closeIntent = new Intent(this, PlayerService.class);
+        closeIntent.setAction(ACTION_STOP);
+        PendingIntent pCloseIntent = PendingIntent.getService(getApplicationContext(), NOTIFICATION_ID, closeIntent, 0);
+        mRemoteViews.setOnClickPendingIntent(R.id.btn_notiClose, pCloseIntent);
+
+
+        mBuilder = new NotificationCompat.Builder(this);
+        CharSequence ticker = "ticker"; // 노티바 생성시 상태표시줄에 처음 표시되는 글자
+        mBuilder.setSmallIcon(R.drawable.default_album_image) // 맨위 상태표시줄에 작은아이콘
+                .setAutoCancel(false)
+                .setOngoing(true)
+                .setContentIntent(pendIntent)
+                .setContent(mRemoteViews)
+                .setTicker(ticker);
+
+        startForeground(NOTIFICATION_ID, mBuilder.build()); // starting service with notification in foreground mode
+    }
+
+    // update the Notification's UI
+    private void updateNotification(String action){
+
+        if (action.equals(ACTION_PAUSE)) {
+            mRemoteViews.setImageViewResource(R.id.btn_notiPause, android.R.drawable.ic_media_play);
+        } else if (action.equals(ACTION_PLAY)) {
+            mRemoteViews.setImageViewResource(R.id.btn_notiPause, android.R.drawable.ic_media_pause);
+        }
+
+        //mRemoteViews.setImageViewResource(R.id.notif_icon, R.drawable.icon_off2); // update the icon
+        mRemoteViews.setTextViewText(R.id.tv_notiTitle, current_musics.get(position).getTitle()); /// update the title
+        mRemoteViews.setTextViewText(R.id.tv_notiContent, current_musics.get(position).getArtist()); // update the content
+
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());  // update the notification
+    }
+
+
     @Override
     public void play() {
         mMediaPlayer.start();
@@ -260,6 +283,7 @@ public class PlayerService extends Service implements PlayerInterface {
     @Override
     public void pause() {
         mMediaPlayer.pause();
+        updateNotification(ACTION_PAUSE);
     }
 
     @Override
@@ -268,12 +292,16 @@ public class PlayerService extends Service implements PlayerInterface {
             position = position - 1;
 
         Uri uri = Uri.parse(current_musics.get(position).getMusicUri());
-        mMediaPlayer.release();
-        mMediaPlayer = MediaPlayer.create(this, uri);
-        //mMediaPlayer.setDataSource(this, uri);
-        mMediaPlayer.start();
+        try {
+            mMediaPlayer.reset();
+            mMediaPlayer.setDataSource(getBaseContext(), uri);
+            mMediaPlayer.prepare();
+            mMediaPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        createNotification();
+        updateNotification(ACTION_PREV);
     }
 
     @Override
@@ -282,11 +310,16 @@ public class PlayerService extends Service implements PlayerInterface {
             position = position + 1;
 
         Uri uri = Uri.parse(current_musics.get(position).getMusicUri());
-        mMediaPlayer.release();
-        mMediaPlayer = MediaPlayer.create(this, uri);
-        mMediaPlayer.start();
+        try {
+            mMediaPlayer.reset();
+            mMediaPlayer.setDataSource(getBaseContext(), uri);
+            mMediaPlayer.prepare();
+            mMediaPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        createNotification();
+        updateNotification(ACTION_NEXT);
     }
 
     @Override

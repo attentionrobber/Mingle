@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:orientation="horizontal"
+    android:id="@+id/layout_noti"
+    android:background="#00000000">
+
+    <ImageView
+        android:id="@+id/iv_noti"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/default_album_image"/>
+
+    <GridLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="4"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tv_notiTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:text="@string/app_name"/>
+        <TextView
+            android:id="@+id/tv_notiContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textSize="13sp"
+            android:textColor="#AAAAAA"
+            android:text="Content" />
+    </GridLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="6"
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal">
+        <ImageButton
+            android:id="@+id/btn_notiPrev"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/cd_play"
+            android:src="@android:drawable/ic_media_previous" />
+        <ImageButton
+            android:id="@+id/btn_notiPause"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/cd_next"
+            android:src="@android:drawable/ic_media_pause" />
+        <ImageButton
+            android:id="@+id/btn_notiNext"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/cd_next"
+            android:src="@android:drawable/ic_media_next" />
+        <ImageButton
+            android:id="@+id/btn_notiClose"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/cd_close"
+            android:src="@android:drawable/ic_menu_close_clear_cancel" />
+    </LinearLayout>
+</LinearLayout>
