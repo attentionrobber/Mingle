@@ -1,5 +1,8 @@
 package com.example.mingle.ui.main;
 
+import android.app.Activity;
+import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,8 +13,11 @@ import android.view.ViewGroup;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.example.mingle.MediaLoader;
 import com.example.mingle.R;
+import com.example.mingle.SongFragment;
 import com.example.mingle.adapter.AlbumAdapter;
 import com.example.mingle.adapter.FragmentTabAdapter;
 import com.example.mingle.domain.Music;
@@ -27,7 +33,18 @@ public class PlaceholderFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
 
     private List<Music> musics = new ArrayList<>();
+    private FragmentTabAdapter adapter;
     private int resLayout = R.layout.item_frag_song;
+
+
+    private FragmentListener mListener;
+
+    public interface FragmentListener {
+        void onRecyclerViewItemClicked(Music music);
+    }
+
+    public PlaceholderFragment() {
+    }
 
     public static PlaceholderFragment newInstance(int index) {
         PlaceholderFragment fragment = new PlaceholderFragment();
@@ -40,10 +57,10 @@ public class PlaceholderFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         int index;
         if (getArguments() != null) {
             index = getArguments().getInt(ARG_SECTION_NUMBER);
-
             // TODO: Tab 마다 알맞은 데이터 로드
             switch (index) {
                 case 1: // Favorite
@@ -79,18 +96,30 @@ public class PlaceholderFragment extends Fragment {
         // Tab 마다 알맞은 layout 설정
         final RecyclerView rv_song = root.findViewById(R.id.rv_song);
 
+        FragmentTabAdapter.AdapterListener adapterListener = new FragmentTabAdapter.AdapterListener() {
+            @Override
+            public void getCurrentMusic(Music music) {
+                mListener.onRecyclerViewItemClicked(music);
+            }
+        };
+
         switch (resLayout) {
             case R.layout.item_frag_favorite:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
+                rv_song.setAdapter(adapter);
                 break;
             case R.layout.item_frag_playlist:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                //rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
+                rv_song.setAdapter(adapter);
                 break;
             case R.layout.item_frag_song:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                //rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
+                rv_song.setAdapter(adapter);
                 break;
             case R.layout.item_frag_album:
                 rv_song.setLayoutManager(new GridLayoutManager(root.getContext(), 2));
@@ -98,13 +127,42 @@ public class PlaceholderFragment extends Fragment {
                 break;
             case R.layout.item_frag_artist:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                //rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
+                rv_song.setAdapter(adapter);
                 break;
             case R.layout.item_frag_folder:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                //rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
+                rv_song.setAdapter(adapter);
+                break;
+            default:
+                rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
+                //rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
+                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
+                rv_song.setAdapter(adapter);
                 break;
         }
+
         return root;
     }
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof PlaceholderFragment.FragmentListener) {
+            mListener = (PlaceholderFragment.FragmentListener) context;
+        } else {
+            throw new RuntimeException(context.toString()+" must implement FragmentListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
 }

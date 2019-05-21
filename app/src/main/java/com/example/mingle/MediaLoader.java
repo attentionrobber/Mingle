@@ -1,5 +1,6 @@
 package com.example.mingle;
 
+import android.app.Notification;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -32,9 +33,12 @@ public class MediaLoader {
             MediaStore.Audio.Media.ALBUM_ID,    // 6, int album_id
             MediaStore.Audio.Media.ALBUM,       // 7, String album
             MediaStore.Audio.Media.COMPOSER,    // 8, String composer
-            MediaStore.Audio.Media.YEAR,        // 9, String year
+//            MediaStore.Audio.Media.YEAR,        // 9, String year
+            MediaStore.Audio.Media.MIME_TYPE,
             MediaStore.Audio.Media.DURATION,    // 10, int duration
-            MediaStore.Audio.Media.IS_MUSIC     // 11, String isMusic
+//            MediaStore.Audio.Media.IS_MUSIC,     // 11, String isMusic
+            MediaStore.Audio.Media.DATE_MODIFIED
+
             //MediaStore.Audio.Genres.NAME
     };
 

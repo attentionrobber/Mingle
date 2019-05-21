@@ -33,7 +33,8 @@ public class PlayerService extends Service implements PlayerInterface {
 
     // Media
     public static MediaPlayer mMediaPlayer = null;
-    private List<Music> current_musics = new ArrayList<>();
+    public static Music cur_music = new Music();
+    private List<Music> cur_musics = new ArrayList<>();
     private int position = 0;
 
     // Actions to control media
@@ -91,9 +92,10 @@ public class PlayerService extends Service implements PlayerInterface {
         String strUri;
         if (intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
-            current_musics = MediaLoader.musics; // TODO: Fix it
+            cur_musics = MediaLoader.musics; // TODO: Fix it
             position = extras.getInt("position");
-            strUri = current_musics.get(position).getMusicUri();
+            cur_music = cur_musics.get(position);
+            strUri = cur_musics.get(position).getMusicUri();
         } else // Noti Bar 에서 명령한 Intent 가 여기로 오고있는 중. 수정필요
             strUri = "content://media/external/audio/media/967";
 
@@ -189,11 +191,11 @@ public class PlayerService extends Service implements PlayerInterface {
             views.setImageViewResource(R.id.status_bar_play, R.drawable.apollo_holo_dark_pause);
             bigViews.setImageViewResource(R.id.status_bar_play, R.drawable.apollo_holo_dark_pause);
 
-            views.setTextViewText(R.id.status_bar_track_name, current_musics.get(position).getTitle());
-            bigViews.setTextViewText(R.id.status_bar_track_name, current_musics.get(position).getTitle());
-            views.setTextViewText(R.id.status_bar_artist_name, current_musics.get(position).getArtist());
-            bigViews.setTextViewText(R.id.status_bar_artist_name, current_musics.get(position).getArtist());
-            bigViews.setTextViewText(R.id.status_bar_album_name, current_musics.get(position).getAlbum());
+            views.setTextViewText(R.id.status_bar_track_name, cur_musics.get(position).getTitle());
+            bigViews.setTextViewText(R.id.status_bar_track_name, cur_musics.get(position).getTitle());
+            views.setTextViewText(R.id.status_bar_artist_name, cur_musics.get(position).getArtist());
+            bigViews.setTextViewText(R.id.status_bar_artist_name, cur_musics.get(position).getArtist());
+            bigViews.setTextViewText(R.id.status_bar_album_name, cur_musics.get(position).getAlbum());
 
             Notification status = new Notification.Builder(this).build();
 
@@ -230,13 +232,13 @@ public class PlayerService extends Service implements PlayerInterface {
 
         // Set Notification's layout
         mRemoteViews = new RemoteViews(getPackageName(), R.layout.notification_small);
-        if (current_musics.get(position).getAlbumImgUri() != null) {
-            mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(current_musics.get(position).getAlbumImgUri())); // notification's icon
+        if (cur_musics.get(position).getAlbumImgUri() != null) {
+            mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(cur_musics.get(position).getAlbumImgUri())); // notification's icon
         } else {
             mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // notification's icon
         }
-        mRemoteViews.setTextViewText(R.id.tv_notiTitle, current_musics.get(position).getTitle()); // notification's title
-        mRemoteViews.setTextViewText(R.id.tv_notiContent, current_musics.get(position).getArtist()); // notification's content
+        mRemoteViews.setTextViewText(R.id.tv_notiTitle, cur_musics.get(position).getTitle()); // notification's title
+        mRemoteViews.setTextViewText(R.id.tv_notiContent, cur_musics.get(position).getArtist()); // notification's content
 
         // Add Button Preview
         Intent prevIntent = new Intent(this, PlayerService.class);
@@ -281,14 +283,14 @@ public class PlayerService extends Service implements PlayerInterface {
             mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_play); // 노티바 버튼 변경
 
         // 앨범아트가 있는지 없는지 검사한다. 없으면 null 반환
-        Uri albumArtUri = existAlbumArt(getBaseContext(), current_musics.get(position).getAlbumImgUri());
+        Uri albumArtUri = existAlbumArt(getBaseContext(), cur_musics.get(position).getAlbumImgUri());
         if (albumArtUri != null)
             mRemoteViews.setImageViewUri(R.id.iv_noti, albumArtUri); // set Album Artwork
         else
             mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // set default image
 
-        mRemoteViews.setTextViewText(R.id.tv_notiTitle, current_musics.get(position).getTitle()); /// update the title
-        mRemoteViews.setTextViewText(R.id.tv_notiContent, current_musics.get(position).getArtist()); // update the content
+        mRemoteViews.setTextViewText(R.id.tv_notiTitle, cur_musics.get(position).getTitle()); /// update the title
+        mRemoteViews.setTextViewText(R.id.tv_notiContent, cur_musics.get(position).getArtist()); // update the content
 
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());  // update the notification
     }
@@ -346,7 +348,7 @@ public class PlayerService extends Service implements PlayerInterface {
         if (position > 0)
             position = position - 1;
 
-        Uri uri = Uri.parse(current_musics.get(position).getMusicUri());
+        Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
         try {
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(getBaseContext(), uri);
@@ -361,10 +363,10 @@ public class PlayerService extends Service implements PlayerInterface {
 
     @Override
     public void next() {
-        if (current_musics.size() > position)
+        if (cur_musics.size() > position)
             position = position + 1;
 
-        Uri uri = Uri.parse(current_musics.get(position).getMusicUri());
+        Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
         try {
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(getBaseContext(), uri);

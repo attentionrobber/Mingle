@@ -47,7 +47,7 @@
         android:layout_alignParentBottom="true">
 
         <ImageView
-            android:id="@+id/imgView"
+            android:id="@+id/iv_albumArtMain"
             android:layout_height="100dp"
             android:layout_width="100dp"
             android:layout_gravity="center"

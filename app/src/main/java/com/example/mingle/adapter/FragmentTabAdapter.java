@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,11 +16,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.Request;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.MediaStoreSignature;
+import com.example.mingle.MainActivity;
 import com.example.mingle.PlayerService;
 import com.example.mingle.R;
 import com.example.mingle.domain.Common;
 import com.example.mingle.domain.Music;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +38,16 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
     private Context context;
     private List<Music> musicList;
     private int item_frag_layout;
+    private AdapterListener adapterListener;
 
-    public FragmentTabAdapter(Context context, List<Music> musicList, int resLayout) {
+    public interface AdapterListener {
+        void getCurrentMusic(Music music);
+    }
+
+    public FragmentTabAdapter(Context context, List<Music> musicList, int resLayout, AdapterListener listener) {
         this.context = context;
         this.musicList = musicList;
+        adapterListener = listener;
         //Log.i("TESTS", "size: "+musicList.size());
 
         switch (resLayout) {
@@ -71,11 +86,21 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 
         holder.tv_title.setText(common.getTitle());
         holder.tv_artist.setText(common.getArtist());
-        holder.iv_albumCover.setImageURI(Uri.parse(common.getAlbumImgUri()));
+//        holder.iv_albumCover.setImageURI(Uri.parse(common.getAlbumImgUri()));
         // TODO: Glide didn't Work. Need to Fix
-//        Glide.with(context).load(common.getAlbum_img())
-//                .placeholder(R.drawable.default_album_image)
-//                .into(holder.iv_albumCover);
+
+        Uri albumArtUri = Uri.parse(musicList.get(position).getAlbumImgUri());
+        String mimeType = musicList.get(position).getYear();
+        long lastModified = Long.parseLong(musicList.get(position).getIs_music());
+        Log.i("TabAdapter", ""+albumArtUri+" | MIME: "+mimeType+" | modi: "+lastModified);
+
+        holder.iv_albumCover.setImageDrawable(null);
+        Glide.with(context)
+                .load(albumArtUri)
+                .signature(new MediaStoreSignature(mimeType, lastModified, 0))
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .placeholder(R.drawable.default_album_image)
+                .into(holder.iv_albumCover);
 
         holder.layout_item.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,6 +113,12 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
                 intent.setAction(PlayerService.ACTION_PLAY);
                 context.startService(intent);
                 Log.i("Service - TabAdapter", ""+position+" | "+((Common) musicList.get(position)).getMusicUri());
+
+
+                if (adapterListener != null) {
+                    Log.i("Main_Listener", "not null");
+                    adapterListener.getCurrentMusic(musicList.get(position));
+                }
             }
         });
     }
@@ -122,4 +153,5 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 //            });
         }
     }
+
 }

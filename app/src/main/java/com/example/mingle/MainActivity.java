@@ -8,16 +8,21 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
+import com.example.mingle.adapter.FragmentTabAdapter;
+import com.example.mingle.domain.Music;
+import com.example.mingle.ui.main.PlaceholderFragment;
 import com.example.mingle.ui.main.TabPagerAdapter;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PlaceholderFragment.FragmentListener {
 
     // Widget
     TextView tv_title, tv_artist; // 하단
+    ImageView iv_albumArtMain;
 
     MediaLoader mediaLoader;
 
@@ -26,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
 
     // Interface to Control Music
     PlayerInterface playerInterface;
+
+    // Interface to interaction adapter
+    Music cur_music = new Music();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         tabs.setupWithViewPager(viewPager);
 
 
+
         setWidget();
         init();
 
@@ -49,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setWidget() {
 
+        iv_albumArtMain = findViewById(R.id.iv_albumArtMain);
         tv_artist = findViewById(R.id.tv_artist);
         tv_title = findViewById(R.id.tv_title);
 
@@ -66,11 +76,6 @@ public class MainActivity extends AppCompatActivity {
         MediaLoader.load(this);
 
 
-//        Uri uri = MediaLoader.musics.get(0).getMusic_uri();
-//        String artist = MediaLoader.musics.get(0).getArtist();
-//        String title = MediaLoader.musics.get(0).getTitle();
-//        tv_title.setText("");tv_artist.setText("");
-//        Log.i("TESTS", uri+""+artist+""+title);
     }
 
     private void btnClick(View v) {
@@ -83,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.layout_player_bot:
 //                playerInterface.stop();
+                Log.i("Main_Activity", ""+cur_music.getTitle());
+
                 if (PlayerService.mMediaPlayer != null) {
                     if (PlayerService.mMediaPlayer.isPlaying())
                         PlayerService.mMediaPlayer.pause();
@@ -107,4 +114,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onRecyclerViewItemClicked(Music music) {
+        Log.i("Main_Adapter", ""+music.getTitle());
+        cur_music = music;
+    }
 }
