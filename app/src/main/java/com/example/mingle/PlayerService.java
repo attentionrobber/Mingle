@@ -34,7 +34,7 @@ public class PlayerService extends Service implements PlayerInterface {
     // Media
     public static MediaPlayer mMediaPlayer = null;
     public static Music cur_music = new Music();
-    private List<Music> cur_musics = new ArrayList<>();
+    public static List<Music> cur_musics = new ArrayList<>();
     private int position = 0;
 
     // Actions to control media
@@ -94,7 +94,6 @@ public class PlayerService extends Service implements PlayerInterface {
             Bundle extras = intent.getExtras();
             cur_musics = MediaLoader.musics; // TODO: Fix it
             position = extras.getInt("position");
-            cur_music = cur_musics.get(position);
             strUri = cur_musics.get(position).getMusicUri();
         } else // Noti Bar 에서 명령한 Intent 가 여기로 오고있는 중. 수정필요
             strUri = "content://media/external/audio/media/967";

@@ -86,37 +86,35 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 
         holder.tv_title.setText(common.getTitle());
         holder.tv_artist.setText(common.getArtist());
-//        holder.iv_albumCover.setImageURI(Uri.parse(common.getAlbumImgUri()));
+        holder.iv_albumCover.setImageURI(Uri.parse(common.getAlbumImgUri()));
+
+
         // TODO: Glide didn't Work. Need to Fix
-
-        Uri albumArtUri = Uri.parse(musicList.get(position).getAlbumImgUri());
-        String mimeType = musicList.get(position).getYear();
-        long lastModified = Long.parseLong(musicList.get(position).getIs_music());
-        Log.i("TabAdapter", ""+albumArtUri+" | MIME: "+mimeType+" | modi: "+lastModified);
-
-        holder.iv_albumCover.setImageDrawable(null);
-        Glide.with(context)
-                .load(albumArtUri)
-                .signature(new MediaStoreSignature(mimeType, lastModified, 0))
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .placeholder(R.drawable.default_album_image)
-                .into(holder.iv_albumCover);
+//        Uri albumArtUri = Uri.parse(musicList.get(position).getAlbumImgUri());
+//        String mimeType = musicList.get(position).getYear();
+//        long lastModified = Long.parseLong(musicList.get(position).getIs_music());
+//        Log.i("TabAdapter", ""+albumArtUri+" | MIME: "+mimeType+" | modi: "+lastModified);
+//        holder.iv_albumCover.setImageDrawable(null);
+//        Glide.with(context)
+//                .load(albumArtUri)
+//                .signature(new MediaStoreSignature(mimeType, lastModified, 0))
+//                .diskCacheStrategy(DiskCacheStrategy.NONE)
+//                .placeholder(R.drawable.default_album_image)
+//                .into(holder.iv_albumCover);
 
         holder.layout_item.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, PlayerService.class);
                 Bundle extras = new Bundle();
-//                extras.putString("MusicUri", common.getMusicUri());
                 extras.putInt("position", position);
                 intent.putExtras(extras);
                 intent.setAction(PlayerService.ACTION_PLAY);
                 context.startService(intent);
                 Log.i("Service - TabAdapter", ""+position+" | "+((Common) musicList.get(position)).getMusicUri());
 
-
                 if (adapterListener != null) {
-                    Log.i("Main_Listener", "not null");
+                    //Log.i("Main_Listener", "not null");
                     adapterListener.getCurrentMusic(musicList.get(position));
                 }
             }
@@ -140,9 +138,6 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
             iv_albumCover = view.findViewById(R.id.iv_albumCover);
             tv_title = view.findViewById(R.id.tv_title);
             tv_artist = view.findViewById(R.id.tv_artist);
-
-            //if (position > 0)
-//            Common common = (Common) musicList.get(getAdapterPosition());
 
 //            layout_item.setOnClickListener(v -> {
 //                Log.i("adapterTEST", "pos: "+getAdapterPosition()+" title: ");

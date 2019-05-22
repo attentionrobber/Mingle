@@ -18,6 +18,8 @@ import com.example.mingle.domain.Music;
 import com.example.mingle.ui.main.PlaceholderFragment;
 import com.example.mingle.ui.main.TabPagerAdapter;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements PlaceholderFragment.FragmentListener {
 
     // Widget
@@ -114,9 +116,21 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
 
     }
 
+    /**
+     * Communicate MainActivity <-> PlaceholderFragment <-> FragmentTabAdapter
+     */
     @Override
     public void onRecyclerViewItemClicked(Music music) {
-        Log.i("Main_Adapter", ""+music.getTitle());
-        cur_music = music;
+        setMusicInfo(music);
     }
+
+    private void setMusicInfo(Music music) {
+        cur_music = music;
+
+
+        iv_albumArtMain.setImageURI(Uri.parse(cur_music.getAlbumImgUri()));
+        tv_title.setText(cur_music.getTitle());
+        tv_artist.setText(cur_music.getArtist());
+    }
+
 }

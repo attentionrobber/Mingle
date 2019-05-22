@@ -33,7 +33,6 @@ public class PlaceholderFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
 
     private List<Music> musics = new ArrayList<>();
-    private FragmentTabAdapter adapter;
     private int resLayout = R.layout.item_frag_song;
 
 
@@ -106,20 +105,15 @@ public class PlaceholderFragment extends Fragment {
         switch (resLayout) {
             case R.layout.item_frag_favorite:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
-                rv_song.setAdapter(adapter);
+                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener));
                 break;
             case R.layout.item_frag_playlist:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                //rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
-                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
-                rv_song.setAdapter(adapter);
+                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener));
                 break;
             case R.layout.item_frag_song:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                //rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
-                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
-                rv_song.setAdapter(adapter);
+                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener));
                 break;
             case R.layout.item_frag_album:
                 rv_song.setLayoutManager(new GridLayoutManager(root.getContext(), 2));
@@ -127,21 +121,15 @@ public class PlaceholderFragment extends Fragment {
                 break;
             case R.layout.item_frag_artist:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                //rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
-                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
-                rv_song.setAdapter(adapter);
+                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener));
                 break;
             case R.layout.item_frag_folder:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                //rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
-                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
-                rv_song.setAdapter(adapter);
+                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener));
                 break;
             default:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                //rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout));
-                adapter = new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener);
-                rv_song.setAdapter(adapter);
+                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener));
                 break;
         }
 
