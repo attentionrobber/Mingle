@@ -4,18 +4,17 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 
 public class PlayerActivity extends AppCompatActivity {
 
-    PlayerInterface playerInterface;
+    ServiceInterface serviceInterface;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        playerInterface = new PlayerService();
+        serviceInterface = new PlayerService();
 
         setWidget();
     }
@@ -39,7 +38,7 @@ public class PlayerActivity extends AppCompatActivity {
                 playMusic(PlayerService.ACTION_PLAY);
                 break;
             case R.id.btn_pause:
-                playerInterface.pause();
+                serviceInterface.pause();
                 break;
             default: break;
         }

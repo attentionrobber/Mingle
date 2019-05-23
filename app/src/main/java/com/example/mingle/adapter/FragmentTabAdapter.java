@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Messenger;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -40,8 +42,9 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
     private int item_frag_layout;
     private AdapterListener adapterListener;
 
+
     public interface AdapterListener {
-        void getCurrentMusic(Music music);
+        void onRecyclerViewItemClicked(List<Music> musics, int position);
     }
 
     public FragmentTabAdapter(Context context, List<Music> musicList, int resLayout, AdapterListener listener) {
@@ -113,9 +116,10 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
                 context.startService(intent);
                 Log.i("Service - TabAdapter", ""+position+" | "+((Common) musicList.get(position)).getMusicUri());
 
+                // MainActivity 로 보냄
                 if (adapterListener != null) {
                     //Log.i("Main_Listener", "not null");
-                    adapterListener.getCurrentMusic(musicList.get(position));
+                    adapterListener.onRecyclerViewItemClicked(musicList, position);
                 }
             }
         });

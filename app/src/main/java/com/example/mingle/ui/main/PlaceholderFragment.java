@@ -39,7 +39,7 @@ public class PlaceholderFragment extends Fragment {
     private FragmentListener mListener;
 
     public interface FragmentListener {
-        void onRecyclerViewItemClicked(Music music);
+        void onRecyclerViewItemClicked(List<Music> musics, int position);
     }
 
     public PlaceholderFragment() {
@@ -97,8 +97,8 @@ public class PlaceholderFragment extends Fragment {
 
         FragmentTabAdapter.AdapterListener adapterListener = new FragmentTabAdapter.AdapterListener() {
             @Override
-            public void getCurrentMusic(Music music) {
-                mListener.onRecyclerViewItemClicked(music);
+            public void onRecyclerViewItemClicked(List<Music> musics, int position) {
+                mListener.onRecyclerViewItemClicked(musics, position);
             }
         };
 

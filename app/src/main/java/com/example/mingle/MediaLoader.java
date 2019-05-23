@@ -19,6 +19,8 @@ public class MediaLoader {
 
     public static List<Music> musics = new ArrayList<>();
     public static List<Music> musicsByAlbum = new ArrayList<>();
+    public static List<Music> musicsByArtist = new ArrayList<>();
+    public static List<Music> musicsByFolder = new ArrayList<>();
     //private Context context;
 
     private static final Uri URI_MUSIC = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -33,21 +35,20 @@ public class MediaLoader {
             MediaStore.Audio.Media.ALBUM_ID,    // 6, int album_id
             MediaStore.Audio.Media.ALBUM,       // 7, String album
             MediaStore.Audio.Media.COMPOSER,    // 8, String composer
-//            MediaStore.Audio.Media.YEAR,        // 9, String year
-            MediaStore.Audio.Media.MIME_TYPE,
+            MediaStore.Audio.Media.YEAR,        // 9, String year
             MediaStore.Audio.Media.DURATION,    // 10, int duration
-//            MediaStore.Audio.Media.IS_MUSIC,     // 11, String isMusic
-            MediaStore.Audio.Media.DATE_MODIFIED
+            MediaStore.Audio.Media.IS_MUSIC,     // 11, String isMusic
 
             //MediaStore.Audio.Genres.NAME
     };
 
-    public static void load(Context context) {
+    public static void loadSong(Context context) {
         musics.clear();
 
         ContentResolver resolver = context.getContentResolver(); // 데이터에 접근하기 위해 Content Resolver 를 불러온다.
-        //String selection = MediaStore.Audio.Media.+" =?"; // 폴더명으로 선별(bucketName)
-        Cursor cursor = resolver.query(URI_MUSIC, PROJ, null, null, null); // Content Resolver 로 Query 한 데이터를 cursor 에 담게된다.
+        //String selection = MediaStore.Audio.Media.+" =?"; // XX 으로 선별
+        String orderBy = MediaStore.Audio.Media.TITLE+" COLLATE LOCALIZED ASC"; // 기타 한글 영문순 정렬 (+" DESC" 내림차순, ASC 오름차순)
+        Cursor cursor = resolver.query(URI_MUSIC, PROJ, null, null, orderBy); // Content Resolver 로 Query 한 데이터를 cursor 에 담게된다.
 
         if(cursor != null) {
             while(cursor.moveToNext()) {  // cursor 에 담긴 데이터를 반복문을 돌면서 꺼내 담아준다.
@@ -125,10 +126,10 @@ public class MediaLoader {
             //Log.i("TESTS", "albumID: " + sorted.get(i).getAlbum_id());
         }
 
-        Log.i("TESTS", "frequency: " + Collections.frequency(albumSet, sorted.get(17).getAlbum_id()));
-        Log.i("TESTS", "albumSetSize: " + albumSet.size());
-        Log.i("TESTS", "musicByAlbum: " + musicsByAlbum.size());
-        Log.i("TESTS", "sortedSize: " + sorted.size());
+//        Log.i("TESTS", "frequency: " + Collections.frequency(albumSet, sorted.get(17).getAlbum_id()));
+//        Log.i("TESTS", "albumSetSize: " + albumSet.size());
+//        Log.i("TESTS", "musicByAlbum: " + musicsByAlbum.size());
+//        Log.i("TESTS", "sortedSize: " + sorted.size());
 
 
         //Log.i("TESTS", "albums.size(): " + albums.size());

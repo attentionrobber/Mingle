@@ -1,6 +1,6 @@
 package com.example.mingle;
 
-public interface PlayerInterface {
+public interface ServiceInterface {
     void play();
     void pause();
     void playPause();

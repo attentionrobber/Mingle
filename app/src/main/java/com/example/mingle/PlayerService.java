@@ -6,17 +6,17 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Messenger;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.RemoteViews;
 
 import com.example.mingle.domain.Music;
@@ -29,13 +29,12 @@ import java.util.List;
  * 서비스로 실행되는 음악 플레이어 (노티바도 포함)
  * Music Player Service (contains Notifications)
  */
-public class PlayerService extends Service implements PlayerInterface {
+public class PlayerService extends Service implements ServiceInterface {
 
     // Media
     public static MediaPlayer mMediaPlayer = null;
-    public static Music cur_music = new Music();
-    public static List<Music> cur_musics = new ArrayList<>();
-    private int position = 0;
+    public List<Music> cur_musics = new ArrayList<>();
+    public static int position = 0;
 
     // Actions to control media
     public static final String ACTION_INIT = "ACTION_INIT";
@@ -49,10 +48,16 @@ public class PlayerService extends Service implements PlayerInterface {
 
     // Notification
     private static final int NOTIFICATION_ID = 1234;
-    private NotificationCompat.Builder mBuilder;
-    private NotificationManager mNotificationManager;
-    private RemoteViews mRemoteViews;
+    public static NotificationCompat.Builder mBuilder;
+    public static NotificationManager mNotificationManager;
+    public static RemoteViews mRemoteViews;
     private Notification mNotification;
+
+
+    // Interface for MainActivity
+    private LocalBroadcastManager localBroadcastManager;
+    public static final String SERVICE_RESULT = "com.service.result";
+    public static final String SERVICE_MESSAGE = "com.service.message";
 
 
     public PlayerService() {
@@ -63,6 +68,12 @@ public class PlayerService extends Service implements PlayerInterface {
         Log.i("Service", "onBind");
         // Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        localBroadcastManager = LocalBroadcastManager.getInstance(this);
     }
 
     @Override
@@ -92,6 +103,7 @@ public class PlayerService extends Service implements PlayerInterface {
         String strUri;
         if (intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
+
             cur_musics = MediaLoader.musics; // TODO: Fix it
             position = extras.getInt("position");
             strUri = cur_musics.get(position).getMusicUri();
@@ -118,29 +130,18 @@ public class PlayerService extends Service implements PlayerInterface {
             pause();
         else if (action.equalsIgnoreCase(ACTION_PLAYPAUSE))
             playPause();
-        else if (action.equalsIgnoreCase(ACTION_PREV))
+        else if (action.equalsIgnoreCase(ACTION_PREV)) {
             prev();
-        else if (action.equalsIgnoreCase(ACTION_NEXT))
+            sendResult(position);
+            //mainInterface.setMusicInfo(position);
+        } else if (action.equalsIgnoreCase(ACTION_NEXT)) {
             next();
+            sendResult(position);
+            //mainInterface.setMusicInfo(position);
+        }
         else if (action.equalsIgnoreCase(ACTION_STOP)) {
             stop();
         }
-        //Log.i("Service", "init"+action);
-
-//        switch (intent.getAction()) {
-//            case Constants.ACTION.STARTFOREGROUND_ACTION: showNotification();
-//                break;
-//            case Constants.ACTION.PLAY_ACTION: play(); Log.i("Service", "handlePlay");
-//                break;
-//            case Constants.ACTION.PREV_ACTION: prev();
-//                break;
-//            case Constants.ACTION.NEXT_ACTION: next();
-//                break;
-//            case Constants.ACTION.STOPFOREGROUND_ACTION:
-//                stopForeground(true);
-//                stopSelf();
-//                break;
-//        }
     }
 
     /**
@@ -262,7 +263,7 @@ public class PlayerService extends Service implements PlayerInterface {
 
 
         mBuilder = new NotificationCompat.Builder(this);
-        CharSequence ticker = "ticker"; // 노티바 생성시 상태표시줄에 처음 표시되는 글자
+        CharSequence ticker = cur_musics.get(position).getTitle(); // 노티바 생성시 상태표시줄에 처음 표시되는 글자
         mBuilder.setSmallIcon(R.drawable.default_album_image) // 맨위 상태표시줄에 작은아이콘
                 .setAutoCancel(false)
                 .setOngoing(true)
@@ -346,11 +347,14 @@ public class PlayerService extends Service implements PlayerInterface {
     public void prev() {
         if (position > 0)
             position = position - 1;
+        Log.i("Service prev", "pos"+position);
 
         Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
+        String path = cur_musics.get(position).getPath();
         try {
             mMediaPlayer.reset();
-            mMediaPlayer.setDataSource(getBaseContext(), uri);
+            //mMediaPlayer.setDataSource(getBaseContext(), uri);
+            mMediaPlayer.setDataSource(path);
             mMediaPlayer.prepare();
             mMediaPlayer.start();
         } catch (IOException e) {
@@ -364,11 +368,13 @@ public class PlayerService extends Service implements PlayerInterface {
     public void next() {
         if (cur_musics.size() > position)
             position = position + 1;
+        Log.i("Service next", "pos"+position);
 
         Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
+        String path = cur_musics.get(position).getPath();
         try {
             mMediaPlayer.reset();
-            mMediaPlayer.setDataSource(getBaseContext(), uri);
+            mMediaPlayer.setDataSource(path);
             mMediaPlayer.prepare();
             mMediaPlayer.start();
         } catch (IOException e) {
@@ -392,6 +398,18 @@ public class PlayerService extends Service implements PlayerInterface {
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
+    }
+
+
+    /**
+     * MainActivity 에 명령을 보내는 함수
+     */
+    private void sendResult(int position) {
+        Intent intent = new Intent(SERVICE_RESULT);
+        if(position >= 0)
+            intent.putExtra(SERVICE_MESSAGE, position);
+            //intent.putExtra(SERVICE_MESSAGE, message);
+        localBroadcastManager.sendBroadcast(intent);
     }
 
 }
