@@ -33,7 +33,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
     // Media
     public static MediaPlayer mMediaPlayer = null;
-    public List<Music> cur_musics = new ArrayList<>();
+    public static List<Music> cur_musics = new ArrayList<>();
     public static int position = 0;
 
     // Actions to control media

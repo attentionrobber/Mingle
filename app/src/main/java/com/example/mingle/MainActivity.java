@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
             public void onReceive(Context context, Intent intent) {
                 int position = intent.getIntExtra(PlayerService.SERVICE_MESSAGE, 0);
                 // do something here.
-                Log.i("Service MainBroadCast",""+position);
+                Log.i("MainService BroadCast",""+position);
                 setMusicInfo(position);
             }
         };
@@ -114,13 +114,15 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
         switch (v.getId()) {
             case R.id.btn_prev:
                 serviceInterface.prev();
-                setMusicInfo(position--);
+                position = position-1;
+                setMusicInfo(position);
                 break;
             case R.id.btn_play:
                 break;
             case R.id.btn_next:
                 serviceInterface.next();
-                setMusicInfo(position++);
+                position = position+1;
+                setMusicInfo(position);
                 break;
             case R.id.layout_player_bot:
 //                serviceInterface.stop();
@@ -156,15 +158,15 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     @Override
     public void onRecyclerViewItemClicked(List<Music> musics, int position) {
         cur_musics = musics;
-        Log.i("Main RecyclerClicked", ""+cur_musics.size()+" | "+musics.size());
-        Log.i("Main RecyclerClicked", ""+position);
+        Log.i("MainService Recycler", ""+cur_musics.size()+" | "+musics.size());
+        Log.i("MainService Recycler", ""+position);
         this.position = position;
         setMusicInfo(position);
     }
 
     public void setMusicInfo(int position) {
-        Log.i("Main setMusicInfo", ""+cur_musics.size());
-        this.position = position;
+        Log.i("MainService MusicInfo", ""+cur_musics.size()+" pos: "+position);
+        //this.position = position;
         iv_albumArtMain.setImageURI(Uri.parse(cur_musics.get(position).getAlbumImgUri()));
         tv_title.setText(cur_musics.get(position).getTitle());
         tv_artist.setText(cur_musics.get(position).getArtist());
