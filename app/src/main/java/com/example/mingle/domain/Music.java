@@ -78,19 +78,23 @@ public class Music extends Common {
     }
 
     @Override
-    public Bitmap getAlbumImgBitmap(Context context, int album_id) {
-
-        Uri uri = Uri.parse("content://media/external/audio/albumart/" + album_id); // 앨범아이디로 URI 생성
-        ContentResolver resolver = context.getContentResolver(); // ContentResolver 가져오기
-        try {
-            InputStream is = resolver.openInputStream(uri); // resolver 에서 Stream 열기
-            return BitmapFactory.decodeStream(is); // BitmapFactory 를 통해 이미지 데이터를 가져온다.
-        } catch (FileNotFoundException e) {
-            Log.e(e.toString(), "getAlbumImageBitmap");
-            e.printStackTrace(); // 동일 스레드가 아닌 다른 스레드에서 실행되므로 시스템에 영향을 미치지 않는다. Sysout은 시스템 성능에 영향을미침.
-        }
-        return null;
+    public Bitmap getAlbumImgBitmap() {
+        return albumImgBitmap;
     }
+
+    //    @Override
+//    public Bitmap getAlbumImgBitmap(Context context, int album_id) {
+//        Uri uri = Uri.parse("content://media/external/audio/albumart/" + album_id); // 앨범아이디로 URI 생성
+//        ContentResolver resolver = context.getContentResolver(); // ContentResolver 가져오기
+//        try {
+//            InputStream is = resolver.openInputStream(uri); // resolver 에서 Stream 열기
+//            return BitmapFactory.decodeStream(is); // BitmapFactory 를 통해 이미지 데이터를 가져온다.
+//        } catch (FileNotFoundException e) {
+//            Log.e(e.toString(), "getAlbumImageBitmap");
+//            e.printStackTrace(); // 동일 스레드가 아닌 다른 스레드에서 실행되므로 시스템에 영향을 미치지 않는다. Sysout은 시스템 성능에 영향을미침.
+//        }
+//        return null;
+//    }
 
     public void setArtist(String artist) {
         this.artist = artist;

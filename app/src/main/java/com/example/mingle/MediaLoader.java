@@ -72,7 +72,6 @@ public class MediaLoader {
                 music.setAlbum_id(getInt(cursor, PROJECTION[6]));
                 music.setAlbum(getString(cursor, PROJECTION[7]));
                 music.setAlbumImgUri("content://media/external/audio/albumart/" + music.getAlbum_id());
-                //music.setAlbumImgUri("content://media/external/audio/albumart/" + music.getAlbum_id());
                 music.setComposer(getString(cursor, PROJECTION[8]));
                 music.setYear(getString(cursor, PROJECTION[9]));
                 music.setDuration(getInt(cursor, PROJECTION[10]));
@@ -84,6 +83,8 @@ public class MediaLoader {
             }
             cursor.close(); // 사용 후 close 해주지 않으면 메모리 누수가 발생할 수 있다.
         }
+        Log.i("MediaLoader", "musics size: "+musics.size());
+
     } // loadSong()
 
     public static List<Music> loadFavorite() {
@@ -122,18 +123,17 @@ public class MediaLoader {
                 album.setAlbum_id(getInt(cursor, PROJECTION[0]));
                 album.setAlbum(getString(cursor, PROJECTION[1]));
                 album.setAlbumImgUri(getString(cursor, PROJECTION[2]));
-                //album.setAlbumImgUri("content://media/external/audio/albumart/" + album.getAlbum_id());
                 album.setArtist(getString(cursor, PROJECTION[3]));
                 album.setCountOfSongs(getInt(cursor, PROJECTION[4]));
 
-                musicsByArtist.add(album);
+                musicsByAlbum.add(album);
             }
             cursor.close();
         }
-        Log.i("MediaLoader", "size: "+musicsByArtist.size());
+        Log.i("MediaLoader", "size: "+musicsByAlbum.size());
 
 
-        return musicsByArtist;
+        return musicsByAlbum;
 
         // 이전에 쓰던 함수
 //        List<Music> sorted = new ArrayList<>(musics); // List of Song Sorted by Album
@@ -207,27 +207,6 @@ public class MediaLoader {
     }
 
 
-
-    // 사용 대기중
-    private static Bitmap getAlbumImageBitmap(int album_id, Context context) {
-        // 1. 앨범아이디로 URI생성
-        Uri uri = Uri.parse("content://media/external/audio/albumart/" + album_id);
-        // 2. ContentResolver 가져오기
-        ContentResolver resolver = context.getContentResolver();
-
-        try {
-            // 3. resolver에서 Stream열기
-            InputStream is = resolver.openInputStream(uri);
-            // 4. BitmapFactory를 통해 이미지 데이터를 가져온다.
-            Bitmap img = BitmapFactory.decodeStream(is); // Bitmap이미지를 Stream의 형태로 가져오면 Decode를 해줘야한다.
-
-            return img;
-        } catch (FileNotFoundException e) {
-            Log.e(e.toString(), "getAlbumImageBitmap");
-            e.printStackTrace(); // 동일 스레드가 아닌 다른 스레드에서 실행되므로 시스템에 영향을 미치지 않는다. Sysout은 시스템 성능에 영향을미침.
-        }
-        return null;
-    }
 
     private static String getPath(Context context, String strUri) {
         // 너무 느림. uri 대신 path 얻어야 Glide 적용가능.

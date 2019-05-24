@@ -12,5 +12,7 @@ public abstract class Common {
     public abstract String getTitle();
     public abstract String getArtist();
     public abstract int getAlbum_id();
-    public abstract Bitmap getAlbumImgBitmap(Context context, int album_id);
+    public abstract String getAlbumImgUri();
+    //public abstract Bitmap getAlbumImgBitmap(Context context, int album_id);
+    public abstract Bitmap getAlbumImgBitmap();
 }

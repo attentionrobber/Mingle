@@ -120,18 +120,19 @@ public class PlayerService extends Service implements ServiceInterface {
 
     // Intent Action 에 넘어온 명령어를 분기시키는 함수
     private void handleAction(Intent intent) {
-        if(intent == null || intent.getAction() == null)
+        if (intent == null || intent.getAction() == null)
             return;
 
         String action = intent.getAction();
         if (action.equalsIgnoreCase(ACTION_PLAY)) {
             setUpNotification();
             play();
-        }
-        else if (action.equalsIgnoreCase(ACTION_PAUSE))
+        } else if (action.equalsIgnoreCase(ACTION_PAUSE))
             pause();
-        else if (action.equalsIgnoreCase(ACTION_PLAYPAUSE))
+        else if (action.equalsIgnoreCase(ACTION_PLAYPAUSE)) {
             playPause();
+            sendResult(position);
+        }
         else if (action.equalsIgnoreCase(ACTION_PREV)) {
             prev();
             sendResult(position);
@@ -294,6 +295,9 @@ public class PlayerService extends Service implements ServiceInterface {
         mRemoteViews.setTextViewText(R.id.tv_notiTitle, cur_musics.get(position).getTitle()); /// update the title
         mRemoteViews.setTextViewText(R.id.tv_notiContent, cur_musics.get(position).getArtist()); // update the content
 
+        CharSequence ticker = cur_musics.get(position).getTitle(); // 노티바 생성시 상태표시줄에 표시되는 글자
+        mBuilder.setTicker(ticker);
+
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());  // update the notification
     }
 
@@ -336,6 +340,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public void playPause() {
+        Log.i("Service_PP", "pos"+position);
         if (mMediaPlayer.isPlaying())
             mMediaPlayer.pause();
         else
@@ -348,9 +353,9 @@ public class PlayerService extends Service implements ServiceInterface {
     public void prev() {
         if (position > 0)
             position = position - 1;
-        Log.i("Service prev", "pos"+position);
+        Log.i("Service_prev", "pos"+position);
 
-        Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
+        //Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
         String path = cur_musics.get(position).getPath();
         try {
             mMediaPlayer.reset();
@@ -369,9 +374,9 @@ public class PlayerService extends Service implements ServiceInterface {
     public void next() {
         if (cur_musics.size() > position)
             position = position + 1;
-        Log.i("Service next", "pos"+position);
+        Log.i("Service_next", "pos"+position);
 
-        Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
+        //Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
         String path = cur_musics.get(position).getPath();
         try {
             mMediaPlayer.reset();

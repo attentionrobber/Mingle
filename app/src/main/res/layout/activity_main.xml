@@ -44,7 +44,8 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:orientation="horizontal"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bg_transparent_border">
 
         <ImageView
             android:id="@+id/iv_albumArtMain"
@@ -57,48 +58,62 @@
         <GridLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingLeft="10dp"
             android:orientation="vertical">
-            <TextView
-                android:id="@+id/tv_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="title"
-                android:textSize="20sp"
-                android:textColor="#000000"/>
-            <TextView
-                android:id="@+id/tv_artist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="artist" />
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:gravity="bottom"
+                    android:singleLine="true"
+                    android:text="title"
+                    android:textSize="24sp"
+                    android:textColor="#000000"/>
+                <TextView
+                    android:id="@+id/tv_artist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:singleLine="true"
+                    android:text="artist" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
                 android:layout_gravity="bottom"
                 android:orientation="horizontal">
                 <ImageButton
                     android:id="@+id/btn_repeat"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="?attr/selectableItemBackground"
                     android:src="@android:drawable/ic_menu_close_clear_cancel"/>
                 <ImageButton
                     android:id="@+id/btn_prev"
-                    android:layout_height="40dp"
-                    android:layout_width="40dp"
-                    app:srcCompat="@android:drawable/ic_media_previous" />
+                    android:layout_height="50dp"
+                    android:layout_width="50dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:src="@android:drawable/ic_media_previous" />
                 <ImageButton
-                    android:id="@+id/btn_play"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    app:srcCompat="@android:drawable/ic_media_play" />
+                    android:id="@+id/btn_playPause"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:src="@android:drawable/ic_media_play" />
                 <ImageButton
                     android:id="@+id/btn_next"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    app:srcCompat="@android:drawable/ic_media_next" />
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:src="@android:drawable/ic_media_next" />
                 <ImageButton
                     android:id="@+id/btn_shuffle"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="?attr/selectableItemBackground"
                     android:src="@android:drawable/stat_notify_sync"/>
             </LinearLayout>
         </GridLayout>

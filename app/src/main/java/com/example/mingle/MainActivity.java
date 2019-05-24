@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     // Widget
     private TextView tv_title, tv_artist; // 하단
     private ImageView iv_albumArtMain;
+    private ImageButton btn_playPause;
 
     // Glide for Using Adapter
     public RequestManager glideRequestManger;
@@ -97,8 +99,8 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
         tv_title = findViewById(R.id.tv_title);
 
         findViewById(R.id.layout_player_bot).setOnClickListener(this::btnClick);
+        btn_playPause = findViewById(R.id.btn_playPause); btn_playPause.setOnClickListener(this::btnClick);
         findViewById(R.id.btn_prev).setOnClickListener(this::btnClick);
-        findViewById(R.id.btn_play).setOnClickListener(this::btnClick);
         findViewById(R.id.btn_next).setOnClickListener(this::btnClick);
     }
 
@@ -109,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
         //mediaLoader = new MediaLoader(this);
         MediaLoader.loadSong(this);
 
-
     }
 
     private void btnClick(View v) {
@@ -119,7 +120,13 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
                 position = position-1;
                 setMusicInfo(position);
                 break;
-            case R.id.btn_play:
+            case R.id.btn_playPause:
+                serviceInterface.playPause();
+                if (PlayerService.mMediaPlayer != null) {
+                    if (PlayerService.mMediaPlayer.isPlaying())
+                        btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
+                    else btn_playPause.setImageResource(android.R.drawable.ic_media_play);
+                }
                 break;
             case R.id.btn_next:
                 serviceInterface.next();
@@ -168,7 +175,18 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
 
     public void setMusicInfo(int position) {
         Log.i("MainService MusicInfo", ""+cur_musics.size()+" pos: "+position);
-        //this.position = position;
+        this.position = position;
+//        Glide.with(this)
+//                .load(Uri.parse(cur_musics.get(position).getAlbumImgUri()))
+//                .placeholder(R.drawable.default_album_image)
+//                .into(iv_albumArtMain);
+
+        if (PlayerService.mMediaPlayer != null) {
+            if (PlayerService.mMediaPlayer.isPlaying())
+                btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
+            else btn_playPause.setImageResource(android.R.drawable.ic_media_play);
+        } else btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
+
         iv_albumArtMain.setImageURI(Uri.parse(cur_musics.get(position).getAlbumImgUri()));
         tv_title.setText(cur_musics.get(position).getTitle());
         tv_artist.setText(cur_musics.get(position).getArtist());

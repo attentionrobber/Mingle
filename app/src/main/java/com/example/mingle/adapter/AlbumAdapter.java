@@ -48,7 +48,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
                 .load(album.getAlbumImgUri())
                 .placeholder(R.drawable.default_album_image)
                 .into(holder.iv_albumCover);
-        //Log.i("Adapter_ALbum", "album: "+album.getAlbumImgUri());
+        //Log.i("Adapter_Album", "album: "+album.getAlbumImgUri());
     }
 
     @Override
