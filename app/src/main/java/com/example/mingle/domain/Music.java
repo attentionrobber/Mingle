@@ -1,6 +1,18 @@
 package com.example.mingle.domain;
 
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.util.Log;
+
+import com.example.mingle.utility.MethodCollection;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
 public class Music extends Common {
 
     // Music Info.
@@ -13,6 +25,7 @@ public class Music extends Common {
     private int album_id; // MediaStore.Audio.Media.ALBUM_ID
     private String album; // MediaStore.Audio.Media.ALBUM
     private String albumImgUri; // Uri.parse("content://media/external/audio/albumart/" + music.album_id);
+    private Bitmap albumImgBitmap;
     private String composer; // MediaStore.Audio.Media.COMPOSER
     private String year; // MediaStore.Audio.Media.YEAR
     private int duration; // MediaStore.Audio.Media.DURATION
@@ -60,6 +73,25 @@ public class Music extends Common {
         return artist;
     }
 
+    public void setAlbumImgBitmap(Bitmap albumImgBitmap) {
+        this.albumImgBitmap = albumImgBitmap;
+    }
+
+    @Override
+    public Bitmap getAlbumImgBitmap(Context context, int album_id) {
+
+        Uri uri = Uri.parse("content://media/external/audio/albumart/" + album_id); // 앨범아이디로 URI 생성
+        ContentResolver resolver = context.getContentResolver(); // ContentResolver 가져오기
+        try {
+            InputStream is = resolver.openInputStream(uri); // resolver 에서 Stream 열기
+            return BitmapFactory.decodeStream(is); // BitmapFactory 를 통해 이미지 데이터를 가져온다.
+        } catch (FileNotFoundException e) {
+            Log.e(e.toString(), "getAlbumImageBitmap");
+            e.printStackTrace(); // 동일 스레드가 아닌 다른 스레드에서 실행되므로 시스템에 영향을 미치지 않는다. Sysout은 시스템 성능에 영향을미침.
+        }
+        return null;
+    }
+
     public void setArtist(String artist) {
         this.artist = artist;
     }
@@ -72,6 +104,7 @@ public class Music extends Common {
         this.artist_key = artist_key;
     }
 
+    @Override
     public int getAlbum_id() {
         return album_id;
     }
@@ -88,9 +121,14 @@ public class Music extends Common {
         this.album = album;
     }
 
-    @Override
     public String getAlbumImgUri() {
         return albumImgUri;
+    }
+
+    public String getAlbumImgPath() {
+        Uri uri = Uri.parse(getAlbumImgUri());
+
+        return "";
     }
 
     public void setAlbumImgUri(String albumImgUri) {

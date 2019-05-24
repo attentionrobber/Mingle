@@ -19,6 +19,7 @@ import com.example.mingle.MediaLoader;
 import com.example.mingle.R;
 import com.example.mingle.SongFragment;
 import com.example.mingle.adapter.AlbumAdapter;
+import com.example.mingle.adapter.ArtistAdapter;
 import com.example.mingle.adapter.FragmentTabAdapter;
 import com.example.mingle.domain.Music;
 
@@ -75,11 +76,13 @@ public class PlaceholderFragment extends Fragment {
                     break;
                 case 4: // Album
                     resLayout = R.layout.item_frag_album;
-                    musics = MediaLoader.selectionByAlbum();
+                    musics = MediaLoader.selectionByAlbum(getContext());
                     //Log.i("TESTS", "album: "+musics.size());
                     break;
                 case 5: // Artist
                     resLayout = R.layout.item_frag_artist;
+                    //musics = MediaLoader.selectionByArtist(getContext());
+                    musics = MediaLoader.musics;
                     break;
                 case 6: // Folder
                     resLayout = R.layout.item_frag_folder;
@@ -121,7 +124,7 @@ public class PlaceholderFragment extends Fragment {
                 break;
             case R.layout.item_frag_artist:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));
-                rv_song.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener));
+                rv_song.setAdapter(new ArtistAdapter(getContext(), musics));
                 break;
             case R.layout.item_frag_folder:
                 rv_song.setLayoutManager(new LinearLayoutManager(root.getContext()));

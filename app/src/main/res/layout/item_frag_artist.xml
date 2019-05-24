@@ -22,18 +22,17 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
         <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TITLE"
-            android:textSize="20sp"
-            android:textStyle="bold"/>
-        <TextView
             android:id="@+id/tv_artist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="artist" />
-
+            android:text="artist"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/tv_songCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="곡"/>
     </GridLayout>
 
 </LinearLayout>

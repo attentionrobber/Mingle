@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,8 +35,6 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     private TextView tv_title, tv_artist; // 하단
     private ImageView iv_albumArtMain;
 
-    MediaLoader mediaLoader;
-
     // Glide for Using Adapter
     public RequestManager glideRequestManger;
 
@@ -48,9 +48,10 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     // Interface to interaction adapter
     public static List<Music> cur_musics = new ArrayList<>();
     private int position = 0;
+    private BroadcastReceiver broadcastReceiver; // Service 에서 넘어온 명령을 처리하는 리시버
 
-    // Service 에서 넘어온 명령을 처리하는 리시버
-    private BroadcastReceiver broadcastReceiver;
+    // set Default Media Volume(NOT Ringtone)
+    private AudioManager audio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
 
         glideRequestManger = Glide.with(this);
         serviceInterface = new PlayerService();
+        audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
@@ -184,5 +186,22 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     protected void onStop() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         super.onStop();
+    }
+
+    /**
+     * Volume 조절시 Ringtone 이 아닌 Media Volume 이 조절된다.
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI);
+                return true;
+            default:
+                return false;
+        }
     }
 }

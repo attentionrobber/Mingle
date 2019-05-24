@@ -103,7 +103,6 @@ public class PlayerService extends Service implements ServiceInterface {
         String strUri;
         if (intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
-
             cur_musics = MediaLoader.musics; // TODO: Fix it
             position = extras.getInt("position");
             strUri = cur_musics.get(position).getMusicUri();
@@ -113,7 +112,10 @@ public class PlayerService extends Service implements ServiceInterface {
         Log.i("Service init()", ""+strUri);
         Uri mediaUri = Uri.parse(strUri);
         mMediaPlayer = MediaPlayer.create(this, mediaUri);
-        mMediaPlayer.setOnCompletionListener(mp -> next());
+        mMediaPlayer.setOnCompletionListener(mp -> {
+            next();
+            sendResult(position);
+        });
     }
 
     // Intent Action 에 넘어온 명령어를 분기시키는 함수
@@ -299,13 +301,13 @@ public class PlayerService extends Service implements ServiceInterface {
      * check if AlbumArt is exist
      * 앨범아트가 존재하는지 검사하는 함수.
      */
-    private Uri existAlbumArt(Context mContext, String strUri) {
+    private Uri existAlbumArt(Context context, String strUri) {
         Uri mUri = Uri.parse(strUri);
         Drawable d = null;
         if (mUri != null) {
             if ("content".equals(mUri.getScheme())) {
                 try {
-                    d = Drawable.createFromStream(mContext.getContentResolver().openInputStream(mUri), null);
+                    d = Drawable.createFromStream(context.getContentResolver().openInputStream(mUri), null);
                 } catch (Exception e) {
                     Log.w("checkUriExists", "Unable to open content: " + mUri, e);
                     mUri = null;
@@ -316,7 +318,6 @@ public class PlayerService extends Service implements ServiceInterface {
             if (d == null)
                 mUri = null;
         }
-
         return mUri;
     }
 

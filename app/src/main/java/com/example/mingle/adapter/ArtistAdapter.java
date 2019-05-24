@@ -15,16 +15,16 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.mingle.R;
 import com.example.mingle.domain.Album;
-import com.example.mingle.domain.Common;
+import com.example.mingle.domain.Artist;
+import com.example.mingle.domain.Music;
 
 import java.util.List;
 
-public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> {
-
+public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder> {
     private Context context;
-    private List<?> musicList;
+    private List<Music> musicList;
 
-    public AlbumAdapter(Context context, List<?> musicList) {
+    public ArtistAdapter(Context context, List<Music> musicList) {
         this.context = context;
         this.musicList = musicList;
     }
@@ -32,23 +32,24 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_frag_album, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_frag_artist, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
-        Album album = (Album) musicList.get(position);
+        //Artist artist = (Artist) musicList.get(position);
+        //Album album = (Album) musicList.get(position);
 
-        holder.tv_albumTitle.setText(album.getAlbum());
-        holder.tv_artist.setText(album.getArtist()+" "+album.getCountOfSongs()+"곡");
-        //holder.iv_albumCover.setImageURI(Uri.parse(album.getAlbumImgUri()));
-        Glide.with(context)
-                .load(album.getAlbumImgUri())
+        holder.tv_artist.setText(musicList.get(position).getArtist());
+        //holder.tv_songCount.setText(artist.getSongCount() + "곡");
+        //holder.iv_albumCover.setImageURI(Uri.parse(musicList.get(position).getAlbumImgUri()));
+        // TODO: Glide didn't Work. Need to Fix
+        Glide.with(context).load("/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1447312718211")
                 .placeholder(R.drawable.default_album_image)
                 .into(holder.iv_albumCover);
-        //Log.i("Adapter_ALbum", "album: "+album.getAlbumImgUri());
+        //Log.i("Adapter_Artist", "artist: "+musicList.get(position).getAlbumImgUri());
     }
 
     @Override
@@ -60,13 +61,13 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
 
         LinearLayout layout_item;
         ImageView iv_albumCover;
-        TextView tv_albumTitle, tv_artist;
+        TextView tv_songCount, tv_artist;
 
         ViewHolder(View view) { // position == getAdapterPosition();
             super(view);
             layout_item = view.findViewById(R.id.layout_item);
             iv_albumCover = view.findViewById(R.id.iv_albumCover);
-            tv_albumTitle = view.findViewById(R.id.tv_albumTitle);
+            tv_songCount = view.findViewById(R.id.tv_songCount);
             tv_artist = view.findViewById(R.id.tv_artist);
         }
     }

@@ -8,7 +8,26 @@ public class Album extends Music {
     private String artist; // MediaStore.Audio.Media.ARTIST
     private int artist_id; // MediaStore.Audio.Media.ARTIST_ID
     private String title; // MediaStore.Audio.Media.TITLE
-    private int count;
+    private String albumID; // MediaStore.Audio.Albums.ALBUM_ID
+    private int countOfSongs;
+    private int countOfForArtist;
+
+
+    public String getAlbumID() {
+        return albumID;
+    }
+
+    public void setAlbumID(String albumID) {
+        this.albumID = albumID;
+    }
+
+    public int getCountOfForArtist() {
+        return countOfForArtist;
+    }
+
+    public void setCountOfForArtist(int countOfForArtist) {
+        this.countOfForArtist = countOfForArtist;
+    }
 
     @Override
     public int getAlbum_id() {
@@ -70,11 +89,11 @@ public class Album extends Music {
         this.title = title;
     }
 
-    public int getCount() {
-        return count;
+    public int getCountOfSongs() {
+        return countOfSongs;
     }
 
-    public void setCount(int count) {
-        this.count = count;
+    public void setCountOfSongs(int countOfSongs) {
+        this.countOfSongs = countOfSongs;
     }
 }

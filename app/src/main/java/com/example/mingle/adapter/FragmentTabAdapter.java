@@ -89,9 +89,17 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 
         holder.tv_title.setText(common.getTitle());
         holder.tv_artist.setText(common.getArtist());
-        holder.iv_albumCover.setImageURI(Uri.parse(common.getAlbumImgUri()));
+        //holder.iv_albumCover.setImageURI(Uri.parse(common.getAlbumImgUri()));
+        Glide.with(context)
+                .load(common.getAlbumImgBitmap(context, common.getAlbum_id()))
+                .thumbnail(0.5f)// 50%의 비율로 로드
+                .override(100) // 강제 사이즈 제한
+                .centerCrop()
+                .placeholder(R.drawable.default_album_image)
+                .into(holder.iv_albumCover);
 
-
+        //Uri uri = Uri.parse(common.getAlbumImgUri());
+        //Log.i("Adapter_Tab", "tab: "+new File(common.getAlbumImgUri()).toString());
         // TODO: Glide didn't Work. Need to Fix
 //        Uri albumArtUri = Uri.parse(musicList.get(position).getAlbumImgUri());
 //        String mimeType = musicList.get(position).getYear();
