@@ -136,11 +136,9 @@ public class PlayerService extends Service implements ServiceInterface {
         else if (action.equalsIgnoreCase(ACTION_PREV)) {
             prev();
             sendResult(position);
-            //mainInterface.setMusicInfo(position);
         } else if (action.equalsIgnoreCase(ACTION_NEXT)) {
             next();
             sendResult(position);
-            //mainInterface.setMusicInfo(position);
         }
         else if (action.equalsIgnoreCase(ACTION_STOP)) {
             stop();
@@ -414,7 +412,6 @@ public class PlayerService extends Service implements ServiceInterface {
         Intent intent = new Intent(SERVICE_RESULT);
         if(position >= 0)
             intent.putExtra(SERVICE_MESSAGE, position);
-            //intent.putExtra(SERVICE_MESSAGE, message);
         localBroadcastManager.sendBroadcast(intent);
     }
 

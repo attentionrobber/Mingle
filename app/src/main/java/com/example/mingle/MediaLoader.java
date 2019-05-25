@@ -1,13 +1,9 @@
 package com.example.mingle;
 
-import android.app.Notification;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -17,12 +13,7 @@ import com.example.mingle.domain.Music;
 import com.example.mingle.utility.MethodCollection;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class MediaLoader {
@@ -36,7 +27,7 @@ public class MediaLoader {
     private static final Uri URI_MUSIC = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
 
-    public static void loadSong(Context context) {
+    public static List<Music> loadSong(Context context) {
 
         musics.clear();
 
@@ -85,6 +76,7 @@ public class MediaLoader {
         }
         Log.i("MediaLoader", "musics size: "+musics.size());
 
+        return musics;
     } // loadSong()
 
     public static List<Music> loadFavorite() {

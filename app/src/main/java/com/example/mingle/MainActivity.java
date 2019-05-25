@@ -85,20 +85,16 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
         };
 
 
-
-
         setWidget();
         init();
-
     }
 
     private void setWidget() {
-
-        iv_albumArtMain = findViewById(R.id.iv_albumArtMain);
+        iv_albumArtMain = findViewById(R.id.iv_albumArtMain); iv_albumArtMain.setOnClickListener(this::btnClick);
         tv_artist = findViewById(R.id.tv_artist);
         tv_title = findViewById(R.id.tv_title);
 
-        findViewById(R.id.layout_player_bot).setOnClickListener(this::btnClick);
+        findViewById(R.id.layout_titleArtist).setOnClickListener(this::btnClick);
         btn_playPause = findViewById(R.id.btn_playPause); btn_playPause.setOnClickListener(this::btnClick);
         findViewById(R.id.btn_prev).setOnClickListener(this::btnClick);
         findViewById(R.id.btn_next).setOnClickListener(this::btnClick);
@@ -109,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
         // TODO: Load 할때 전체 다 로드 말고
         //  최근 플레이한(savedInstance 필요)플레이리스트 로드로 변경
         //mediaLoader = new MediaLoader(this);
-        MediaLoader.loadSong(this);
+        cur_musics = MediaLoader.loadSong(this);
 
     }
 
@@ -133,17 +129,10 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
                 position = position+1;
                 setMusicInfo(position);
                 break;
-            case R.id.layout_player_bot:
-//                serviceInterface.stop();
-                //Log.i("Main_Activity", ""+cur_music.getTitle());
-//
-//                if (PlayerService.mMediaPlayer != null) {
-//                    if (PlayerService.mMediaPlayer.isPlaying())
-//                        PlayerService.mMediaPlayer.pause();
-//                    else PlayerService.mMediaPlayer.start();
-//                }
-//                Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
-//                startActivity(intent);
+
+            case R.id.iv_albumArtMain:
+            case R.id.layout_titleArtist:
+                // TODO: 위 두개 터치시 PlayerActivity 로 가도록 설정하기
                 break;
             default: break;
         }
@@ -176,20 +165,20 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     public void setMusicInfo(int position) {
         Log.i("MainService MusicInfo", ""+cur_musics.size()+" pos: "+position);
         this.position = position;
+
 //        Glide.with(this)
 //                .load(Uri.parse(cur_musics.get(position).getAlbumImgUri()))
 //                .placeholder(R.drawable.default_album_image)
 //                .into(iv_albumArtMain);
+        iv_albumArtMain.setImageURI(Uri.parse(cur_musics.get(position).getAlbumImgUri()));
+        tv_title.setText(cur_musics.get(position).getTitle());
+        tv_artist.setText(cur_musics.get(position).getArtist());
 
         if (PlayerService.mMediaPlayer != null) {
             if (PlayerService.mMediaPlayer.isPlaying())
                 btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
             else btn_playPause.setImageResource(android.R.drawable.ic_media_play);
         } else btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
-
-        iv_albumArtMain.setImageURI(Uri.parse(cur_musics.get(position).getAlbumImgUri()));
-        tv_title.setText(cur_musics.get(position).getTitle());
-        tv_artist.setText(cur_musics.get(position).getArtist());
     }
 
 
@@ -218,8 +207,7 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
             case KeyEvent.KEYCODE_VOLUME_DOWN:
                 audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI);
                 return true;
-            default:
-                return false;
+            default: return false;
         }
     }
 }
