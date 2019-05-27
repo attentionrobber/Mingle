@@ -80,13 +80,18 @@ public class MediaLoader {
     } // loadSong()
 
     public static List<Music> loadFavorite() {
-        // TODO: 음악마다 즐겨찾기 설정 or 취소 기능 추가
-        List<Music> favorite = new ArrayList<>(musics);
 
-        for (int i = 0; i < favorite.size(); i++) {
+        //mMusics.get(i).getMusicUri()
+        //MainActivity.favorites.get(i).getMusicUri();
+        //favorite.add((Music) MainActivity.favorites);
+        //Log.i("MediaLoader", "title: "+MainActivity.favorites.get(i).getTitle());
+        //Log.i("MediaLoader", "title: "+MainActivity.favorites.get(i).getMusicUri());
+        List<Music> favorite = new ArrayList<>(MainActivity.favorites);
 
+        if (favorite.size() > 0) {
+            Log.i("MediaLoader", "title: " + favorite.get(0).getTitle());
+            Log.i("MediaLoader", "title: " + favorite.get(1).getTitle());
         }
-
 
         return favorite;
     }

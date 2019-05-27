@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     private AudioManager audio;
 
     // Related DB(Playlist, Favorites)
-    private static List<Favorite> favorites = new ArrayList<>();
+    public static List<Favorite> favorites = new ArrayList<>();
     DBHelper dbHelper;
     Dao<Favorite, Integer> favoriteDao;
 
@@ -190,10 +190,11 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
                         btn_favorite.setImageResource(android.R.drawable.btn_star_big_off); // 버튼 아이콘 set OFF
                         deleteFavorite(MediaLoader.musics.get(position).getMusicUri());
                     } else {
-                        addFavorite(new Favorite(MediaLoader.musics.get(position).getMusicUri())); // 해당 곡을 Favorite 에 추가 후 DB에 저장
+                        addFavorite(new Favorite(MediaLoader.musics.get(position))); // 해당 곡을 Favorite 에 추가 후 DB에 저장
                         btn_favorite.setImageResource(android.R.drawable.btn_star_big_on); // 버튼 아이콘 set OFF
                     }
                 } catch (SQLException e) { e.printStackTrace(); }
+                // TODO: Need to refresh Favorite Tab
                 break;
 
             case R.id.btn_shuffle: check();
@@ -208,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
 
     /**
      * Communicate MainActivity <-> PlaceholderFragment <-> FragmentTabAdapter
+     * Fragment 에서 MainActivity 로 보내는 Listener
      */
     @Override
     public void onRecyclerViewItemClicked(List<Music> musics, int position) {
