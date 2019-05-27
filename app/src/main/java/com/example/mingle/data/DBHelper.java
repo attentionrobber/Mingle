@@ -16,7 +16,7 @@ import java.sql.SQLException;
 public class DBHelper extends OrmLiteSqliteOpenHelper {
 
     private static final String DB_NAME = "mingle.db";
-    private static final int DB_VERSION = 5; // Field 를 수정했을 경우 이것을 바꿔주면 onUpgrade 호출됨.
+    private static final int DB_VERSION = 6; // Field 를 수정했을 경우 이것을 바꿔주면 onUpgrade 호출됨.
 
     private Dao<Favorite, Integer> favoriteDao = null;
     private Dao<Playlist, Integer> playlistDao = null;

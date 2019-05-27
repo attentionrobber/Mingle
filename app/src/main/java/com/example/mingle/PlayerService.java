@@ -34,7 +34,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
     // Media
     public static MediaPlayer mMediaPlayer = null;
-    public static List<Music> playlist = new ArrayList<>(); // Current Music List
+    public static List<Music> playlist = new ArrayList<>(); // Current Music Playlist
     public static int position = 0; // Current Music List's Position
 
     // Actions to control media
@@ -124,15 +124,18 @@ public class PlayerService extends Service implements ServiceInterface {
                     playlist = MediaLoader.musics;
                     break;
                 default:
-                    break;
+                    playlist = MediaLoader.musics;
             }
             String strUri = playlist.get(position).getMusicUri();
             Log.i("Service_init()", "" + strUri);
+            for (int i = 0; i < playlist.size(); i++) {
+                Log.i("Service_init()", "" + playlist.get(i).getPath());
+            }
 
             mMediaPlayer = MediaPlayer.create(this, Uri.parse(strUri));
             mMediaPlayer.setOnCompletionListener(mp -> {
                 next();
-                sendResult(position);
+                sendToMainActivity(position);
             });
         }
     }
@@ -146,18 +149,21 @@ public class PlayerService extends Service implements ServiceInterface {
         if (action.equalsIgnoreCase(ACTION_PLAY)) {
             setUpNotification();
             play();
-        } else if (action.equalsIgnoreCase(ACTION_PAUSE))
+            //sendToMainActivity(position);
+        } else if (action.equalsIgnoreCase(ACTION_PAUSE)) {
             pause();
+            //sendToMainActivity(position);
+        }
         else if (action.equalsIgnoreCase(ACTION_PLAYPAUSE)) {
             playPause();
-            sendResult(position);
+            sendToMainActivity(position);
         }
         else if (action.equalsIgnoreCase(ACTION_PREV)) {
             prev();
-            sendResult(position);
+            sendToMainActivity(position);
         } else if (action.equalsIgnoreCase(ACTION_NEXT)) {
             next();
-            sendResult(position);
+            sendToMainActivity(position);
         }
         else if (action.equalsIgnoreCase(ACTION_STOP)) {
             stop();
@@ -388,10 +394,11 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public void next() {
-        if (playlist.size() > position)
+        // size = 10, position 0~9
+        if (playlist.size()-1 > position)
             position = position + 1;
-        Log.i("Service_next", "pos"+position);
 
+        //Log.i("Service_next", "pos" + position);
         //Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
         String path = playlist.get(position).getPath();
         try {
@@ -399,9 +406,7 @@ public class PlayerService extends Service implements ServiceInterface {
             mMediaPlayer.setDataSource(path);
             mMediaPlayer.prepare();
             mMediaPlayer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
 
         updateNotification();
     }
@@ -426,7 +431,7 @@ public class PlayerService extends Service implements ServiceInterface {
     /**
      * MainActivity 에 명령을 보내는 함수
      */
-    private void sendResult(int position) {
+    private void sendToMainActivity(int position) {
         Intent intent = new Intent(SERVICE_RESULT);
         if(position >= 0)
             intent.putExtra(SERVICE_MESSAGE, position);

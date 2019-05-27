@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     // 서비스에서 cur_musics 를 초기화 해줘도 cur_musics 는 초기화되지 않아 size 가 0 인 상태이다.
 
     // Interface to interaction adapter
-    public static List<Music> cur_musics = new ArrayList<>();
-    private int position = 0;
+    public static List<Music> playlist = new ArrayList<>(); // Current Music Playlist
+    private int position = 0; // Current Music Playlist's Position
     private BroadcastReceiver broadcastReceiver; // Service 에서 넘어온 명령을 처리하는 리시버
 
     // set Default Media Volume(NOT Ringtone)
@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
 
         TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager());
@@ -165,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
         switch (v.getId()) {
             case R.id.btn_prev:
                 serviceInterface.prev();
-                position = position-1;
+                if (position > 0) position = position-1;
                 setMusicInfo(position);
                 break;
 
@@ -179,18 +178,18 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
 
             case R.id.btn_next:
                 serviceInterface.next();
-                position = position+1;
+                if (playlist.size()-1 > position) position = position+1;
                 setMusicInfo(position);
                 break;
 
             case R.id.btn_favorite:
                 // if favorite == true 면 btn.setImageRes(StarON) , setFavorite
                 try {
-                    if (isFavorite(MediaLoader.musics.get(position).getMusicUri())) { // 해당 곡이 Favorite 인 경우
+                    if (isFavorite(playlist.get(position).getMusicUri())) { // 해당 곡이 Favorite 인 경우
                         btn_favorite.setImageResource(android.R.drawable.btn_star_big_off); // 버튼 아이콘 set OFF
-                        deleteFavorite(MediaLoader.musics.get(position).getMusicUri());
+                        deleteFavorite(playlist.get(position).getMusicUri());
                     } else {
-                        addFavorite(new Favorite(MediaLoader.musics.get(position))); // 해당 곡을 Favorite 에 추가 후 DB에 저장
+                        addFavorite(new Favorite(playlist.get(position))); // 해당 곡을 Favorite 에 추가 후 DB에 저장
                         btn_favorite.setImageResource(android.R.drawable.btn_star_big_on); // 버튼 아이콘 set OFF
                     }
                 } catch (SQLException e) { e.printStackTrace(); }
@@ -208,13 +207,14 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     }
 
     /**
+     * RecyclerView Item 클릭 했을 때 실행되는 리스너
      * Communicate MainActivity <-> PlaceholderFragment <-> FragmentTabAdapter
      * Fragment 에서 MainActivity 로 보내는 Listener
      */
     @Override
     public void onRecyclerViewItemClicked(List<Music> musics, int position) {
-        MediaLoader.musics = musics;
-        Log.i("MainService Recycler", "pos: "+position+ " | size: " +MediaLoader.musics.size()+" | "+musics.size());
+        playlist = musics;
+        Log.i("MainService_Recycler", "pos: "+position+ " | size: " +playlist.size()+" | "+musics.size());
         this.position = position;
         setMusicInfo(position);
     }
@@ -223,26 +223,38 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
      * Main 하단부 Now Playing Music 레이아웃 세팅
      */
     public void setMusicInfo(int position) {
-        Log.i("MainService MusicInfo", ""+MediaLoader.musics.size()+" pos: "+position);
+        Log.i("MainService_MusicInfo", ""+playlist.size()+" pos: "+position);
         this.position = position;
 
 //        Glide.with(this)
 //                .load(Uri.parse(cur_musics.get(position).getAlbumImgUri()))
 //                .placeholder(R.drawable.default_album_image)
 //                .into(iv_albumArtMain);
-        iv_albumArtMain.setImageURI(Uri.parse(MediaLoader.musics.get(position).getAlbumImgUri()));
-        if (isFavorite(MediaLoader.musics.get(position).getMusicUri()))
+        iv_albumArtMain.setImageURI(Uri.parse(playlist.get(position).getAlbumImgUri()));
+        if (isFavorite(playlist.get(position).getMusicUri()))
             btn_favorite.setImageResource(android.R.drawable.btn_star_big_on);
         else
             btn_favorite.setImageResource(android.R.drawable.btn_star_big_off);
-        tv_title.setText(MediaLoader.musics.get(position).getTitle());
-        tv_artist.setText(MediaLoader.musics.get(position).getArtist());
+        tv_title.setText(playlist.get(position).getTitle());
+        tv_artist.setText(playlist.get(position).getArtist());
 
+
+        // 클릭시 playing 아님
+        // NEXT playing 임
+        // TODO: Service 가 Main 보다 나중에 실행되므로 isPlaying 은 false 임. 수정하기.
         if (PlayerService.mMediaPlayer != null) {
-            if (PlayerService.mMediaPlayer.isPlaying())
+            if (PlayerService.mMediaPlayer.isPlaying()) {
+                btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
+                Log.i("MainService_MusicInfo", "if if");
+            }
+            else {
+                Log.i("MainService_MusicInfo", "if else");
                 btn_playPause.setImageResource(android.R.drawable.ic_media_play);
-            else btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
-        } else btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
+            }
+        } else {
+            Log.i("MainService_MusicInfo", "else");
+            btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
+        }
     }
 
 

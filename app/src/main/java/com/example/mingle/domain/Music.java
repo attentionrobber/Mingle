@@ -73,6 +73,10 @@ public class Music extends Common {
         return artist;
     }
 
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
     public void setAlbumImgBitmap(Bitmap albumImgBitmap) {
         this.albumImgBitmap = albumImgBitmap;
     }
@@ -96,9 +100,6 @@ public class Music extends Common {
 //        return null;
 //    }
 
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
 
     public String getArtist_key() {
         return artist_key;

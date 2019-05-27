@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.mingle.Constants;
 import com.example.mingle.PlayerService;
 import com.example.mingle.R;
 import com.example.mingle.domain.Common;
@@ -102,6 +103,7 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
         holder.layout_item.setOnClickListener(v -> {
             Intent intent = new Intent(context, PlayerService.class);
             Bundle extras = new Bundle();
+            extras.putString("tab", Constants.TAB.SONG);
             extras.putInt("position", position);
             intent.putExtras(extras);
             intent.setAction(PlayerService.ACTION_PLAY);

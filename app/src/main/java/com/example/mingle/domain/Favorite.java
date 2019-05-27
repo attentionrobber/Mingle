@@ -17,6 +17,9 @@ public class Favorite extends Music {
     private String musicUri;
 
     @DatabaseField
+    private String path;
+
+    @DatabaseField
     private String title;
 
     @DatabaseField
@@ -35,6 +38,7 @@ public class Favorite extends Music {
 
     public Favorite(Music music) {
         musicUri = music.getMusicUri();
+        path = music.getPath();
         title = music.getTitle();
         artist = music.getArtist();
         album = music.getAlbum();
@@ -47,6 +51,16 @@ public class Favorite extends Music {
 
     public void setMusicUri(String musicUri) {
         this.musicUri = musicUri;
+    }
+
+    @Override
+    public String getPath() {
+        return path;
+    }
+
+    @Override
+    public void setPath(String path) {
+        this.path = path;
     }
 
     @Override
