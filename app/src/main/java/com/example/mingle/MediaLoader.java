@@ -27,7 +27,7 @@ public class MediaLoader {
     private static final Uri URI_MUSIC = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
 
-    public static List<Music> loadSong(Context context) {
+    public static void loadSong(Context context) {
 
         musics.clear();
 
@@ -76,7 +76,7 @@ public class MediaLoader {
         }
         Log.i("MediaLoader", "musics size: "+musics.size());
 
-        return musics;
+        //return musics;
     } // loadSong()
 
     public static List<Music> loadFavorite() {

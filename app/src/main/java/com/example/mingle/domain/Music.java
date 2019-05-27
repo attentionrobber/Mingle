@@ -131,7 +131,6 @@ public class Music extends Common {
 
     public String getAlbumImgPath() {
         Uri uri = Uri.parse(getAlbumImgUri());
-
         return "";
     }
 
@@ -163,12 +162,12 @@ public class Music extends Common {
         this.duration = duration;
     }
 
-    public String getIs_music() {
-        return isMusic;
-    }
-
     public void setIsMusic(String is_music) {
         this.isMusic = is_music;
+    }
+
+    public String getIsMusic() {
+        return isMusic;
     }
 
 }

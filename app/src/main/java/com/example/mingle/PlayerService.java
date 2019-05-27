@@ -65,7 +65,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.i("Service", "onBind");
+        Log.i("Service_", "onBind");
         // Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
@@ -78,7 +78,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("Service", "StartCommand. flags:"+flags+" startId: "+startId);
+        Log.i("Service_", "StartCommand. flags:"+flags+" startId: "+startId);
 
         if (intent.getExtras() != null && intent.getAction() != null) {
             init(intent); // both extras and action
@@ -103,13 +103,13 @@ public class PlayerService extends Service implements ServiceInterface {
         String strUri;
         if (intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
-            cur_musics = MediaLoader.musics; // TODO: Fix it
+            cur_musics = MediaLoader.musics; // TODO: good to exist it
             position = extras.getInt("position");
-            strUri = cur_musics.get(position).getMusicUri();
+            strUri = MediaLoader.musics.get(position).getMusicUri();
         } else // Noti Bar 에서 명령한 Intent 가 여기로 오고있는 중. 수정필요
             strUri = "content://media/external/audio/media/967";
 
-        Log.i("Service init()", ""+strUri);
+        Log.i("Service_init()", ""+strUri);
         Uri mediaUri = Uri.parse(strUri);
         mMediaPlayer = MediaPlayer.create(this, mediaUri);
         mMediaPlayer.setOnCompletionListener(mp -> {
@@ -148,6 +148,7 @@ public class PlayerService extends Service implements ServiceInterface {
     /**
      * NotificationBar 만드는 함수
      */
+    @Deprecated
     private void createNotification() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -217,7 +218,6 @@ public class PlayerService extends Service implements ServiceInterface {
         return getResources().getIdentifier(uriStr, "raw", getBaseContext().getPackageName());
     }
 
-
     /**
      * init Notification
      */
@@ -233,13 +233,13 @@ public class PlayerService extends Service implements ServiceInterface {
 
         // Set Notification's layout
         mRemoteViews = new RemoteViews(getPackageName(), R.layout.notification_small);
-        if (cur_musics.get(position).getAlbumImgUri() != null) {
-            mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(cur_musics.get(position).getAlbumImgUri())); // notification's icon
+        if (MediaLoader.musics.get(position).getAlbumImgUri() != null) {
+            mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(MediaLoader.musics.get(position).getAlbumImgUri())); // notification's icon
         } else {
             mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // notification's icon
         }
-        mRemoteViews.setTextViewText(R.id.tv_notiTitle, cur_musics.get(position).getTitle()); // notification's title
-        mRemoteViews.setTextViewText(R.id.tv_notiContent, cur_musics.get(position).getArtist()); // notification's content
+        mRemoteViews.setTextViewText(R.id.tv_notiTitle, MediaLoader.musics.get(position).getTitle()); // notification's title
+        mRemoteViews.setTextViewText(R.id.tv_notiContent, MediaLoader.musics.get(position).getArtist()); // notification's content
 
         // Add Button Preview
         Intent prevIntent = new Intent(this, PlayerService.class);
@@ -264,7 +264,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
 
         mBuilder = new NotificationCompat.Builder(this);
-        CharSequence ticker = cur_musics.get(position).getTitle(); // 노티바 생성시 상태표시줄에 처음 표시되는 글자
+        CharSequence ticker = MediaLoader.musics.get(position).getTitle(); // 노티바 생성시 상태표시줄에 처음 표시되는 글자
         mBuilder.setSmallIcon(R.drawable.default_album_image) // 맨위 상태표시줄에 작은아이콘
                 .setAutoCancel(false)
                 .setOngoing(true)
@@ -284,16 +284,16 @@ public class PlayerService extends Service implements ServiceInterface {
             mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_play); // 노티바 버튼 변경
 
         // 앨범아트가 있는지 없는지 검사한다. 없으면 null 반환
-        Uri albumArtUri = existAlbumArt(getBaseContext(), cur_musics.get(position).getAlbumImgUri());
+        Uri albumArtUri = existAlbumArt(getBaseContext(), MediaLoader.musics.get(position).getAlbumImgUri());
         if (albumArtUri != null)
             mRemoteViews.setImageViewUri(R.id.iv_noti, albumArtUri); // set Album Artwork
         else
             mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // set default image
 
-        mRemoteViews.setTextViewText(R.id.tv_notiTitle, cur_musics.get(position).getTitle()); /// update the title
-        mRemoteViews.setTextViewText(R.id.tv_notiContent, cur_musics.get(position).getArtist()); // update the content
+        mRemoteViews.setTextViewText(R.id.tv_notiTitle, MediaLoader.musics.get(position).getTitle()); /// update the title
+        mRemoteViews.setTextViewText(R.id.tv_notiContent, MediaLoader.musics.get(position).getArtist()); // update the content
 
-        CharSequence ticker = cur_musics.get(position).getTitle(); // 노티바 생성시 상태표시줄에 표시되는 글자
+        CharSequence ticker = MediaLoader.musics.get(position).getTitle(); // 노티바 생성시 상태표시줄에 표시되는 글자
         mBuilder.setTicker(ticker);
 
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());  // update the notification
@@ -354,7 +354,7 @@ public class PlayerService extends Service implements ServiceInterface {
         Log.i("Service_prev", "pos"+position);
 
         //Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
-        String path = cur_musics.get(position).getPath();
+        String path = MediaLoader.musics.get(position).getPath();
         try {
             mMediaPlayer.reset();
             //mMediaPlayer.setDataSource(getBaseContext(), uri);
@@ -370,12 +370,12 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public void next() {
-        if (cur_musics.size() > position)
+        if (MediaLoader.musics.size() > position)
             position = position + 1;
         Log.i("Service_next", "pos"+position);
 
         //Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
-        String path = cur_musics.get(position).getPath();
+        String path = MediaLoader.musics.get(position).getPath();
         try {
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(path);
@@ -397,7 +397,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public void onDestroy() {
-        Log.i("Service", "onDestroy");
+        Log.i("Service_", "onDestroy");
         if (mMediaPlayer != null) {
             mMediaPlayer.release();
             mMediaPlayer = null;

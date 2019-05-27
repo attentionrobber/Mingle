@@ -13,15 +13,16 @@ public class Favorite extends Music {
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField
+    @DatabaseField(unique = true)
     private String musicUri;
 
-    @DatabaseField
-    private boolean favorite;
+    // 있어야함. 그래야 DBHelper 에서 getDao 가능.
+    public Favorite() {
 
-    public Favorite(String musicUri, boolean favorite) {
+    }
+
+    public Favorite(String musicUri) {
         this.musicUri = musicUri;
-        this.favorite = favorite;
     }
 
     public String getMusicUri() {
@@ -32,11 +33,4 @@ public class Favorite extends Music {
         this.musicUri = musicUri;
     }
 
-    public boolean isFavorite() {
-        return favorite;
-    }
-
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
-    }
 }

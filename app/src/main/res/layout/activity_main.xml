@@ -87,11 +87,11 @@
                 android:layout_gravity="bottom"
                 android:orientation="horizontal">
                 <ImageButton
-                    android:id="@+id/btn_repeat"
+                    android:id="@+id/btn_favorite"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:background="?attr/selectableItemBackground"
-                    android:src="@android:drawable/ic_menu_close_clear_cancel"/>
+                    android:src="@android:drawable/btn_star_big_off"/>
                 <ImageButton
                     android:id="@+id/btn_prev"
                     android:layout_height="50dp"

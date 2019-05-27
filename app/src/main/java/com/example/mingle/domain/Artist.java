@@ -138,8 +138,8 @@ public class Artist extends Music {
     }
 
     @Override
-    public String getIs_music() {
-        return super.getIs_music();
+    public String getIsMusic() {
+        return super.getIsMusic();
     }
 
     @Override
