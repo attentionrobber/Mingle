@@ -14,8 +14,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.mingle.R;
-import com.example.mingle.domain.Album;
-import com.example.mingle.domain.Artist;
 import com.example.mingle.domain.Music;
 
 import java.util.List;

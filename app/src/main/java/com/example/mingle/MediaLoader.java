@@ -22,7 +22,6 @@ public class MediaLoader {
     public static List<Music> musicsByAlbum = new ArrayList<>();
     public static List<Music> musicsByArtist = new ArrayList<>();
     public static List<Music> musicsByFolder = new ArrayList<>();
-    //private Context context;
 
     private static final Uri URI_MUSIC = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
@@ -80,20 +79,7 @@ public class MediaLoader {
     } // loadSong()
 
     public static List<Music> loadFavorite() {
-
-        //mMusics.get(i).getMusicUri()
-        //MainActivity.favorites.get(i).getMusicUri();
-        //favorite.add((Music) MainActivity.favorites);
-        //Log.i("MediaLoader", "title: "+MainActivity.favorites.get(i).getTitle());
-        //Log.i("MediaLoader", "title: "+MainActivity.favorites.get(i).getMusicUri());
-        List<Music> favorite = new ArrayList<>(MainActivity.favorites);
-
-        if (favorite.size() > 0) {
-            Log.i("MediaLoader", "title: " + favorite.get(0).getTitle());
-            Log.i("MediaLoader", "title: " + favorite.get(1).getTitle());
-        }
-
-        return favorite;
+        return new ArrayList<>(MainActivity.favorites);
     }
 
     public static List<Music> selectionByAlbum(Context context) {
@@ -161,13 +147,11 @@ public class MediaLoader {
         ContentResolver resolver = context.getContentResolver(); // 데이터에 접근하기 위해 Content Resolver 를 불러온다.
 
         String[] projection = {
-                MediaStore.Audio.Albums.ALBUM_ART,
-                MediaStore.Audio.Albums.ALBUM,
-                MediaStore.Audio.Albums.ALBUM_ID,
-                MediaStore.Audio.Albums.ARTIST,
-                MediaStore.Audio.Albums.NUMBER_OF_SONGS,
-                MediaStore.Audio.Albums.NUMBER_OF_SONGS_FOR_ARTIST,
-                MediaStore.Audio.Artists.NUMBER_OF_ALBUMS,
+//                MediaStore.Audio.Artists._ID,
+//                MediaStore.Audio.Artists.ARTIST,
+//                MediaStore.Audio.Artists.NUMBER_OF_SONGS,
+//                MediaStore.Audio.Artists.NUMBER_OF_SONGS_FOR_ARTIST,
+//                MediaStore.Audio.Artists.NUMBER_OF_ALBUMS,
         };
         //String selection = MediaStore.Audio.Media.+" =?"; // XX 으로 선별
         String orderBy = MediaStore.Audio.Media.ARTIST+" COLLATE LOCALIZED ASC"; // 기타 한글 영문순 정렬 (+" DESC" 내림차순, ASC 오름차순)

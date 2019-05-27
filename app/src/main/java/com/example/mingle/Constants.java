@@ -5,6 +5,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 public class Constants {
+    public interface TAB {
+        public static String FAVORITE = "om.example.mingle.tab.favorite";
+        public static String PLAYLIST = "om.example.mingle.tab.playlist";
+        public static String SONG = "om.example.mingle.tab.song";
+        public static String ALBUM = "om.example.mingle.tab.album";
+        public static String ARTIST = "om.example.mingle.tab.artist";
+        public static String FOLDER = "om.example.mingle.tab.folder";
+    }
     public interface ACTION {
 //        public static String MAIN_ACTION = "com.example.mingle.action.main";
 //        public static String INIT_ACTION = "com.example.mingle.action.init";

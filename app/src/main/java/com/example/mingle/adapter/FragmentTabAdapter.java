@@ -2,12 +2,7 @@ package com.example.mingle.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Messenger;
-import android.os.Parcelable;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,20 +14,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.Request;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.signature.MediaStoreSignature;
-import com.example.mingle.MainActivity;
 import com.example.mingle.PlayerService;
 import com.example.mingle.R;
 import com.example.mingle.domain.Common;
 import com.example.mingle.domain.Music;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.ViewHolder> {
@@ -41,11 +27,6 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
     private List<Music> musicList;
     private int item_frag_layout;
     private AdapterListener adapterListener;
-
-
-    public interface AdapterListener {
-        void onRecyclerViewItemClicked(List<Music> musics, int position);
-    }
 
     public FragmentTabAdapter(Context context, List<Music> musicList, int resLayout, AdapterListener listener) {
         this.context = context;
@@ -64,7 +45,7 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
                 item_frag_layout = R.layout.item_frag_song;
                 break;
             case R.layout.item_frag_album:
-                item_frag_layout = R.layout.item_frag_album; // TODO: 맞는 레이아웃 바꾸기
+                item_frag_layout = R.layout.item_frag_album;
                 break;
             case R.layout.item_frag_artist:
                 item_frag_layout = R.layout.item_frag_artist;
@@ -118,22 +99,19 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 //                .placeholder(R.drawable.default_album_image)
 //                .into(holder.iv_albumCover);
 
-        holder.layout_item.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, PlayerService.class);
-                Bundle extras = new Bundle();
-                extras.putInt("position", position);
-                intent.putExtras(extras);
-                intent.setAction(PlayerService.ACTION_PLAY);
-                context.startService(intent);
-                Log.i("Service - TabAdapter", ""+position+" | "+((Common) musicList.get(position)).getMusicUri());
+        holder.layout_item.setOnClickListener(v -> {
+            Intent intent = new Intent(context, PlayerService.class);
+            Bundle extras = new Bundle();
+            extras.putInt("position", position);
+            intent.putExtras(extras);
+            intent.setAction(PlayerService.ACTION_PLAY);
+            context.startService(intent);
+            Log.i("Service - TabAdapter", ""+position+" | "+((Common) musicList.get(position)).getMusicUri());
 
-                // MainActivity 로 보냄
-                if (adapterListener != null) {
-                    //Log.i("Main_Listener", "not null");
-                    adapterListener.onRecyclerViewItemClicked(musicList, position);
-                }
+            // MainActivity 로 보냄
+            if (adapterListener != null) {
+                //Log.i("Main_Listener", "not null");
+                adapterListener.onRecyclerViewItemClicked(musicList, position);
             }
         });
     }

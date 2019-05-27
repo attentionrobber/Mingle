@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Messenger;
+import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -33,8 +34,8 @@ public class PlayerService extends Service implements ServiceInterface {
 
     // Media
     public static MediaPlayer mMediaPlayer = null;
-    public static List<Music> cur_musics = new ArrayList<>();
-    public static int position = 0;
+    public static List<Music> playlist = new ArrayList<>(); // Current Music List
+    public static int position = 0; // Current Music List's Position
 
     // Actions to control media
     public static final String ACTION_INIT = "ACTION_INIT";
@@ -53,8 +54,7 @@ public class PlayerService extends Service implements ServiceInterface {
     public static RemoteViews mRemoteViews;
     private Notification mNotification;
 
-
-    // Interface for MainActivity
+    // Communicate with MainActivity(PlayerService -> MainActivity)
     private LocalBroadcastManager localBroadcastManager;
     public static final String SERVICE_RESULT = "com.service.result";
     public static final String SERVICE_MESSAGE = "com.service.message";
@@ -100,22 +100,41 @@ public class PlayerService extends Service implements ServiceInterface {
         if (mMediaPlayer != null)
             mMediaPlayer.release();
 
-        String strUri;
         if (intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
-            cur_musics = MediaLoader.musics; // TODO: good to exist it
             position = extras.getInt("position");
-            strUri = MediaLoader.musics.get(position).getMusicUri();
-        } else // Noti Bar 에서 명령한 Intent 가 여기로 오고있는 중. 수정필요
-            strUri = "content://media/external/audio/media/967";
+            String str = extras.getString("tab");
+            switch (str) {
+                case Constants.TAB.FAVORITE:
+                    playlist = MediaLoader.loadFavorite();
+                    break;
+                case Constants.TAB.PLAYLIST:
+                    playlist = MediaLoader.musics;
+                    break;
+                case Constants.TAB.SONG:
+                    playlist = MediaLoader.musics;
+                    break;
+                case Constants.TAB.ALBUM:
+                    playlist = MediaLoader.musicsByAlbum; // TODO: 탭에 알맞은 Playlist 변경
+                    break;
+                case Constants.TAB.ARTIST:
+                    playlist = MediaLoader.musics;
+                    break;
+                case Constants.TAB.FOLDER:
+                    playlist = MediaLoader.musics;
+                    break;
+                default:
+                    break;
+            }
+            String strUri = playlist.get(position).getMusicUri();
+            Log.i("Service_init()", "" + strUri);
 
-        Log.i("Service_init()", ""+strUri);
-        Uri mediaUri = Uri.parse(strUri);
-        mMediaPlayer = MediaPlayer.create(this, mediaUri);
-        mMediaPlayer.setOnCompletionListener(mp -> {
-            next();
-            sendResult(position);
-        });
+            mMediaPlayer = MediaPlayer.create(this, Uri.parse(strUri));
+            mMediaPlayer.setOnCompletionListener(mp -> {
+                next();
+                sendResult(position);
+            });
+        }
     }
 
     // Intent Action 에 넘어온 명령어를 분기시키는 함수
@@ -193,11 +212,11 @@ public class PlayerService extends Service implements ServiceInterface {
             views.setImageViewResource(R.id.status_bar_play, R.drawable.apollo_holo_dark_pause);
             bigViews.setImageViewResource(R.id.status_bar_play, R.drawable.apollo_holo_dark_pause);
 
-            views.setTextViewText(R.id.status_bar_track_name, cur_musics.get(position).getTitle());
-            bigViews.setTextViewText(R.id.status_bar_track_name, cur_musics.get(position).getTitle());
-            views.setTextViewText(R.id.status_bar_artist_name, cur_musics.get(position).getArtist());
-            bigViews.setTextViewText(R.id.status_bar_artist_name, cur_musics.get(position).getArtist());
-            bigViews.setTextViewText(R.id.status_bar_album_name, cur_musics.get(position).getAlbum());
+            views.setTextViewText(R.id.status_bar_track_name, playlist.get(position).getTitle());
+            bigViews.setTextViewText(R.id.status_bar_track_name, playlist.get(position).getTitle());
+            views.setTextViewText(R.id.status_bar_artist_name, playlist.get(position).getArtist());
+            bigViews.setTextViewText(R.id.status_bar_artist_name, playlist.get(position).getArtist());
+            bigViews.setTextViewText(R.id.status_bar_album_name, playlist.get(position).getAlbum());
 
             Notification status = new Notification.Builder(this).build();
 
@@ -222,7 +241,6 @@ public class PlayerService extends Service implements ServiceInterface {
      * init Notification
      */
     private void setUpNotification(){
-
         // TODO 위에있는 노티바함수 이걸로 바꾸기
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -233,13 +251,13 @@ public class PlayerService extends Service implements ServiceInterface {
 
         // Set Notification's layout
         mRemoteViews = new RemoteViews(getPackageName(), R.layout.notification_small);
-        if (MediaLoader.musics.get(position).getAlbumImgUri() != null) {
-            mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(MediaLoader.musics.get(position).getAlbumImgUri())); // notification's icon
+        if (playlist.get(position).getAlbumImgUri() != null) {
+            mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(playlist.get(position).getAlbumImgUri())); // notification's icon
         } else {
             mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // notification's icon
         }
-        mRemoteViews.setTextViewText(R.id.tv_notiTitle, MediaLoader.musics.get(position).getTitle()); // notification's title
-        mRemoteViews.setTextViewText(R.id.tv_notiContent, MediaLoader.musics.get(position).getArtist()); // notification's content
+        mRemoteViews.setTextViewText(R.id.tv_notiTitle, playlist.get(position).getTitle()); // notification's title
+        mRemoteViews.setTextViewText(R.id.tv_notiContent, playlist.get(position).getArtist()); // notification's content
 
         // Add Button Preview
         Intent prevIntent = new Intent(this, PlayerService.class);
@@ -264,7 +282,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
 
         mBuilder = new NotificationCompat.Builder(this);
-        CharSequence ticker = MediaLoader.musics.get(position).getTitle(); // 노티바 생성시 상태표시줄에 처음 표시되는 글자
+        CharSequence ticker = playlist.get(position).getTitle(); // 노티바 생성시 상태표시줄에 처음 표시되는 글자
         mBuilder.setSmallIcon(R.drawable.default_album_image) // 맨위 상태표시줄에 작은아이콘
                 .setAutoCancel(false)
                 .setOngoing(true)
@@ -284,16 +302,16 @@ public class PlayerService extends Service implements ServiceInterface {
             mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_play); // 노티바 버튼 변경
 
         // 앨범아트가 있는지 없는지 검사한다. 없으면 null 반환
-        Uri albumArtUri = existAlbumArt(getBaseContext(), MediaLoader.musics.get(position).getAlbumImgUri());
+        Uri albumArtUri = existAlbumArt(getBaseContext(), playlist.get(position).getAlbumImgUri());
         if (albumArtUri != null)
             mRemoteViews.setImageViewUri(R.id.iv_noti, albumArtUri); // set Album Artwork
         else
             mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // set default image
 
-        mRemoteViews.setTextViewText(R.id.tv_notiTitle, MediaLoader.musics.get(position).getTitle()); /// update the title
-        mRemoteViews.setTextViewText(R.id.tv_notiContent, MediaLoader.musics.get(position).getArtist()); // update the content
+        mRemoteViews.setTextViewText(R.id.tv_notiTitle, playlist.get(position).getTitle()); /// update the title
+        mRemoteViews.setTextViewText(R.id.tv_notiContent, playlist.get(position).getArtist()); // update the content
 
-        CharSequence ticker = MediaLoader.musics.get(position).getTitle(); // 노티바 생성시 상태표시줄에 표시되는 글자
+        CharSequence ticker = playlist.get(position).getTitle(); // 노티바 생성시 상태표시줄에 표시되는 글자
         mBuilder.setTicker(ticker);
 
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());  // update the notification
@@ -354,7 +372,7 @@ public class PlayerService extends Service implements ServiceInterface {
         Log.i("Service_prev", "pos"+position);
 
         //Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
-        String path = MediaLoader.musics.get(position).getPath();
+        String path = playlist.get(position).getPath();
         try {
             mMediaPlayer.reset();
             //mMediaPlayer.setDataSource(getBaseContext(), uri);
@@ -370,12 +388,12 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public void next() {
-        if (MediaLoader.musics.size() > position)
+        if (playlist.size() > position)
             position = position + 1;
         Log.i("Service_next", "pos"+position);
 
         //Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
-        String path = MediaLoader.musics.get(position).getPath();
+        String path = playlist.get(position).getPath();
         try {
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(path);

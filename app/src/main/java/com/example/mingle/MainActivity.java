@@ -240,8 +240,8 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
 
         if (PlayerService.mMediaPlayer != null) {
             if (PlayerService.mMediaPlayer.isPlaying())
-                btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
-            else btn_playPause.setImageResource(android.R.drawable.ic_media_play);
+                btn_playPause.setImageResource(android.R.drawable.ic_media_play);
+            else btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
         } else btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
     }
 
