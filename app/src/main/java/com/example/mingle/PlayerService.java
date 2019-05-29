@@ -32,6 +32,9 @@ import java.util.List;
  */
 public class PlayerService extends Service implements ServiceInterface {
 
+    // Resource
+    private Context context;
+
     // Media
     public static MediaPlayer mMediaPlayer = null;
     public static List<Music> playlist = new ArrayList<>(); // Current Music Playlist
@@ -39,7 +42,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
     // Actions to control media
     public static final String ACTION_INIT = "ACTION_INIT";
-    public static final String ACTION_MAIN = "ACTION_INIT";
+    public static final String ACTION_MAIN = "ACTION_MAIN";
     public static final String ACTION_PLAY = "ACTION_PLAY";
     public static final String ACTION_PAUSE = "ACTION_PAUSE";
     public static final String ACTION_PLAYPAUSE = "ACTION_PLAYPAUSE";
@@ -73,6 +76,7 @@ public class PlayerService extends Service implements ServiceInterface {
     @Override
     public void onCreate() {
         super.onCreate();
+        context = getApplicationContext();
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
     }
 
@@ -115,7 +119,7 @@ public class PlayerService extends Service implements ServiceInterface {
                     playlist = MediaLoader.musics;
                     break;
                 case Constants.TAB.ALBUM:
-                    playlist = MediaLoader.musicsByAlbum; // TODO: 탭에 알맞은 Playlist 변경
+                    //playlist = MediaLoader.loadAlbum(context); // TODO: 탭에 알맞은 Playlist 변경
                     break;
                 case Constants.TAB.ARTIST:
                     playlist = MediaLoader.musics;
@@ -398,7 +402,6 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public void next() {
-        // size = 10, position 0~9
         if (playlist.size()-1 > position)
             position = position + 1;
 

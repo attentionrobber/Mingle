@@ -22,11 +22,14 @@ import java.util.List;
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> {
 
     private Context context;
-    private List<?> musicList;
+    private List<Album> albums;
 
-    public AlbumAdapter(Context context, List<?> musicList) {
+    private AdapterListener adapterListener;
+
+    public AlbumAdapter(Context context, List<Album> albums, AdapterListener listener) {
         this.context = context;
-        this.musicList = musicList;
+        this.albums = albums;
+        adapterListener = listener;
     }
 
     @NonNull
@@ -39,7 +42,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
-        Album album = (Album) musicList.get(position);
+        Album album = albums.get(position);
 
         holder.tv_albumTitle.setText(album.getAlbum());
         holder.tv_artist.setText(album.getArtist()+" "+album.getCountOfSongs()+"곡");
@@ -48,12 +51,18 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
                 .load(album.getAlbumImgUri())
                 .placeholder(R.drawable.default_album_image)
                 .into(holder.iv_albumCover);
-        //Log.i("Adapter_Album", "album: "+album.getAlbumImgUri());
+
+        holder.layout_item.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adapterListener.onBucketItemClicked(String.valueOf(album.getAlbum_id()));
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return musicList.size();
+        return albums.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

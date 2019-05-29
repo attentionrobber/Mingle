@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -14,16 +15,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
 
-import com.example.mingle.MainActivity;
 import com.example.mingle.MediaLoader;
 import com.example.mingle.R;
 import com.example.mingle.adapter.AdapterListener;
+import com.example.mingle.adapter.AlbumAdapter;
 import com.example.mingle.adapter.FragmentTabAdapter;
 import com.example.mingle.adapter.PlaylistAdapter;
+import com.example.mingle.domain.Album;
 import com.example.mingle.domain.Music;
 import com.example.mingle.domain.Playlist;
 
@@ -33,27 +34,25 @@ import java.util.List;
 /**
  * Playlist Tab 을 표현하는 Fragment
  */
-public class PlaylistFragment extends Fragment implements OnBackPressedListener {
+public class AlbumFragment extends Fragment implements OnBackPressedListener {
 
     private static final String ARG_KEY = "PlaylistKey";
     private Context context;
 
     // Widget(View)
-    private GridView gridView;
-    private RecyclerView recyclerView;
-    private FloatingActionButton fab;
+    private RecyclerView rv_albumList, rv_inAlbum;
 
     private FragmentListener fragmentListener;
 
-    public PlaylistFragment() {
+    public AlbumFragment() {
     }
 
-    public static PlaylistFragment newInstance(int index) {
+    public static AlbumFragment newInstance(int index) {
 //        PlaylistFragment fragment = new PlaylistFragment();
 //        Bundle bundle = new Bundle();
 //        bundle.putInt(ARG_KEY, index);
 //        fragment.setArguments(bundle);
-        return new PlaylistFragment();
+        return new AlbumFragment();
     }
 
     @Override
@@ -64,7 +63,7 @@ public class PlaylistFragment extends Fragment implements OnBackPressedListener 
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_playlist, container, false);
+        View root = inflater.inflate(R.layout.fragment_album, container, false);
 
         setWidget(root);
 
@@ -72,50 +71,12 @@ public class PlaylistFragment extends Fragment implements OnBackPressedListener 
     }
 
     private void setWidget(View root) {
-        gridView = root.findViewById(R.id.gv_playlist);
-        recyclerView = root.findViewById(R.id.rv_playlist);
-        fab = root.findViewById(R.id.fab_playlist);
+        rv_albumList = root.findViewById(R.id.rv_albumList);
+        rv_inAlbum = root.findViewById(R.id.rv_inAlbum);
 
         //gridView.setOnItemClickListener((parent, view, position, id) -> gridViewItemClicked()); // Replace AdapterListener
-        fab.setOnClickListener(v -> createPlaylist());
-
-        gridView.setAdapter(new PlaylistAdapter(context, MediaLoader.loadPlaylist(context), adapterListener));
-    }
-
-    private void createPlaylist() {
-        // TODO: Dialog UI 변경, Add Auto display Keyboard
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("새로운 재생목록 추가");
-
-        final EditText input = new EditText(context);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        builder.setPositiveButton("추가", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String text = input.getText().toString();
-                if (text.equals(""))
-                    MediaLoader.createPlaylist(context, text);
-            }
-        });
-        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-
-    }
-
-    private void playlistItemClicked(List<Music> musics) {
-        gridView.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.VISIBLE);
-        recyclerView.setAdapter(new FragmentTabAdapter(context, musics, R.layout.item_frag_song, adapterListener));
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        rv_albumList.setLayoutManager(new GridLayoutManager(context, 2));
+        rv_albumList.setAdapter(new AlbumAdapter(context, MediaLoader.loadAlbum(context), adapterListener));
     }
 
     /**
@@ -129,20 +90,23 @@ public class PlaylistFragment extends Fragment implements OnBackPressedListener 
 
         @Override
         public void onBucketItemClicked(String bucketID) {
-            //Log.i("PlaylistFragment", "onGridViewItemClicked "+position);
+            // TODO: load musics in Album
+            List<Music> musics = MediaLoader.loadSongsInAlbum(context, bucketID);
 
-            List<Music> musics = MediaLoader.loadSongsInPlaylist(context, bucketID);
-            playlistItemClicked(musics);
+            rv_albumList.setVisibility(View.GONE);
+            rv_inAlbum.setVisibility(View.VISIBLE);
+            rv_inAlbum.setLayoutManager(new LinearLayoutManager(context));
+            rv_inAlbum.setAdapter(new FragmentTabAdapter(context, musics, R.layout.item_frag_song, adapterListener));
         }
     };
 
     @Override
     public boolean onBackPressed() {
-        Log.i("PlaylistFragment", "onBackPressed()");
+        Log.i("AlbumFragment", "onBackPressed()");
 
-        if (recyclerView.getVisibility() == View.VISIBLE) { // list of song
-            recyclerView.setVisibility(View.GONE);
-            gridView.setVisibility(View.VISIBLE);
+        if (rv_inAlbum.getVisibility() == View.VISIBLE) { // list of song
+            rv_inAlbum.setVisibility(View.GONE);
+            rv_albumList.setVisibility(View.VISIBLE);
             return false;
         }
         return true;
@@ -167,7 +131,7 @@ public class PlaylistFragment extends Fragment implements OnBackPressedListener 
     @Override
     public void onResume() {
         super.onResume();
-        Log.i("PlaylistFragment", "onResume PlaylistTab");
+        Log.i("AlbumFragment", "onResume AlbumTAB");
     }
 
 }

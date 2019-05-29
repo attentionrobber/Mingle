@@ -2,7 +2,6 @@ package com.example.mingle.ui.main;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,12 +16,10 @@ import com.example.mingle.Constants;
 import com.example.mingle.MediaLoader;
 import com.example.mingle.R;
 import com.example.mingle.adapter.AdapterListener;
-import com.example.mingle.adapter.AlbumAdapter;
 import com.example.mingle.adapter.ArtistAdapter;
 import com.example.mingle.adapter.FavoriteAdapter;
 import com.example.mingle.adapter.FragmentTabAdapter;
 import com.example.mingle.domain.Music;
-import com.example.mingle.domain.Playlist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +67,7 @@ public class PlaceholderFragment extends Fragment {
                     TAB_NAME = Constants.TAB.FAVORITE;
                     layout_item = R.layout.item_frag_favorite;
                     break;
-//                case 2: // Playlist(Replace PlaylistFragment)
+//                case 2: // Playlist (Replace PlaylistFragment)
 //                    TAB_NAME = Constants.TAB.PLAYLIST;
 //                    layout_item = R.layout.item_frag_playlist;
 //                    break;
@@ -79,11 +76,11 @@ public class PlaceholderFragment extends Fragment {
                     layout_item = R.layout.item_frag_song;
                     musics = MediaLoader.musics;
                     break;
-                case 4: // Album
-                    TAB_NAME = Constants.TAB.ALBUM;
-                    layout_item = R.layout.item_frag_album;
-                    musics = MediaLoader.selectionByAlbum(context);
-                    break;
+//                case 4: // Album (Replace PlaylistFragment)
+//                    TAB_NAME = Constants.TAB.ALBUM;
+//                    layout_item = R.layout.item_frag_album;
+//                    musics = MediaLoader.selectionByAlbum(context);
+//                    break;
                 case 5: // Artist
                     TAB_NAME = Constants.TAB.ARTIST;
                     layout_item = R.layout.item_frag_artist;
@@ -122,10 +119,10 @@ public class PlaceholderFragment extends Fragment {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
                 recyclerView.setAdapter(new FragmentTabAdapter(context, musics, layout_item, adapterListener));
                 break;
-            case R.layout.item_frag_album:
-                recyclerView.setLayoutManager(new GridLayoutManager(context, 2));
-                recyclerView.setAdapter(new AlbumAdapter(context, musics));
-                break;
+//            case R.layout.item_frag_album: // (Replace AlbumFragment)
+//                recyclerView.setLayoutManager(new GridLayoutManager(context, 2));
+//                recyclerView.setAdapter(new AlbumAdapter(context, musics));
+//                break;
             case R.layout.item_frag_artist:
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
                 recyclerView.setAdapter(new ArtistAdapter(context, musics));
@@ -151,7 +148,7 @@ public class PlaceholderFragment extends Fragment {
         }
 
         @Override
-        public void onGridViewItemClicked(List<Playlist> lists, int position) {
+        public void onBucketItemClicked(String bucketID) {
 
         }
     };

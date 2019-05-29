@@ -28,12 +28,12 @@ public class TabPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
          //getItem is called to instantiate the fragment for the given page.
          //Return a PlaceholderFragment (defined as a static inner class below).
-
         if (position == 1) // Playlist Tab
             return PlaylistFragment.newInstance(position+1);
-
-        return PlaceholderFragment.newInstance(position+1);
-//return PlaceholderFragment.newInstance(position + 1);
+        else if (position == 3)
+            return AlbumFragment.newInstance(position+1);
+        else
+            return PlaceholderFragment.newInstance(position+1);
     }
 
     @Nullable
