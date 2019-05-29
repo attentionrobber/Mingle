@@ -26,33 +26,41 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 
     private Context context;
     private List<Music> musicList;
-    private int item_frag_layout;
+    private int layout_item;
+    private String TAB_NAME = Constants.TAB.SONG;
+
     private AdapterListener adapterListener;
 
-    public FragmentTabAdapter(Context context, List<Music> musicList, int resLayout, AdapterListener listener) {
+    public FragmentTabAdapter(Context context, List<Music> musicList, int layoutRes, AdapterListener listener) {
         this.context = context;
         this.musicList = musicList;
         adapterListener = listener;
         //Log.i("TESTS", "size: "+musicList.size());
 
-        switch (resLayout) {
+        switch (layoutRes) {
             case R.layout.item_frag_favorite:
-                item_frag_layout = R.layout.item_frag_favorite;
+                TAB_NAME = Constants.TAB.FAVORITE;
+                layout_item = R.layout.item_frag_favorite;
                 break;
             case R.layout.item_frag_playlist:
-                item_frag_layout = R.layout.item_frag_playlist;
+                TAB_NAME = Constants.TAB.PLAYLIST;
+                layout_item = R.layout.item_frag_playlist;
                 break;
             case R.layout.item_frag_song:
-                item_frag_layout = R.layout.item_frag_song;
+                TAB_NAME = Constants.TAB.SONG;
+                layout_item = R.layout.item_frag_song;
                 break;
             case R.layout.item_frag_album:
-                item_frag_layout = R.layout.item_frag_album;
+                TAB_NAME = Constants.TAB.ALBUM;
+                layout_item = R.layout.item_frag_album;
                 break;
             case R.layout.item_frag_artist:
-                item_frag_layout = R.layout.item_frag_artist;
+                TAB_NAME = Constants.TAB.ARTIST;
+                layout_item = R.layout.item_frag_artist;
                 break;
             case R.layout.item_frag_folder:
-                item_frag_layout = R.layout.item_frag_folder;
+                TAB_NAME = Constants.TAB.FOLDER;
+                layout_item = R.layout.item_frag_folder;
                 break;
         }
     }
@@ -60,7 +68,7 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(item_frag_layout, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(layout_item, parent, false);
         return new ViewHolder(view);
     }
 
@@ -103,7 +111,7 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
         holder.layout_item.setOnClickListener(v -> {
             Intent intent = new Intent(context, PlayerService.class);
             Bundle extras = new Bundle();
-            extras.putString("tab", Constants.TAB.SONG);
+            extras.putString("tab", TAB_NAME); // TODO: switch value
             extras.putInt("position", position);
             intent.putExtras(extras);
             intent.setAction(PlayerService.ACTION_PLAY);

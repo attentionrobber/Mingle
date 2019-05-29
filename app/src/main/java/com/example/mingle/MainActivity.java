@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 
         // TODO: Load 할때 전체 다 로드 말고
         //  최근 플레이한(savedInstance 필요)플레이리스트 로드로 변경
-        MediaLoader.loadSong(this); // 전체 곡 로드
+        MediaLoader.loadMusic(this); // 전체 곡 로드
 
         try {
             loadDB(); // DB에 저장된 Favorite 로드
@@ -219,22 +219,9 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         Log.i("MainService_MusicInfo", ""+playlist.size()+" pos: "+position);
         this.position = position;
 
-//        Glide.with(this)
-//                .load(Uri.parse(cur_musics.get(position).getAlbumImgUri()))
-//                .placeholder(R.drawable.default_album_image)
-//                .into(iv_albumArtMain);
-        iv_albumArtMain.setImageURI(Uri.parse(playlist.get(position).getAlbumImgUri()));
-        if (isFavorite(playlist.get(position).getMusicUri()))
-            btn_favorite.setImageResource(android.R.drawable.btn_star_big_on);
-        else
-            btn_favorite.setImageResource(android.R.drawable.btn_star_big_off);
-        tv_title.setText(playlist.get(position).getTitle());
-        tv_artist.setText(playlist.get(position).getArtist());
-
-
         // TODO: Service 가 Main 보다 나중에 실행되므로 isPlaying 은 false 임. 수정하기.
         // 일시정지 상태에서 다른곡 실행시 버튼 아이콘 안바뀌는 현상 수정하기
-        if (PlayerService.mMediaPlayer != null) {
+        if (playlist.size() != 0) {
             if (PlayerService.mMediaPlayer.isPlaying()) {
                 btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
                 Log.i("MainService_MusicInfo", "if if");
@@ -243,6 +230,17 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
                 Log.i("MainService_MusicInfo", "if else");
                 btn_playPause.setImageResource(android.R.drawable.ic_media_play);
             }
+//            Glide.with(this)
+//                .load(Uri.parse(cur_musics.get(position).getAlbumImgUri()))
+//                .placeholder(R.drawable.default_album_image)
+//                .into(iv_albumArtMain);
+            iv_albumArtMain.setImageURI(Uri.parse(playlist.get(position).getAlbumImgUri()));
+            if (isFavorite(playlist.get(position).getMusicUri()))
+                btn_favorite.setImageResource(android.R.drawable.btn_star_big_on);
+            else
+                btn_favorite.setImageResource(android.R.drawable.btn_star_big_off);
+            tv_title.setText(playlist.get(position).getTitle());
+            tv_artist.setText(playlist.get(position).getArtist());
         } else {
             Log.i("MainService_MusicInfo", "else");
             btn_playPause.setImageResource(android.R.drawable.ic_media_pause);

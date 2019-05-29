@@ -347,7 +347,6 @@ public class PlayerService extends Service implements ServiceInterface {
         return mUri;
     }
 
-
     @Override
     public void play() {
         if (mMediaPlayer != null) {

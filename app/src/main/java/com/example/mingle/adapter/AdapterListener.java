@@ -1,6 +1,7 @@
 package com.example.mingle.adapter;
 
 import com.example.mingle.domain.Music;
+import com.example.mingle.domain.Playlist;
 
 import java.util.List;
 
@@ -10,4 +11,5 @@ import java.util.List;
  */
 public interface AdapterListener {
     void onRecyclerViewItemClicked(List<Music> musics, int position);
+    void onGridViewItemClicked(List<Playlist> lists, int position);
 }

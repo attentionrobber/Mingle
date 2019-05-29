@@ -1,17 +1,21 @@
 package com.example.mingle.ui.main;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
 
 import com.example.mingle.MainActivity;
@@ -21,7 +25,9 @@ import com.example.mingle.adapter.AdapterListener;
 import com.example.mingle.adapter.FragmentTabAdapter;
 import com.example.mingle.adapter.PlaylistAdapter;
 import com.example.mingle.domain.Music;
+import com.example.mingle.domain.Playlist;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,31 +76,46 @@ public class PlaylistFragment extends Fragment implements OnBackPressedListener 
         recyclerView = root.findViewById(R.id.rv_playlist);
         fab = root.findViewById(R.id.fab_playlist);
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                gridViewItemClicked();
-            }
-        });
+        //gridView.setOnItemClickListener((parent, view, position, id) -> gridViewItemClicked()); // Replace AdapterListener
         fab.setOnClickListener(v -> createPlaylist());
 
         gridView.setAdapter(new PlaylistAdapter(context, MediaLoader.loadPlaylist(context), adapterListener));
     }
 
-    private void gridViewItemClicked() {
-        // TODO: MediaLoader.loadPlaylistMusic and RecyclerView 세팅
+    private void createPlaylist() {
+        // TODO: Dialog UI 변경, Add Auto display Keyboard
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("새로운 재생목록 추가");
 
-        //MediaLoader.loadPlaylistMusic(context, position);
-        gridView.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.VISIBLE);
-        recyclerView.setAdapter(new FragmentTabAdapter(context, MediaLoader.loadPlaylistMusic(context, "124431"), R.layout.item_frag_song, adapterListener));
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        final EditText input = new EditText(context);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("추가", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String text = input.getText().toString();
+                if (text.equals(""))
+                    MediaLoader.createPlaylist(context, text);
+            }
+        });
+        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+
     }
 
-    private void createPlaylist() {
-        // TODO: Dialog UI 추가
-        MediaLoader.createPlaylist(context, "test");
-
+    private void playlistItemClicked(List<Music> musics) {
+        gridView.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+        recyclerView.setAdapter(new FragmentTabAdapter(context, musics, R.layout.item_frag_song, adapterListener));
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
     }
 
     /**
@@ -104,6 +125,13 @@ public class PlaylistFragment extends Fragment implements OnBackPressedListener 
         @Override
         public void onRecyclerViewItemClicked(List<Music> musics, int position) {
             fragmentListener.onRecyclerViewItemClicked(musics, position);
+        }
+
+        @Override
+        public void onGridViewItemClicked(List<Playlist> lists, int position) {
+            //Log.i("PlaylistFragment", "onGridViewItemClicked "+position);
+            List<Music> musics = MediaLoader.loadPlaylistMusic(context, lists.get(position).getId());
+            playlistItemClicked(musics);
         }
     };
 

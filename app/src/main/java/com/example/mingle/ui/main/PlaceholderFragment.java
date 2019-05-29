@@ -22,6 +22,7 @@ import com.example.mingle.adapter.ArtistAdapter;
 import com.example.mingle.adapter.FavoriteAdapter;
 import com.example.mingle.adapter.FragmentTabAdapter;
 import com.example.mingle.domain.Music;
+import com.example.mingle.domain.Playlist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -147,6 +148,11 @@ public class PlaceholderFragment extends Fragment {
         @Override
         public void onRecyclerViewItemClicked(List<Music> musics, int position) {
             fragmentListener.onRecyclerViewItemClicked(musics, position);
+        }
+
+        @Override
+        public void onGridViewItemClicked(List<Playlist> lists, int position) {
+
         }
     };
 

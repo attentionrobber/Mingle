@@ -59,8 +59,9 @@ public class PlaylistAdapter extends BaseAdapter {
         Playlist playlist = playLists.get(position);
 
         tv_playlistTitle.setText(playlist.getTitle());
+        // TODO: count of songs
 
-        Log.i("PlaylistAdapter", ""+playlist.getId());
+        layout_item.setOnClickListener(v -> adapterListener.onGridViewItemClicked(playLists, position));
 
         return view;
     }
