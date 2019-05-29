@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.example.mingle.MainActivity;
 import com.example.mingle.MediaLoader;
 import com.example.mingle.R;
 import com.example.mingle.adapter.AdapterListener;
@@ -26,7 +27,7 @@ import java.util.List;
 /**
  * Playlist Tab 을 표현하는 Fragment
  */
-public class PlaylistFragment extends Fragment {
+public class PlaylistFragment extends Fragment implements OnBackPressedListener {
 
     private static final String ARG_KEY = "PlaylistKey";
     private Context context;
@@ -107,6 +108,18 @@ public class PlaylistFragment extends Fragment {
     };
 
     @Override
+    public boolean onBackPressed() {
+        Log.i("PlaylistFragment", "onBackPressed()");
+
+        if (recyclerView.getVisibility() == View.VISIBLE) { // list of song
+            recyclerView.setVisibility(View.GONE);
+            gridView.setVisibility(View.VISIBLE);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof FragmentListener) {
@@ -127,4 +140,5 @@ public class PlaylistFragment extends Fragment {
         super.onResume();
         Log.i("PlaylistFragment", "onResume PlaylistTab");
     }
+
 }

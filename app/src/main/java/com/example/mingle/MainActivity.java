@@ -8,11 +8,11 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -24,8 +24,9 @@ import com.example.mingle.data.DBHelper;
 import com.example.mingle.domain.Favorite;
 import com.example.mingle.domain.Music;
 import com.example.mingle.ui.main.FragmentListener;
-import com.example.mingle.ui.main.PlaceholderFragment;
+import com.example.mingle.ui.main.PlaylistFragment;
 import com.example.mingle.ui.main.TabPagerAdapter;
+import com.example.mingle.ui.main.OnBackPressedListener;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 
@@ -248,6 +249,19 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        boolean back = false;
+        List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+
+        // Perform your logic to pass back press here
+        for (Fragment fragment : fragmentList) {
+            if (fragment instanceof OnBackPressedListener)
+                back = ((OnBackPressedListener) fragment).onBackPressed();
+        }
+
+        if (back) super.onBackPressed();
+    }
 
     @Override
     protected void onStart() {
