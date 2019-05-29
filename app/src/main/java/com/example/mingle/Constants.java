@@ -6,21 +6,12 @@ import android.graphics.BitmapFactory;
 
 public class Constants {
     public interface TAB {
-        public static String FAVORITE = "om.example.mingle.tab.favorite";
-        public static String PLAYLIST = "om.example.mingle.tab.playlist";
-        public static String SONG = "om.example.mingle.tab.song";
-        public static String ALBUM = "om.example.mingle.tab.album";
-        public static String ARTIST = "om.example.mingle.tab.artist";
-        public static String FOLDER = "om.example.mingle.tab.folder";
-    }
-    public interface ACTION {
-//        public static String MAIN_ACTION = "com.example.mingle.action.main";
-//        public static String INIT_ACTION = "com.example.mingle.action.init";
-//        public static String PREV_ACTION = "com.example.mingle.action.prev";
-//        public static String PLAY_ACTION = "com.example.mingle.action.play";
-//        public static String NEXT_ACTION = "com.example.mingle.action.next";
-//        public static String STARTFOREGROUND_ACTION = "com.example.mingle.action.startforeground";
-//        public static String STOPFOREGROUND_ACTION = "com.example.mingle.action.stopforeground";
+        public static String FAVORITE = "Favorite";
+        public static String PLAYLIST = "Playlist";
+        public static String SONG = "Song";
+        public static String ALBUM = "Album";
+        public static String ARTIST = "Artist";
+        public static String FOLDER = "Folder";
     }
 
     public interface NOTIFICATION_ID {

@@ -1,8 +1,6 @@
 package com.example.mingle.ui.main;
 
-import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,11 +12,10 @@ import android.view.ViewGroup;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
+
+import com.example.mingle.Constants;
 import com.example.mingle.MediaLoader;
 import com.example.mingle.R;
-import com.example.mingle.SongFragment;
 import com.example.mingle.adapter.AdapterListener;
 import com.example.mingle.adapter.AlbumAdapter;
 import com.example.mingle.adapter.ArtistAdapter;
@@ -30,25 +27,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A placeholder fragment containing a simple view.
+ * Favorite, Song, Album, Artist, Folder Tab 을 표현하는 Fragment
  */
 public class PlaceholderFragment extends Fragment {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
-    private String TAB_NAME = "";
+    private String TAB_NAME = "TAB_NAME";
+
+    private int layout_item = R.layout.item_frag_song;
+    private RecyclerView recyclerView;
+
+    private Context context;
 
     private List<Music> musics = new ArrayList<>();
 
-    private int resLayout = R.layout.item_frag_song;
-    private RecyclerView recyclerView;
 
-
-
-    private FragmentListener mListener;
-
-    public interface FragmentListener {
-        void onRecyclerViewItemClicked(List<Music> musics, int position);
-    }
+    private FragmentListener fragmentListener;
 
     public PlaceholderFragment() {
     }
@@ -65,40 +59,38 @@ public class PlaceholderFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i("PlaceHolderFragment","onCreate");
+        context = getContext();
         // 최초 1회만 실행되므로 레이아웃 세팅만 하는게 좋다. 데이터 세팅은 onCreateView 에서
         int index;
         if (getArguments() != null) {
             index = getArguments().getInt(ARG_SECTION_NUMBER);
             switch (index) {
                 case 1: // Favorite
-                    TAB_NAME = "Favorite";
-                    resLayout = R.layout.item_frag_favorite;
+                    TAB_NAME = Constants.TAB.FAVORITE;
+                    layout_item = R.layout.item_frag_favorite;
                     break;
-                case 2: // Playlist
-                    TAB_NAME = "Playlist";
-                    resLayout = R.layout.item_frag_playlist;
-                    break;
+//                case 2: // Playlist(Replace PlaylistFragment)
+//                    TAB_NAME = Constants.TAB.PLAYLIST;
+//                    layout_item = R.layout.item_frag_playlist;
+//                    break;
                 case 3: // Song
-                    TAB_NAME = "Song";
-                    resLayout = R.layout.item_frag_song;
+                    TAB_NAME = Constants.TAB.SONG;
+                    layout_item = R.layout.item_frag_song;
                     musics = MediaLoader.musics;
-                    //Log.i("TESTS", "song: "+musics.size());
                     break;
                 case 4: // Album
-                    TAB_NAME = "Album";
-                    resLayout = R.layout.item_frag_album;
-                    musics = MediaLoader.selectionByAlbum(getContext());
-                    //Log.i("TESTS", "album: "+musics.size());
+                    TAB_NAME = Constants.TAB.ALBUM;
+                    layout_item = R.layout.item_frag_album;
+                    musics = MediaLoader.selectionByAlbum(context);
                     break;
                 case 5: // Artist
-                    TAB_NAME = "Artist";
-                    resLayout = R.layout.item_frag_artist;
-                    //musics = MediaLoader.selectionByArtist(getContext());
+                    TAB_NAME = Constants.TAB.ARTIST;
+                    layout_item = R.layout.item_frag_artist;
                     musics = MediaLoader.musics;
                     break;
                 case 6: // Folder
-                    TAB_NAME = "Folder";
-                    resLayout = R.layout.item_frag_folder;
+                    TAB_NAME = Constants.TAB.FOLDER;
+                    layout_item = R.layout.item_frag_folder;
                     break;
             }
         }
@@ -108,6 +100,7 @@ public class PlaceholderFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_main, container, false);
         Log.i("PlaceHolderFragment","onCreateView");
+
         // Tab 옮길 때 마다 View 가 호출되므로 Data 세팅을 여기서 하는게 좋음.
         recyclerView = root.findViewById(R.id.rv_song);
         setViewAdapterEachTab(); // Tab 마다 알맞은 layout 설정
@@ -116,34 +109,33 @@ public class PlaceholderFragment extends Fragment {
     }
 
     private void setViewAdapterEachTab() {
-        switch (resLayout) {
+        switch (layout_item) {
             case R.layout.item_frag_favorite:
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerView.setAdapter(new FavoriteAdapter(getContext(), MediaLoader.loadFavorite(), adapterListener));
+                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+                recyclerView.setAdapter(new FavoriteAdapter(context, MediaLoader.loadFavorite(), adapterListener));
                 break;
-            case R.layout.item_frag_playlist:
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerView.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener));
-                break;
+//            case R.layout.item_frag_playlist: // (Replace PlaylistFragment)
+//                gridView.setAdapter(new PlaylistAdapter(context, MediaLoader.loadPlaylist(context), adapterListener));
+//                break;
             case R.layout.item_frag_song:
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerView.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener));
+                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+                recyclerView.setAdapter(new FragmentTabAdapter(context, musics, layout_item, adapterListener));
                 break;
             case R.layout.item_frag_album:
-                recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-                recyclerView.setAdapter(new AlbumAdapter(getContext(), musics));
+                recyclerView.setLayoutManager(new GridLayoutManager(context, 2));
+                recyclerView.setAdapter(new AlbumAdapter(context, musics));
                 break;
             case R.layout.item_frag_artist:
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerView.setAdapter(new ArtistAdapter(getContext(), musics));
+                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+                recyclerView.setAdapter(new ArtistAdapter(context, musics));
                 break;
             case R.layout.item_frag_folder:
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerView.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener));
+                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+                recyclerView.setAdapter(new FragmentTabAdapter(context, musics, layout_item, adapterListener));
                 break;
             default:
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerView.setAdapter(new FragmentTabAdapter(getContext(), musics, resLayout, adapterListener));
+                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+                recyclerView.setAdapter(new FragmentTabAdapter(context, musics, layout_item, adapterListener));
                 break;
         }
     }
@@ -154,16 +146,15 @@ public class PlaceholderFragment extends Fragment {
     AdapterListener adapterListener = new AdapterListener() {
         @Override
         public void onRecyclerViewItemClicked(List<Music> musics, int position) {
-            mListener.onRecyclerViewItemClicked(musics, position);
+            fragmentListener.onRecyclerViewItemClicked(musics, position);
         }
     };
-
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof PlaceholderFragment.FragmentListener) {
-            mListener = (PlaceholderFragment.FragmentListener) context;
+        if (context instanceof FragmentListener) {
+            fragmentListener = (FragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()+" must implement FragmentListener");
         }
@@ -172,7 +163,7 @@ public class PlaceholderFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        fragmentListener = null;
     }
 
     @Override

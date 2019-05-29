@@ -3,14 +3,30 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".SongFragment">
+    android:layout_height="match_parent">
+
+    <GridView
+        android:visibility="visible"
+        android:id="@+id/gv_playlist"
+        android:numColumns="auto_fit"
+        android:gravity="center"
+        android:columnWidth="150dp"
+        android:stretchMode="columnWidth"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+    </GridView>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_song"
+        android:visibility="gone"
+        android:id="@+id/rv_playlist"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:listitem="@layout/item_frag_song">
+        android:layout_height="match_parent">
     </android.support.v7.widget.RecyclerView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_playlist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"/>
 
 </FrameLayout>

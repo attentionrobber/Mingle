@@ -350,25 +350,30 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public void play() {
-        mMediaPlayer.start();
-        updateNotification();
+        if (mMediaPlayer != null) {
+            mMediaPlayer.start();
+            updateNotification();
+        }
     }
 
     @Override
     public void pause() {
-        mMediaPlayer.pause();
-        updateNotification();
+        if (mMediaPlayer != null) {
+            mMediaPlayer.pause();
+            updateNotification();
+        }
     }
 
     @Override
     public void playPause() {
         Log.i("Service_PP", "pos"+position);
-        if (mMediaPlayer.isPlaying())
-            mMediaPlayer.pause();
-        else
-            mMediaPlayer.start();
+        if (mMediaPlayer != null) {
+            if (mMediaPlayer.isPlaying())
+                mMediaPlayer.pause();
+            else mMediaPlayer.start();
 
-        updateNotification();
+            updateNotification();
+        }
     }
 
     @Override
@@ -377,19 +382,19 @@ public class PlayerService extends Service implements ServiceInterface {
             position = position - 1;
         Log.i("Service_prev", "pos"+position);
 
-        //Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
-        String path = playlist.get(position).getPath();
-        try {
-            mMediaPlayer.reset();
-            //mMediaPlayer.setDataSource(getBaseContext(), uri);
-            mMediaPlayer.setDataSource(path);
-            mMediaPlayer.prepare();
-            mMediaPlayer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        if (mMediaPlayer != null && playlist.size() != 0) {
+            //Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
+            String path = playlist.get(position).getPath();
+            try {
+                mMediaPlayer.reset();
+                //mMediaPlayer.setDataSource(getBaseContext(), uri);
+                mMediaPlayer.setDataSource(path);
+                mMediaPlayer.prepare();
+                mMediaPlayer.start();
+            } catch (IOException e) { e.printStackTrace(); }
 
-        updateNotification();
+            updateNotification();
+        }
     }
 
     @Override
@@ -399,23 +404,27 @@ public class PlayerService extends Service implements ServiceInterface {
             position = position + 1;
 
         //Log.i("Service_next", "pos" + position);
-        //Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
-        String path = playlist.get(position).getPath();
-        try {
-            mMediaPlayer.reset();
-            mMediaPlayer.setDataSource(path);
-            mMediaPlayer.prepare();
-            mMediaPlayer.start();
-        } catch (IOException e) { e.printStackTrace(); }
+        if (mMediaPlayer != null && playlist.size() != 0) {
+            //Uri uri = Uri.parse(cur_musics.get(position).getMusicUri());
+            String path = playlist.get(position).getPath();
+            try {
+                mMediaPlayer.reset();
+                mMediaPlayer.setDataSource(path);
+                mMediaPlayer.prepare();
+                mMediaPlayer.start();
+            } catch (IOException e) { e.printStackTrace(); }
 
-        updateNotification();
+            updateNotification();
+        }
     }
 
     @Override
     public void stop() {
-        mMediaPlayer.stop();
-        stopForeground(true);
-        stopSelf(); // Stop Service
+        if (mMediaPlayer != null) {
+            mMediaPlayer.stop();
+            stopForeground(true);
+            stopSelf(); // Stop Service
+        }
     }
 
     @Override
@@ -435,6 +444,7 @@ public class PlayerService extends Service implements ServiceInterface {
         Intent intent = new Intent(SERVICE_RESULT);
         if(position >= 0)
             intent.putExtra(SERVICE_MESSAGE, position);
+
         localBroadcastManager.sendBroadcast(intent);
     }
 

@@ -29,7 +29,7 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
             TableUtils.createTable(connectionSource, Favorite.class);
-            //TableUtils.createTable(connectionSource, Playlist.class);
+            TableUtils.createTable(connectionSource, Playlist.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -39,7 +39,7 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         try {
             TableUtils.dropTable(connectionSource, Favorite.class, false); // Table 삭제 후
-            //TableUtils.dropTable(connectionSource, Playlist.class, false);
+            TableUtils.dropTable(connectionSource, Playlist.class, false);
             onCreate(database, connectionSource); // Table Create 한다.
         } catch (SQLException e) {
             e.printStackTrace();

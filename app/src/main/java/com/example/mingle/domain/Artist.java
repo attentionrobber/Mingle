@@ -58,12 +58,12 @@ public class Artist extends Music {
     }
 
     @Override
-    public int getArtist_id() {
+    public long getArtist_id() {
         return super.getArtist_id();
     }
 
     @Override
-    public void setArtist_id(int artist_id) {
+    public void setArtist_id(long artist_id) {
         super.setArtist_id(artist_id);
     }
 
@@ -78,12 +78,12 @@ public class Artist extends Music {
     }
 
     @Override
-    public int getAlbum_id() {
+    public long getAlbum_id() {
         return super.getAlbum_id();
     }
 
     @Override
-    public void setAlbum_id(int album_id) {
+    public void setAlbum_id(long album_id) {
         super.setAlbum_id(album_id);
     }
 
@@ -128,12 +128,12 @@ public class Artist extends Music {
     }
 
     @Override
-    public int getDuration() {
+    public long getDuration() {
         return super.getDuration();
     }
 
     @Override
-    public void setDuration(int duration) {
+    public void setDuration(long duration) {
         super.setDuration(duration);
     }
 

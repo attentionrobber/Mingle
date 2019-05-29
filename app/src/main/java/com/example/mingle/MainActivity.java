@@ -23,6 +23,7 @@ import com.bumptech.glide.RequestManager;
 import com.example.mingle.data.DBHelper;
 import com.example.mingle.domain.Favorite;
 import com.example.mingle.domain.Music;
+import com.example.mingle.ui.main.FragmentListener;
 import com.example.mingle.ui.main.PlaceholderFragment;
 import com.example.mingle.ui.main.TabPagerAdapter;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements PlaceholderFragment.FragmentListener {
+public class MainActivity extends AppCompatActivity implements FragmentListener {
 
     // Widget
     private TextView tv_title, tv_artist; // 하단
@@ -55,10 +56,7 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     private int position = 0; // Current Music Playlist's Position
     private BroadcastReceiver broadcastReceiver; // Service 에서 넘어온 명령을 처리하는 리시버
 
-    // set Default Media Volume(NOT Ringtone)
-    private AudioManager audio;
-
-    // Related DB(Playlist, Favorites)
+    // Related DB(Favorites)
     public static List<Favorite> favorites = new ArrayList<>();
     DBHelper dbHelper;
     Dao<Favorite, Integer> favoriteDao;
@@ -68,17 +66,10 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setWidget();
+        init();
 
-        TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager());
-        ViewPager viewPager = findViewById(R.id.view_pager);
-        viewPager.setAdapter(tabPagerAdapter);
-        TabLayout tabs = findViewById(R.id.tabs);
-        tabs.setupWithViewPager(viewPager);
-
-
-        /**
-         * Service 에서 넘어온 명령을 처리하는 Receiver
-         */
+        // Service 에서 넘어온 명령을 처리하는 Receiver
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -88,13 +79,15 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
                 setMusicInfo(position);
             }
         };
-
-
-        setWidget();
-        init();
     }
 
     private void setWidget() {
+        TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager());
+        ViewPager viewPager = findViewById(R.id.view_pager);
+        viewPager.setAdapter(tabPagerAdapter);
+        TabLayout tabs = findViewById(R.id.tabs);
+        tabs.setupWithViewPager(viewPager);
+
         iv_albumArtMain = findViewById(R.id.iv_albumArtMain); iv_albumArtMain.setOnClickListener(this::btnClick);
         tv_artist = findViewById(R.id.tv_artist);
         tv_title = findViewById(R.id.tv_title);
@@ -108,17 +101,18 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
     }
 
     private void init() {
+
         glideRequestManger = Glide.with(this); // Glide RequestManager
         serviceInterface = new PlayerService(); // To communicate with PlayerService
-        audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE); // Set Volume Button only Media(NOT Ringtone)
 
+        setVolumeControlStream(AudioManager.STREAM_MUSIC); // Volume 조절시 Ringtone 이 아닌 Media Volume 이 조절되도록 설정
 
         // TODO: Load 할때 전체 다 로드 말고
         //  최근 플레이한(savedInstance 필요)플레이리스트 로드로 변경
-        //mediaLoader = new MediaLoader(this);
         MediaLoader.loadSong(this); // 전체 곡 로드
+
         try {
-            loadDB(); // DB에 저장된 Favorite, Playlist 로드
+            loadDB(); // DB에 저장된 Favorite 로드
         } catch (SQLException e) { e.printStackTrace(); }
     }
 
@@ -183,17 +177,15 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
                 break;
 
             case R.id.btn_favorite:
-                // if favorite == true 면 btn.setImageRes(StarON) , setFavorite
                 try {
                     if (isFavorite(playlist.get(position).getMusicUri())) { // 해당 곡이 Favorite 인 경우
                         btn_favorite.setImageResource(android.R.drawable.btn_star_big_off); // 버튼 아이콘 set OFF
-                        deleteFavorite(playlist.get(position).getMusicUri());
+                        deleteFavorite(playlist.get(position).getMusicUri()); // 해당 곡을 Favorite 에서 제거
                     } else {
                         addFavorite(new Favorite(playlist.get(position))); // 해당 곡을 Favorite 에 추가 후 DB에 저장
                         btn_favorite.setImageResource(android.R.drawable.btn_star_big_on); // 버튼 아이콘 set OFF
                     }
                 } catch (SQLException e) { e.printStackTrace(); }
-                // TODO: Need to refresh Favorite Tab
                 break;
 
             case R.id.btn_shuffle: check();
@@ -239,9 +231,8 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
         tv_artist.setText(playlist.get(position).getArtist());
 
 
-        // 클릭시 playing 아님
-        // NEXT playing 임
         // TODO: Service 가 Main 보다 나중에 실행되므로 isPlaying 은 false 임. 수정하기.
+        // 일시정지 상태에서 다른곡 실행시 버튼 아이콘 안바뀌는 현상 수정하기
         if (PlayerService.mMediaPlayer != null) {
             if (PlayerService.mMediaPlayer.isPlaying()) {
                 btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
@@ -266,8 +257,17 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
 
     @Override
     protected void onStop() {
+        Log.i("MainActivity_", "onStop");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         super.onStop();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.i("MainActivity_", "onRestart");
+        if (playlist.size() > 0)
+            setMusicInfo(PlayerService.position);
     }
 
     @Override
@@ -276,19 +276,4 @@ public class MainActivity extends AppCompatActivity implements PlaceholderFragme
         super.onDestroy();
     }
 
-    /**
-     * Volume 조절시 Ringtone 이 아닌 Media Volume 이 조절된다.
-     */
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
-                return true;
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI);
-                return true;
-            default: return false;
-        }
-    }
 }

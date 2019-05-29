@@ -19,16 +19,16 @@ public class Music extends Common {
     private String path; // MediaStore.Audio.Media.DATA
     private String musicUri; // Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, MediaStore.Audio.Media._ID).toString();
     private String title; // MediaStore.Audio.Media.TITLE
-    private int artist_id; // MediaStore.Audio.Media.ARTIST_ID
+    private long artist_id; // MediaStore.Audio.Media.ARTIST_ID
     private String artist; // MediaStore.Audio.Media.ARTIST
     private String artist_key; // MediaStore.Audio.Media.ARTIST_KEY
-    private int album_id; // MediaStore.Audio.Media.ALBUM_ID
+    private long album_id; // MediaStore.Audio.Media.ALBUM_ID
     private String album; // MediaStore.Audio.Media.ALBUM
     private String albumImgUri; // Uri.parse("content://media/external/audio/albumart/" + music.album_id);
     private Bitmap albumImgBitmap;
     private String composer; // MediaStore.Audio.Media.COMPOSER
     private String year; // MediaStore.Audio.Media.YEAR
-    private int duration; // MediaStore.Audio.Media.DURATION
+    private long duration; // MediaStore.Audio.Media.DURATION
     private String isMusic; // MediaStore.Audio.Media.IS_MUSIC
     //private int genre_id;
     //private String content_type;
@@ -60,11 +60,11 @@ public class Music extends Common {
         this.title = title;
     }
 
-    public int getArtist_id() {
+    public long getArtist_id() {
         return artist_id;
     }
 
-    public void setArtist_id(int artist_id) {
+    public void setArtist_id(long artist_id) {
         this.artist_id = artist_id;
     }
 
@@ -110,11 +110,11 @@ public class Music extends Common {
     }
 
     @Override
-    public int getAlbum_id() {
+    public long getAlbum_id() {
         return album_id;
     }
 
-    public void setAlbum_id(int album_id) {
+    public void setAlbum_id(long album_id) {
         this.album_id = album_id;
     }
 
@@ -155,11 +155,11 @@ public class Music extends Common {
         this.year = year;
     }
 
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 

@@ -1,15 +1,18 @@
 package com.example.mingle;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.mingle.domain.Album;
 import com.example.mingle.domain.Artist;
 import com.example.mingle.domain.Music;
+import com.example.mingle.domain.Playlist;
 import com.example.mingle.utility.MethodCollection;
 
 import java.io.File;
@@ -26,6 +29,9 @@ public class MediaLoader {
     private static final Uri URI_MUSIC = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
 
+    /**
+     * Load All Songs
+     */
     public static void loadSong(Context context) {
 
         musics.clear();
@@ -35,14 +41,14 @@ public class MediaLoader {
                 MediaStore.Audio.Media.DATA,         // 0, String path
                 MediaStore.Audio.Media._ID,         // 1, String musicUri 의 뒷부분
                 MediaStore.Audio.Media.TITLE,       // 2, String title
-                MediaStore.Audio.Media.ARTIST_ID,   // 3, int artist_id
+                MediaStore.Audio.Media.ARTIST_ID,   // 3, long artist_id
                 MediaStore.Audio.Media.ARTIST,      // 4, String artist
                 MediaStore.Audio.Media.ARTIST_KEY,  // 5, String artist_key
-                MediaStore.Audio.Media.ALBUM_ID,    // 6, int album_id
+                MediaStore.Audio.Media.ALBUM_ID,    // 6, long album_id
                 MediaStore.Audio.Media.ALBUM,       // 7, String album
                 MediaStore.Audio.Media.COMPOSER,    // 8, String composer
                 MediaStore.Audio.Media.YEAR,        // 9, String year
-                MediaStore.Audio.Media.DURATION,    // 10, int duration
+                MediaStore.Audio.Media.DURATION,    // 10, long duration
                 MediaStore.Audio.Media.IS_MUSIC,     // 11, String isMusic
         };
         //String selection = MediaStore.Audio.Media.+" =?"; // XX 으로 선별
@@ -56,15 +62,15 @@ public class MediaLoader {
                 music.setPath(getString(cursor, PROJECTION[0])); // 커서의 컬럼 인덱스를 가져온 후 컬럼인덱스에 해당하는 proj을 세팅
                 music.setMusicUri(Uri.withAppendedPath(URI_MUSIC, getString(cursor, PROJECTION[1])).toString());
                 music.setTitle(getString(cursor, PROJECTION[2]));
-                music.setArtist_id(getInt(cursor, PROJECTION[3]));
+                music.setArtist_id(getLong(cursor, PROJECTION[3]));
                 music.setArtist(getString(cursor, PROJECTION[4]));
                 music.setArtist_key(getString(cursor, PROJECTION[5]));
-                music.setAlbum_id(getInt(cursor, PROJECTION[6]));
+                music.setAlbum_id(getLong(cursor, PROJECTION[6]));
                 music.setAlbum(getString(cursor, PROJECTION[7]));
                 music.setAlbumImgUri("content://media/external/audio/albumart/" + music.getAlbum_id());
                 music.setComposer(getString(cursor, PROJECTION[8]));
                 music.setYear(getString(cursor, PROJECTION[9]));
-                music.setDuration(getInt(cursor, PROJECTION[10]));
+                music.setDuration(getLong(cursor, PROJECTION[10]));
                 music.setIsMusic(getString(cursor, PROJECTION[11]));
                 //music.setAlbumImgBitmap(getAlbumImageBitmap(music.getAlbum_id(), context)); // Bitmap으로 처리해서 이미지를 로드한다. (매우느림)
                 //music.setAlbum_img(Uri.parse("content://media/external/audio/albumart/" + music.getAlbum_id()));
@@ -74,12 +80,126 @@ public class MediaLoader {
             cursor.close(); // 사용 후 close 해주지 않으면 메모리 누수가 발생할 수 있다.
         }
         Log.i("MediaLoader", "musics size: "+musics.size());
-
         //return musics;
     } // loadSong()
 
     public static List<Music> loadFavorite() {
         return new ArrayList<>(MainActivity.favorites);
+    }
+
+    // TODO: create Playlist Method
+    public static int createPlaylist(Context context, String name) {
+        int id = -1;
+        Uri EXTERNAL_CONTENT_URI = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+        if (name != null && name.length() > 0) {
+            try {
+                Cursor cursor = context.getContentResolver().query(
+                        EXTERNAL_CONTENT_URI, // uri
+                        new String[] { MediaStore.Audio.Playlists._ID }, // projection
+                        MediaStore.Audio.PlaylistsColumns.NAME + "=?", // selection
+                        new String[] { name }, // selection args
+                        null); // sort
+                if (cursor == null || cursor.getCount() < 1) {
+                    final ContentValues values = new ContentValues(1);
+                    values.put(MediaStore.Audio.PlaylistsColumns.NAME, name);
+                    final Uri uri = context.getContentResolver().insert(EXTERNAL_CONTENT_URI, values);
+                    if (uri != null) {
+                        // necessary because somehow the MediaStoreObserver is not notified when adding a playlist
+                        context.getContentResolver().notifyChange(Uri.parse("content://media"), null);
+                        //Toast.makeText(context, context.getResources().getString(R.string.created_playlist_x, name), Toast.LENGTH_SHORT).show();
+                        id = Integer.parseInt(uri.getLastPathSegment());
+                    }
+                } else {
+                    if (cursor.moveToFirst()) {
+                        id = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Playlists._ID));
+                    }
+                }
+                if (cursor != null) {
+                    cursor.close();
+                }
+            } catch (SecurityException ignored) {
+            }
+        }
+        if (id == -1)
+            Toast.makeText(context, "플레이리스트를 만드는데 실패했습니다.", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, context.getResources().getString(R.string.could_not_create_playlist), Toast.LENGTH_SHORT).show();
+
+        return id;
+//        ContentResolver resolver = context.getContentResolver();
+//        ContentValues values = new ContentValues(1);
+//        values.put(MediaStore.Audio.Playlists.NAME, name);
+//        resolver.insert(uri, values);
+    } // createPlaylist()
+
+    public static List<Playlist> loadPlaylist(Context context) {
+
+        List<Playlist> playLists = new ArrayList<>();
+
+        ContentResolver resolver = context.getContentResolver();
+        Uri contentUri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+        String [] projection = {
+                MediaStore.Audio.Playlists._ID, // unique ID
+                MediaStore.Audio.Playlists.DATA, // path
+                MediaStore.Audio.Playlists.NAME, // Playlist Title
+                MediaStore.Audio.Playlists.DATE_ADDED,
+                MediaStore.Audio.Playlists.DATE_MODIFIED,
+        };
+        //String selection = MediaStore.Audio.Playlists.BUCKET_DISPLAY_NAME+" =?"; // 폴더명으로 선별(bucketName)
+        //String orderBy = MediaStore.Audio.Playlists.DATE_ADDED+" DESC";
+
+        Cursor cursor = resolver.query(contentUri, projection, null, null, null);
+        if(cursor != null) {
+            while(cursor.moveToNext()) {
+                Playlist playlist = new Playlist();
+
+                playlist.setId(getString(cursor, projection[0]));
+                playlist.setPath(getString(cursor, projection[1]));
+                playlist.setTitle(getString(cursor, projection[2]));
+                playlist.setDateAdded(getString(cursor, projection[3]));
+                playlist.setDateModified(getString(cursor, projection[4]));
+
+                playLists.add(playlist);
+            }
+            cursor.close();
+        }
+
+        return playLists;
+    } // loadPlaylist()
+
+    public static List<Music> loadPlaylistMusic(Context context, String playlistID) {
+
+        List<Music> musics = new ArrayList<>();
+
+        ContentResolver resolver = context.getContentResolver();
+        Uri contentUri = MediaStore.Audio.Playlists.Members.getContentUri("external", Long.parseLong(playlistID));
+        final String [] projection = {
+                MediaStore.Audio.Playlists.Members.DATA, // path
+                MediaStore.Audio.Playlists.Members._ID, // uri
+                MediaStore.Audio.Playlists.Members.TITLE,
+                MediaStore.Audio.Playlists.Members.ARTIST,
+                MediaStore.Audio.Playlists.Members.ALBUM,
+                MediaStore.Audio.Playlists.Members.DURATION,
+                // TODO: get Count of Songs
+        };
+        //String selection = MediaStore.Audio.Playlists.BUCKET_DISPLAY_NAME+" =?"; // 폴더명으로 선별(bucketName)
+        //String orderBy = MediaStore.Audio.Playlists.DATE_ADDED+" DESC";
+
+        Cursor cursor = resolver.query(contentUri, projection, null, null, null);
+        if(cursor != null) {
+            while(cursor.moveToNext()) {
+                Music music = new Music();
+                music.setPath(getString(cursor, projection[0]));
+                music.setMusicUri(getString(cursor, projection[1]));
+                music.setTitle(getString(cursor, projection[2]));
+                music.setArtist(getString(cursor, projection[3]));
+                music.setAlbum(getString(cursor, projection[4]));
+                music.setDuration(getLong(cursor, projection[5]));
+                musics.add(music);
+            }
+            cursor.close();
+        }
+
+        return musics;
     }
 
     public static List<Music> selectionByAlbum(Context context) {
@@ -185,6 +305,10 @@ public class MediaLoader {
     private static int getInt(Cursor cursor, String columnName){
         int idx = cursor.getColumnIndex(columnName);
         return cursor.getInt(idx);
+    }
+    private static long getLong(Cursor cursor, String columnName){
+        int idx = cursor.getColumnIndex(columnName);
+        return cursor.getLong(idx);
     }
 
 

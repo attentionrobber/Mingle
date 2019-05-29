@@ -1,6 +1,5 @@
 package com.example.mingle.ui.main;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -29,23 +28,12 @@ public class TabPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
          //getItem is called to instantiate the fragment for the given page.
          //Return a PlaceholderFragment (defined as a static inner class below).
-        return PlaceholderFragment.newInstance(position + 1);
 
-//        switch (TABS[position]) {
-//            case R.string.tab_text_1:
-//                return SongFragment.newInstance(position);
-//            case R.string.tab_text_2:
-//                //return CallsFragment.newInstance();
-//            case R.string.tab_text_3:
-//                //return ChatsFragment.newInstance();
-//            case R.string.tab_text_4:
-//                //return
-//            case R.string.tab_text_5:
-//                //return
-//            case R.string.tab_text_6:
-//                //return
-//        }
-//        return null;
+        if (position == 1) // Playlist Tab
+            return PlaylistFragment.newInstance(position+1);
+
+        return PlaceholderFragment.newInstance(position+1);
+//return PlaceholderFragment.newInstance(position + 1);
     }
 
     @Nullable

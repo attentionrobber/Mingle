@@ -5,7 +5,7 @@ import com.j256.ormlite.table.DatabaseTable;
 
 
 /**
- * Music 별표시 Favorite 체크
+ * Music 좋아요 체크한 곡
  */
 @DatabaseTable(tableName = "favorite")
 public class Favorite extends Music {

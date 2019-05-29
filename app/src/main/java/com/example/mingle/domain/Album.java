@@ -2,11 +2,11 @@ package com.example.mingle.domain;
 
 public class Album extends Music {
 
-    private int album_id; // MediaStore.Audio.Media.ALBUM_ID
+    private long album_id; // MediaStore.Audio.Media.ALBUM_ID
     private String album; // MediaStore.Audio.Media.ALBUM
     private String albumImgUri; // Uri.parse("content://media/external/audio/albumart/" + music.album_id);
     private String artist; // MediaStore.Audio.Media.ARTIST
-    private int artist_id; // MediaStore.Audio.Media.ARTIST_ID
+    private long artist_id; // MediaStore.Audio.Media.ARTIST_ID
     private String title; // MediaStore.Audio.Media.TITLE
     private String albumID; // MediaStore.Audio.Albums.ALBUM_ID
     private int countOfSongs;
@@ -30,12 +30,12 @@ public class Album extends Music {
     }
 
     @Override
-    public int getAlbum_id() {
+    public long getAlbum_id() {
         return album_id;
     }
 
     @Override
-    public void setAlbum_id(int album_id) {
+    public void setAlbum_id(long album_id) {
         this.album_id = album_id;
     }
 
@@ -70,12 +70,12 @@ public class Album extends Music {
     }
 
     @Override
-    public int getArtist_id() {
+    public long getArtist_id() {
         return artist_id;
     }
 
     @Override
-    public void setArtist_id(int artist_id) {
+    public void setArtist_id(long artist_id) {
         this.artist_id = artist_id;
     }
 
