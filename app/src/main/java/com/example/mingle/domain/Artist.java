@@ -2,148 +2,78 @@ package com.example.mingle.domain;
 
 public class Artist extends Music {
 
-    private int artist_id; // MediaStore.Audio.Media.ARTIST_ID
+    private long artist_id; // MediaStore.Audio.Media.ARTIST_ID
     private String artist; // MediaStore.Audio.Media.ARTIST
-    private int album_id; // MediaStore.Audio.Media.ALBUM_ID
+    private long album_id; // MediaStore.Audio.Media.ALBUM_ID
     private String album; // MediaStore.Audio.Media.ALBUM
     private String albumImgUri; // Uri.parse("content://media/external/audio/albumart/" + music.album_id);
-    private int songCount;
-    private int albumCount;
+    private int numOfAlbums; // MediaStore.Audio.Artists.NUMBER_OF_ALBUMS,
+    private int numOfTracks; // MediaStore.Audio.Artists.NUMBER_OF_TRACKS
 
-
-    public int getSongCount() {
-        return songCount;
-    }
-
-    public void setSongCount(int songCount) {
-        this.songCount = songCount;
-    }
-
-    public int getAlbumCount() {
-        return albumCount;
-    }
-
-    public void setAlbumCount(int albumCount) {
-        this.albumCount = albumCount;
-    }
-
-    @Override
-    public String getPath() {
-        return super.getPath();
-    }
-
-    @Override
-    public void setPath(String path) {
-        super.setPath(path);
-    }
-
-    @Override
-    public String getMusicUri() {
-        return super.getMusicUri();
-    }
-
-    @Override
-    public void setMusicUri(String musicUri) {
-        super.setMusicUri(musicUri);
-    }
-
-    @Override
-    public String getTitle() {
-        return super.getTitle();
-    }
-
-    @Override
-    public void setTitle(String title) {
-        super.setTitle(title);
-    }
 
     @Override
     public long getArtist_id() {
-        return super.getArtist_id();
+        return artist_id;
     }
 
     @Override
     public void setArtist_id(long artist_id) {
-        super.setArtist_id(artist_id);
+        this.artist_id = artist_id;
     }
 
     @Override
     public String getArtist() {
-        return super.getArtist();
+        return artist;
     }
 
     @Override
     public void setArtist(String artist) {
-        super.setArtist(artist);
+        this.artist = artist;
     }
 
     @Override
     public long getAlbum_id() {
-        return super.getAlbum_id();
+        return album_id;
     }
 
     @Override
     public void setAlbum_id(long album_id) {
-        super.setAlbum_id(album_id);
+        this.album_id = album_id;
     }
 
     @Override
     public String getAlbum() {
-        return super.getAlbum();
+        return album;
     }
 
     @Override
     public void setAlbum(String album) {
-        super.setAlbum(album);
+        this.album = album;
     }
 
     @Override
     public String getAlbumImgUri() {
-        return super.getAlbumImgUri();
+        return albumImgUri;
     }
 
     @Override
     public void setAlbumImgUri(String albumImgUri) {
-        super.setAlbumImgUri(albumImgUri);
+        this.albumImgUri = albumImgUri;
     }
 
-    @Override
-    public String getComposer() {
-        return super.getComposer();
+    public int getNumOfAlbums() {
+        return numOfAlbums;
     }
 
-    @Override
-    public void setComposer(String composer) {
-        super.setComposer(composer);
+    public void setNumOfAlbums(int numOfAlbums) {
+        this.numOfAlbums = numOfAlbums;
     }
 
-    @Override
-    public String getYear() {
-        return super.getYear();
+    public int getNumOfTracks() {
+        return numOfTracks;
     }
 
-    @Override
-    public void setYear(String year) {
-        super.setYear(year);
-    }
-
-    @Override
-    public long getDuration() {
-        return super.getDuration();
-    }
-
-    @Override
-    public void setDuration(long duration) {
-        super.setDuration(duration);
-    }
-
-    @Override
-    public String getIsMusic() {
-        return super.getIsMusic();
-    }
-
-    @Override
-    public void setIsMusic(String is_music) {
-        super.setIsMusic(is_music);
+    public void setNumOfTracks(int numOfTracks) {
+        this.numOfTracks = numOfTracks;
     }
 }

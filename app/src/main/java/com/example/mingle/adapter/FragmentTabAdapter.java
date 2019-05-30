@@ -25,15 +25,15 @@ import java.util.List;
 public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.ViewHolder> {
 
     private Context context;
-    private List<Music> musicList;
+    private List<Music> musics;
     private int layout_item;
     private String TAB_NAME = Constants.TAB.SONG;
 
     private AdapterListener adapterListener;
 
-    public FragmentTabAdapter(Context context, List<Music> musicList, int layoutRes, AdapterListener listener) {
+    public FragmentTabAdapter(Context context, List<Music> musics, int layoutRes, AdapterListener listener) {
         this.context = context;
-        this.musicList = musicList;
+        this.musics = musics;
         adapterListener = listener;
         //Log.i("TESTS", "size: "+musicList.size());
 
@@ -75,7 +75,7 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
-        Common common = musicList.get(position);
+        Common common = musics.get(position);
 
         holder.tv_title.setText(common.getTitle());
         holder.tv_artist.setText(common.getArtist());
@@ -116,19 +116,19 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
             intent.putExtras(extras);
             intent.setAction(PlayerService.ACTION_PLAY);
             context.startService(intent);
-            Log.i("Service - TabAdapter", ""+position+" | "+((Common) musicList.get(position)).getMusicUri());
+            Log.i("Service - TabAdapter", ""+position+" | "+((Common) musics.get(position)).getMusicUri());
 
             // MainActivity 로 보냄
             if (adapterListener != null) {
                 //Log.i("Main_Listener", "not null");
-                adapterListener.onRecyclerViewItemClicked(musicList, position);
+                adapterListener.onRecyclerViewItemClicked(musics, position);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return musicList.size();
+        return musics.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

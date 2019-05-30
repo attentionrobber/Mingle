@@ -14,17 +14,22 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.mingle.R;
+import com.example.mingle.domain.Artist;
 import com.example.mingle.domain.Music;
 
 import java.util.List;
 
 public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder> {
-    private Context context;
-    private List<Music> musicList;
 
-    public ArtistAdapter(Context context, List<Music> musicList) {
+    private Context context;
+    private List<Artist> artists;
+
+    private AdapterListener adapterListener;
+
+    public ArtistAdapter(Context context, List<Artist> artists, AdapterListener listener) {
         this.context = context;
-        this.musicList = musicList;
+        this.artists = artists;
+        adapterListener = listener;
     }
 
     @NonNull
@@ -37,22 +42,28 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
-        //Artist artist = (Artist) musicList.get(position);
-        //Album album = (Album) musicList.get(position);
+        Artist artist = artists.get(position);
 
-        holder.tv_artist.setText(musicList.get(position).getArtist());
-        //holder.tv_songCount.setText(artist.getSongCount() + "곡");
+        holder.tv_artist.setText(artist.getArtist());
+        holder.tv_songCount.setText(artist.getNumOfAlbums() + "개의 앨범 | " + artist.getNumOfTracks()+"곡");
         //holder.iv_albumCover.setImageURI(Uri.parse(musicList.get(position).getAlbumImgUri()));
         // TODO: Glide didn't Work. Need to Fix
-        Glide.with(context).load("/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1447312718211")
+        Glide.with(context)
+                .load("/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1447312718211")
                 .placeholder(R.drawable.default_album_image)
                 .into(holder.iv_albumCover);
-        //Log.i("Adapter_Artist", "artist: "+musicList.get(position).getAlbumImgUri());
+
+        holder.layout_item.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adapterListener.onBucketItemClicked(String.valueOf(artist.getArtist_id()));
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return musicList.size();
+        return artists.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

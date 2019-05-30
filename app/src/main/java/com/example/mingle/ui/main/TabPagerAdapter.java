@@ -32,6 +32,8 @@ public class TabPagerAdapter extends FragmentPagerAdapter {
             return PlaylistFragment.newInstance(position+1);
         else if (position == 3)
             return AlbumFragment.newInstance(position+1);
+        else if (position == 4)
+            return ArtistFragment.newInstance(position+1);
         else
             return PlaceholderFragment.newInstance(position+1);
     }

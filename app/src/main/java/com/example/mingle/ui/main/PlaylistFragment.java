@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
 
+import com.example.mingle.Constants;
 import com.example.mingle.MainActivity;
 import com.example.mingle.MediaLoader;
 import com.example.mingle.R;
@@ -137,15 +138,14 @@ public class PlaylistFragment extends Fragment implements OnBackPressedListener 
     };
 
     @Override
-    public boolean onBackPressed() {
+    public String onBackPressed() {
         Log.i("PlaylistFragment", "onBackPressed()");
-
         if (recyclerView.getVisibility() == View.VISIBLE) { // list of song
             recyclerView.setVisibility(View.GONE);
             gridView.setVisibility(View.VISIBLE);
-            return false;
+            return Constants.TAB.PLAYLIST;
         }
-        return true;
+        return "";
     }
 
     @Override

@@ -56,7 +56,7 @@ public class PlaceholderFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("PlaceHolderFragment","onCreate");
+        //Log.i("PlaceHolderFragment","onCreate");
         context = getContext();
         // 최초 1회만 실행되므로 레이아웃 세팅만 하는게 좋다. 데이터 세팅은 onCreateView 에서
         int index;
@@ -81,11 +81,10 @@ public class PlaceholderFragment extends Fragment {
 //                    layout_item = R.layout.item_frag_album;
 //                    musics = MediaLoader.selectionByAlbum(context);
 //                    break;
-                case 5: // Artist
-                    TAB_NAME = Constants.TAB.ARTIST;
-                    layout_item = R.layout.item_frag_artist;
-                    musics = MediaLoader.musics;
-                    break;
+//                case 5: // Artist (Replace ArtistFragment)
+//                    TAB_NAME = Constants.TAB.ARTIST;
+//                    layout_item = R.layout.item_frag_artist;
+//                    break;
                 case 6: // Folder
                     TAB_NAME = Constants.TAB.FOLDER;
                     layout_item = R.layout.item_frag_folder;
@@ -97,7 +96,7 @@ public class PlaceholderFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_main, container, false);
-        Log.i("PlaceHolderFragment","onCreateView");
+        //Log.i("PlaceHolderFragment","onCreateView");
 
         // Tab 옮길 때 마다 View 가 호출되므로 Data 세팅을 여기서 하는게 좋음.
         recyclerView = root.findViewById(R.id.rv_song);
@@ -123,10 +122,10 @@ public class PlaceholderFragment extends Fragment {
 //                recyclerView.setLayoutManager(new GridLayoutManager(context, 2));
 //                recyclerView.setAdapter(new AlbumAdapter(context, musics));
 //                break;
-            case R.layout.item_frag_artist:
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-                recyclerView.setAdapter(new ArtistAdapter(context, musics));
-                break;
+//            case R.layout.item_frag_artist: // (Replace ArtistFragment)
+//                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+//                recyclerView.setAdapter(new ArtistAdapter(context, musics));
+//                break;
             case R.layout.item_frag_folder:
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
                 recyclerView.setAdapter(new FragmentTabAdapter(context, musics, layout_item, adapterListener));
@@ -172,6 +171,6 @@ public class PlaceholderFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.i("PlaceHolderFragment","onResume, "+TAB_NAME);
+        //Log.i("PlaceHolderFragment","onResume, "+TAB_NAME);
     }
 }

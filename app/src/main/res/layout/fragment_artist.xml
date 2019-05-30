@@ -6,14 +6,14 @@
     android:layout_height="match_parent">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_albumList"
+        android:id="@+id/rv_artistList"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </android.support.v7.widget.RecyclerView>
 
     <android.support.v7.widget.RecyclerView
         android:visibility="gone"
-        android:id="@+id/rv_inAlbum"
+        android:id="@+id/rv_inArtist"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </android.support.v7.widget.RecyclerView>

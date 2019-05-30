@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +40,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements FragmentListener {
 
     // Widget
+    private ViewPager viewPager; // fragment 를 담는 view
     private TextView tv_title, tv_artist; // 하단
     private ImageView iv_albumArtMain;
     private ImageButton btn_playPause, btn_favorite, btn_shuffle;
@@ -62,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     DBHelper dbHelper;
     Dao<Favorite, Integer> favoriteDao;
 
+    // TODO: RecyclerView 위에 정렬버튼, 재생버튼 만들기ㅇ
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 
     private void setWidget() {
         TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(this, getSupportFragmentManager());
-        ViewPager viewPager = findViewById(R.id.view_pager);
+        viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(tabPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
@@ -222,14 +227,15 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         // TODO: Service 가 Main 보다 나중에 실행되므로 isPlaying 은 false 임. 수정하기.
         // 일시정지 상태에서 다른곡 실행시 버튼 아이콘 안바뀌는 현상 수정하기
         if (playlist.size() != 0) {
-            if (PlayerService.mMediaPlayer.isPlaying()) {
-                btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
-                Log.i("MainService_MusicInfo", "if if");
-            }
-            else {
-                Log.i("MainService_MusicInfo", "if else");
-                btn_playPause.setImageResource(android.R.drawable.ic_media_play);
-            }
+            if (PlayerService.mMediaPlayer != null) {
+                if (PlayerService.mMediaPlayer.isPlaying()) {
+                    btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
+                    Log.i("MainService_MusicInfo", "if if");
+                } else {
+                    Log.i("MainService_MusicInfo", "if else");
+                    btn_playPause.setImageResource(android.R.drawable.ic_media_play);
+                }
+            } else btn_playPause.setImageResource(android.R.drawable.ic_media_play);
 //            Glide.with(this)
 //                .load(Uri.parse(cur_musics.get(position).getAlbumImgUri()))
 //                .placeholder(R.drawable.default_album_image)
@@ -249,16 +255,35 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 
     @Override
     public void onBackPressed() {
-        boolean back = false;
-        List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
-
-        // Perform your logic to pass back press here
-        for (Fragment fragment : fragmentList) {
-            if (fragment instanceof OnBackPressedListener)
-                back = ((OnBackPressedListener) fragment).onBackPressed();
+        // Fragment 에서도 onBackPressed()를 쓸 수 있도록 한다.
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.view_pager + ":"+viewPager.getCurrentItem());
+        //Log.i("MainFragment","fragName: "+fragment.toString());
+        String fragmentName = "";
+        if (fragment instanceof OnBackPressedListener) {
+            fragmentName = ((OnBackPressedListener) fragment).onBackPressed();
         }
-
-        if (back) super.onBackPressed();
+//        List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+//        for (Fragment fragment : fragmentList) {
+//            if (fragment instanceof OnBackPressedListener) {
+//                fragmentName = ((OnBackPressedListener) fragment).onBackPressed();
+//                break;
+//            }
+//        }
+        switch (fragmentName) {
+            case Constants.TAB.FAVORITE: super.onBackPressed();
+                break;
+            case Constants.TAB.PLAYLIST:
+                break;
+            case Constants.TAB.SONG: super.onBackPressed();
+                break;
+            case Constants.TAB.ALBUM:
+                break;
+            case Constants.TAB.ARTIST:
+                break;
+            case Constants.TAB.FOLDER: super.onBackPressed();
+                break;
+            default: super.onBackPressed();
+        }
     }
 
     @Override

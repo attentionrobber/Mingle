@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.GridView;
 
+import com.example.mingle.Constants;
 import com.example.mingle.MediaLoader;
 import com.example.mingle.R;
 import com.example.mingle.adapter.AdapterListener;
@@ -76,7 +77,7 @@ public class AlbumFragment extends Fragment implements OnBackPressedListener {
 
         //gridView.setOnItemClickListener((parent, view, position, id) -> gridViewItemClicked()); // Replace AdapterListener
         rv_albumList.setLayoutManager(new GridLayoutManager(context, 2));
-        rv_albumList.setAdapter(new AlbumAdapter(context, MediaLoader.loadAlbum(context), adapterListener));
+        rv_albumList.setAdapter(new AlbumAdapter(context, MediaLoader.loadAlbums(context), adapterListener));
     }
 
     /**
@@ -101,15 +102,14 @@ public class AlbumFragment extends Fragment implements OnBackPressedListener {
     };
 
     @Override
-    public boolean onBackPressed() {
+    public String onBackPressed() {
         Log.i("AlbumFragment", "onBackPressed()");
-
         if (rv_inAlbum.getVisibility() == View.VISIBLE) { // list of song
             rv_inAlbum.setVisibility(View.GONE);
             rv_albumList.setVisibility(View.VISIBLE);
-            return false;
+            return Constants.TAB.ALBUM;
         }
-        return true;
+        return "";
     }
 
     @Override
