@@ -7,11 +7,13 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -21,7 +23,11 @@ import com.example.mingle.R;
 import com.example.mingle.domain.Common;
 import com.example.mingle.domain.Music;
 
+import java.text.Collator;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.ViewHolder> {
 
@@ -70,7 +76,6 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 
     @Override
     public int getItemViewType(int position) {
-        Log.i("TabAdapter", ""+position);
         if (position == 0)
             return TYPE_BUTTON;
         return TYPE_ITEM;
@@ -89,11 +94,33 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-
+        // first item(index 0) set button layout
         if (holder.getItemViewType() == TYPE_BUTTON) {
             // TODO: Button Event
+            holder.btn_sort.setOnClickListener(v -> {
+                PopupMenu dropDownMenu = new PopupMenu(context, holder.btn_sort);
+                dropDownMenu.getMenuInflater().inflate(R.menu.drop_down_menu, dropDownMenu.getMenu());
+                dropDownMenu.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.menuItem_sort_title)
+                        sortBy("title");
+                    else if (item.getItemId() == R.id.menuItem_sort_artist)
+                        sortBy("artist");
+                    else if (item.getItemId() == R.id.menuItem_sort_added)
+                        sortBy("added");
+                    return true;
+                });
+                dropDownMenu.show();
+            });
+
+            holder.btn_play.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //playMusicService();
+                }
+            });
         } else {
-            Common common = musics.get(position-1);  // -1 because index 0 is button layout
+            int pos_view = position-1; // -1 because index 0 is button layout
+            Common common = musics.get(pos_view);
 
             holder.tv_title.setText(common.getTitle());
             holder.tv_artist.setText(common.getArtist());
@@ -129,17 +156,21 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
             holder.layout_item.setOnClickListener(v -> {
                 Intent intent = new Intent(context, PlayerService.class);
                 Bundle extras = new Bundle();
+
+
                 extras.putString("tab", TAB_NAME); // TODO: switch value
-                extras.putInt("position", position);
+                extras.putInt("position", pos_view);
                 intent.putExtras(extras);
+
+
                 intent.setAction(PlayerService.ACTION_PLAY);
                 context.startService(intent);
-                Log.i("Service - TabAdapter", "" + position + " | " + ((Common) musics.get(position)).getMusicUri());
+                Log.i("Service - TabAdapter", "" + pos_view + " | " + ((Common) musics.get(pos_view)).getMusicUri());
 
                 // MainActivity 로 보냄
                 if (adapterListener != null) {
                     //Log.i("Main_Listener", "not null");
-                    adapterListener.onRecyclerViewItemClicked(musics, position);
+                    adapterListener.onRecyclerViewItemClicked(musics, pos_view);
                 }
             });
         }
@@ -156,7 +187,7 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
         ImageView iv_albumCover;
         TextView tv_title, tv_artist;
 
-        Button btn1, btn2, btn3;
+        Button btn_sort, btn_play, btn3;
 
         ViewHolder(View view) { // position == getAdapterPosition();
             super(view);
@@ -165,8 +196,8 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
             tv_title = view.findViewById(R.id.tv_title);
             tv_artist = view.findViewById(R.id.tv_artist);
 
-            btn1 = view.findViewById(R.id.btn1);
-            btn2 = view.findViewById(R.id.btn2);
+            btn_sort = view.findViewById(R.id.btn_sort);
+            btn_play = view.findViewById(R.id.btn2);
             btn3 = view.findViewById(R.id.btn3);
 
 //            layout_item.setOnClickListener(v -> {
@@ -179,4 +210,47 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
         }
     }
 
+    private void sortBy(String by) {
+        //Collections.sort(musics, (o1, o2) -> Integer.compare(o1.getTitle().charAt(0), o2.getTitle().charAt(0))); // musics 를 타이틀순(영,한,기타)으로 정렬
+        switch (by) {
+            case "title":
+                Collections.sort(musics, (o1, o2) -> compareStringWithLocale(o1.getTitle(), o2.getTitle()));
+                break;
+            case "artist":
+                Collections.sort(musics, (o1, o2) -> compareStringWithLocale(o1.getArtist(), o2.getArtist()));
+                break;
+            case "added":
+                Collections.sort(musics, (o1, o2) -> Long.compare(o2.getDate_added(), o1.getDate_added()));
+                break;
+        }
+        notifyDataSetChanged();
+    }
+
+    private int compareStringWithLocale(String arg1, String arg2) {
+        Collator coll = Collator.getInstance(Locale.KOREA);
+        coll.setStrength(Collator.PRIMARY);
+        return coll.compare(arg1, arg2);
+    }
+
+    private void playMusicService(boolean shuffle, int position) {
+
+        Intent intent = new Intent(context, PlayerService.class);
+        Bundle extras = new Bundle();
+
+
+        extras.putString("tab", TAB_NAME); // TODO: switch value
+        extras.putInt("position", position);
+        intent.putExtras(extras);
+
+
+        intent.setAction(PlayerService.ACTION_PLAY);
+        context.startService(intent);
+        Log.i("Service - TabAdapter", "" + position + " | " + ((Common) musics.get(position)).getMusicUri());
+
+        // MainActivity 로 보냄
+        if (adapterListener != null) {
+            //Log.i("Main_Listener", "not null");
+            adapterListener.onRecyclerViewItemClicked(musics, position);
+        }
+    }
 }

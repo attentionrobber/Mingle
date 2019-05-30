@@ -50,6 +50,7 @@ public class MediaLoader {
                 MediaStore.Audio.Media.YEAR,        // 9, String year
                 MediaStore.Audio.Media.DURATION,    // 10, long duration
                 MediaStore.Audio.Media.IS_MUSIC,     // 11, String isMusic
+                MediaStore.Audio.Media.DATE_ADDED   // 12, long date_added
         };
         //String selection = MediaStore.Audio.Media.+" =?"; // XX 으로 선별
         String orderBy = MediaStore.Audio.Media.TITLE+" COLLATE LOCALIZED ASC"; // 기타 한글 영문순 정렬 (+" DESC" 내림차순, ASC 오름차순)
@@ -72,6 +73,7 @@ public class MediaLoader {
                 music.setYear(getString(cursor, PROJECTION[9]));
                 music.setDuration(getLong(cursor, PROJECTION[10]));
                 music.setIsMusic(getString(cursor, PROJECTION[11]));
+                music.setDate_added(getLong(cursor, PROJECTION[12]));
                 //music.setAlbumImgBitmap(getAlbumImageBitmap(music.getAlbum_id(), context)); // Bitmap으로 처리해서 이미지를 로드한다. (매우느림)
                 //music.setAlbum_img(Uri.parse("content://media/external/audio/albumart/" + music.getAlbum_id()));
                 //music.album_img = getAlbumImageSimple(music.album_id); // URI로 직접 이미지를 로드한다. (이미지 못불러오는 경우 있음)
@@ -88,7 +90,7 @@ public class MediaLoader {
 
         ContentResolver resolver = context.getContentResolver(); // 데이터에 접근하기 위해 Content Resolver 를 불러온다.
         final String[] PROJECTION = { // 데이터에서 가져올 데이터 컬럼명을 projections 에 담는다.
-                MediaStore.Audio.Media.DATA,         // 0, String path
+                MediaStore.Audio.Media.DATA,        // 0, String path
                 MediaStore.Audio.Media._ID,         // 1, String musicUri 의 뒷부분
                 MediaStore.Audio.Media.TITLE,       // 2, String title
                 MediaStore.Audio.Media.ARTIST_ID,   // 3, long artist_id
@@ -99,7 +101,8 @@ public class MediaLoader {
                 MediaStore.Audio.Media.COMPOSER,    // 8, String composer
                 MediaStore.Audio.Media.YEAR,        // 9, String year
                 MediaStore.Audio.Media.DURATION,    // 10, long duration
-                MediaStore.Audio.Media.IS_MUSIC,     // 11, String isMusic
+                MediaStore.Audio.Media.IS_MUSIC,    // 11, String isMusic
+                MediaStore.Audio.Media.DATE_ADDED   // 12, long date_added
         };
         String selection = MediaStore.Audio.Media.IS_MUSIC + "=1"; // XX 으로 선별
         String orderBy = MediaStore.Audio.Media.TITLE+" COLLATE LOCALIZED ASC"; // 기타 한글 영문순 정렬 (+" DESC" 내림차순, ASC 오름차순)
@@ -121,6 +124,7 @@ public class MediaLoader {
                 music.setYear(getString(cursor, PROJECTION[9]));
                 music.setDuration(getLong(cursor, PROJECTION[10]));
                 music.setIsMusic(getString(cursor, PROJECTION[11]));
+                music.setDate_added(getLong(cursor, PROJECTION[12]));
                 //music.setAlbumImgBitmap(getAlbumImageBitmap(music.getAlbum_id(), context)); // Bitmap으로 처리해서 이미지를 로드한다. (매우느림)
                 //music.setAlbum_img(Uri.parse("content://media/external/audio/albumart/" + music.getAlbum_id()));
                 //music.album_img = getAlbumImageSimple(music.album_id); // URI로 직접 이미지를 로드한다. (이미지 못불러오는 경우 있음)

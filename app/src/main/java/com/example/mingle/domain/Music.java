@@ -1,17 +1,9 @@
 package com.example.mingle.domain;
 
 
-import android.content.ContentResolver;
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.util.Log;
 
-import com.example.mingle.utility.MethodCollection;
-
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 public class Music extends Common {
 
@@ -30,9 +22,16 @@ public class Music extends Common {
     private String year; // MediaStore.Audio.Media.YEAR
     private long duration; // MediaStore.Audio.Media.DURATION
     private String isMusic; // MediaStore.Audio.Media.IS_MUSIC
-    //private int genre_id;
-    //private String content_type;
+    private long date_added;  // MediaStore.Audio.Media.DATE_ADDED
 
+
+    public long getDate_added() {
+        return date_added;
+    }
+
+    public void setDate_added(long date_added) {
+        this.date_added = date_added;
+    }
 
     public String getPath() {
         return path;

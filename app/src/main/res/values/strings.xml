@@ -16,4 +16,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!-- Dropdown Menu Item -->
+    <string name="dropDown1">제목순 정렬</string>
+    <string name="dropDown2">아티스트별 정렬</string>
+    <string name="dropDown3">최근추가순 정렬</string>
+
 </resources>

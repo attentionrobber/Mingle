@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menuItem_sort_title"
+        android:title="@string/dropDown1"
+        android:visible="true"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menuItem_sort_artist"
+        android:title="@string/dropDown2"
+        android:visible="true"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/menuItem_sort_added"
+        android:title="@string/dropDown3"
+        android:visible="true"
+        app:showAsAction="ifRoom" />
+
+</menu>
