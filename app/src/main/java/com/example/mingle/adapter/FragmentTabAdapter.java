@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,6 +25,9 @@ import java.util.List;
 
 public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.ViewHolder> {
 
+    private static final int TYPE_BUTTON = 0;
+    private static final int TYPE_ITEM = 1;
+
     private Context context;
     private List<Music> musics;
     private int layout_item;
@@ -35,7 +39,6 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
         this.context = context;
         this.musics = musics;
         adapterListener = listener;
-        //Log.i("TESTS", "size: "+musicList.size());
 
         switch (layoutRes) {
             case R.layout.item_frag_favorite:
@@ -65,25 +68,40 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
         }
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        Log.i("TabAdapter", ""+position);
+        if (position == 0)
+            return TYPE_BUTTON;
+        return TYPE_ITEM;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(layout_item, parent, false);
+        View view;
+        if (viewType == TYPE_BUTTON) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_button_in_recycler_view, parent, false);
+        } else
+            view = LayoutInflater.from(parent.getContext()).inflate(layout_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
-        Common common = musics.get(position);
+        if (holder.getItemViewType() == TYPE_BUTTON) {
+            // TODO: Button Event
+        } else {
+            Common common = musics.get(position-1);  // -1 because index 0 is button layout
 
-        holder.tv_title.setText(common.getTitle());
-        holder.tv_artist.setText(common.getArtist());
-        //holder.iv_albumCover.setImageURI(Uri.parse(common.getAlbumImgUri()));
-        //holder.iv_albumCover.setImageURI(Uri.parse("content://media/external/audio/albumart/460"));
-        Glide.with(context)
-                .load(R.drawable.default_album_image)
-                .into(holder.iv_albumCover);
+            holder.tv_title.setText(common.getTitle());
+            holder.tv_artist.setText(common.getArtist());
+            //holder.iv_albumCover.setImageURI(Uri.parse(common.getAlbumImgUri()));
+            //holder.iv_albumCover.setImageURI(Uri.parse("content://media/external/audio/albumart/460"));
+            Glide.with(context)
+                    .load(R.drawable.default_album_image)
+                    .into(holder.iv_albumCover);
 //        Glide.with(context)
 //                .load(common.getAlbumImgPath())
 //                .thumbnail(0.5f)// 50%의 비율로 로드
@@ -92,8 +110,8 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 //                .placeholder(R.drawable.default_album_image)
 //                .into(holder.iv_albumCover);
 
-        //Uri uri = Uri.parse(common.getAlbumImgUri());
-        //Log.i("Adapter_Tab", "tab: "+((Music) common).getPath() +" | "+common.getAlbumImgUri());
+            //Uri uri = Uri.parse(common.getAlbumImgUri());
+            //Log.i("Adapter_Tab", "tab: "+((Music) common).getPath() +" | "+common.getAlbumImgUri());
 
 
 //        Uri albumArtUri = Uri.parse(musicList.get(position).getAlbumImgUri());
@@ -108,27 +126,28 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 //                .placeholder(R.drawable.default_album_image)
 //                .into(holder.iv_albumCover);
 
-        holder.layout_item.setOnClickListener(v -> {
-            Intent intent = new Intent(context, PlayerService.class);
-            Bundle extras = new Bundle();
-            extras.putString("tab", TAB_NAME); // TODO: switch value
-            extras.putInt("position", position);
-            intent.putExtras(extras);
-            intent.setAction(PlayerService.ACTION_PLAY);
-            context.startService(intent);
-            Log.i("Service - TabAdapter", ""+position+" | "+((Common) musics.get(position)).getMusicUri());
+            holder.layout_item.setOnClickListener(v -> {
+                Intent intent = new Intent(context, PlayerService.class);
+                Bundle extras = new Bundle();
+                extras.putString("tab", TAB_NAME); // TODO: switch value
+                extras.putInt("position", position);
+                intent.putExtras(extras);
+                intent.setAction(PlayerService.ACTION_PLAY);
+                context.startService(intent);
+                Log.i("Service - TabAdapter", "" + position + " | " + ((Common) musics.get(position)).getMusicUri());
 
-            // MainActivity 로 보냄
-            if (adapterListener != null) {
-                //Log.i("Main_Listener", "not null");
-                adapterListener.onRecyclerViewItemClicked(musics, position);
-            }
-        });
+                // MainActivity 로 보냄
+                if (adapterListener != null) {
+                    //Log.i("Main_Listener", "not null");
+                    adapterListener.onRecyclerViewItemClicked(musics, position);
+                }
+            });
+        }
     }
 
     @Override
     public int getItemCount() {
-        return musics.size();
+        return musics.size() + 1; // +1 because index 0 is button layout
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -137,12 +156,18 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
         ImageView iv_albumCover;
         TextView tv_title, tv_artist;
 
+        Button btn1, btn2, btn3;
+
         ViewHolder(View view) { // position == getAdapterPosition();
             super(view);
             layout_item = view.findViewById(R.id.layout_item);
             iv_albumCover = view.findViewById(R.id.iv_albumCover);
             tv_title = view.findViewById(R.id.tv_title);
             tv_artist = view.findViewById(R.id.tv_artist);
+
+            btn1 = view.findViewById(R.id.btn1);
+            btn2 = view.findViewById(R.id.btn2);
+            btn3 = view.findViewById(R.id.btn3);
 
 //            layout_item.setOnClickListener(v -> {
 //                Log.i("adapterTEST", "pos: "+getAdapterPosition()+" title: ");
