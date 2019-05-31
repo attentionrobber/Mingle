@@ -4,14 +4,14 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item> <!-- 타이틀바 -->
-        <item name="colorPrimaryDark">@android:color/transparent</item> <!-- 최상단 상태표시줄 바 -->
+        <item name="colorPrimaryDark">@android:color/black</item> <!-- 최상단 상태표시줄 바 -->
         <item name="colorAccent">@color/colorAccent</item>
 
         <!-- No Title Bar -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <!-- No Status Bar -->
-        <item name="android:windowFullscreen">true</item>
+        <!-- No Status Bar
+        <item name="android:windowFullscreen">true</item> -->
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

@@ -67,6 +67,22 @@ public class PlayerService extends Service implements ServiceInterface {
     public PlayerService() {
     }
 
+    public void setList(List<Music> musics) {
+        Log.i("PlayerService_", "setList: " + musics.size());
+        playlist = musics;
+    }
+
+    public void setPosition(int songIndex) {
+        Log.i("PlayerService_", "setPos: " + songIndex);
+        position = songIndex;
+    }
+
+    public boolean isPlaying() {
+        if (mMediaPlayer != null)
+            return mMediaPlayer.isPlaying();
+        return false;
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         Log.i("Service_", "onBind");
@@ -106,44 +122,17 @@ public class PlayerService extends Service implements ServiceInterface {
         if (mMediaPlayer != null)
             mMediaPlayer.release();
 
-        if (intent.getExtras() != null) {
-            Bundle extras = intent.getExtras();
-            String str = extras.getString("tab");
-            position = extras.getInt("position");
-            switch (str) {
-                case Constants.TAB.FAVORITE:
-                    playlist = MediaLoader.loadFavorite();
-                    break;
-                case Constants.TAB.PLAYLIST:
-                    playlist = MediaLoader.musics;
-                    break;
-                case Constants.TAB.SONG:
-                    music = (Music) extras.getSerializable("song");
-                    //playlist = MediaLoader.musics;
-//                    playlist = (List<Music>) extras.getSerializable("playlist");
-//                    playlist = extras.getParcelableArrayList("playlist");
-                    break;
-                case Constants.TAB.ALBUM:
-                    //playlist = MediaLoader.loadAlbum(context); // TODO: 탭에 알맞은 Playlist 변경
-                    break;
-                case Constants.TAB.ARTIST:
-                    playlist = MediaLoader.musics;
-                    break;
-                case Constants.TAB.FOLDER:
-                    playlist = MediaLoader.musics;
-                    break;
-                default:
-                    playlist = MediaLoader.musics;
-            }
-            String strUri = music.getMusicUri();
-            Log.i("Service_init()", "" + strUri);
+        // TODO: 아래꺼 MusicService 참고해서 최적화하기.
+        String str = intent.getStringExtra("tab");
+        music = playlist.get(position);
+        String strUri = music.getMusicUri();
+        Log.i("Service_init()", "" + strUri);
 
-            mMediaPlayer = MediaPlayer.create(this, Uri.parse(strUri));
-            mMediaPlayer.setOnCompletionListener(mp -> {
-                next();
-                sendToMainActivity(position);
-            });
-        }
+        mMediaPlayer = MediaPlayer.create(this, Uri.parse(strUri));
+        mMediaPlayer.setOnCompletionListener(mp -> {
+            next();
+            sendToMainActivity(position);
+        });
     }
 
     // Intent Action 에 넘어온 명령어를 분기시키는 함수
@@ -155,10 +144,10 @@ public class PlayerService extends Service implements ServiceInterface {
         if (action.equalsIgnoreCase(ACTION_PLAY)) {
             setUpNotification();
             play();
-            //sendToMainActivity(position);
+            sendToMainActivity(position);
         } else if (action.equalsIgnoreCase(ACTION_PAUSE)) {
             pause();
-            //sendToMainActivity(position);
+            sendToMainActivity(position);
         }
         else if (action.equalsIgnoreCase(ACTION_PLAYPAUSE)) {
             playPause();
@@ -371,7 +360,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public void playPause() {
-        Log.i("Service_PP", "pos"+position);
+        Log.i("PlayerService_", "playPause: "+position);
         if (mMediaPlayer != null) {
             if (mMediaPlayer.isPlaying())
                 mMediaPlayer.pause();
@@ -424,6 +413,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public void stop() {
+        Log.i("PlayerService_", "onDestroy");
         if (mMediaPlayer != null) {
             mMediaPlayer.stop();
             stopForeground(true);
@@ -433,7 +423,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public void onDestroy() {
-        Log.i("Service_", "onDestroy");
+        Log.i("PlayerService_", "onDestroy");
         if (mMediaPlayer != null) {
             mMediaPlayer.release();
             mMediaPlayer = null;

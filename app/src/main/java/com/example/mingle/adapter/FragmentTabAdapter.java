@@ -234,26 +234,4 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
         coll.setStrength(Collator.PRIMARY);
         return coll.compare(arg1, arg2);
     }
-
-    private void playMusicService(boolean shuffle, int position) {
-
-        Intent intent = new Intent(context, PlayerService.class);
-        Bundle extras = new Bundle();
-
-
-        extras.putString("tab", TAB_NAME); // TODO: switch value
-        extras.putInt("position", position);
-        intent.putExtras(extras);
-
-
-        intent.setAction(PlayerService.ACTION_PLAY);
-        context.startService(intent);
-        Log.i("Service - TabAdapter", "" + position + " | " + ((Common) musics.get(position)).getMusicUri());
-
-        // MainActivity 로 보냄
-        if (adapterListener != null) {
-            //Log.i("Main_Listener", "not null");
-            adapterListener.onRecyclerViewItemClicked(musics, position);
-        }
-    }
 }

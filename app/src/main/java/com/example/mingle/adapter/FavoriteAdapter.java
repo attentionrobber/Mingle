@@ -50,13 +50,13 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                 .into(viewHolder.iv_albumCover);
 
         viewHolder.layout_item.setOnClickListener(v -> {
-            Intent intent = new Intent(context, PlayerService.class);
-            Bundle extras = new Bundle();
-            extras.putString("tab", Constants.TAB.FAVORITE);
-            extras.putInt("position", position);
-            intent.putExtras(extras);
-            intent.setAction(PlayerService.ACTION_PLAY);
-            context.startService(intent);
+//            Intent intent = new Intent(context, PlayerService.class);
+//            Bundle extras = new Bundle();
+//            extras.putString("tab", Constants.TAB.FAVORITE);
+//            extras.putInt("position", position);
+//            intent.putExtras(extras);
+//            intent.setAction(PlayerService.ACTION_PLAY);
+//            context.startService(intent);
 
             if (adapterListener != null) // MainActivity 로 보냄
                 adapterListener.onRecyclerViewItemClicked(musics, position);
