@@ -38,6 +38,7 @@ public class PlayerService extends Service implements ServiceInterface {
     // Media
     public static MediaPlayer mMediaPlayer = null;
     public static List<Music> playlist = new ArrayList<>(); // Current Music Playlist
+    public static Music music;
     public static int position = 0; // Current Music List's Position
 
     // Actions to control media
@@ -76,6 +77,7 @@ public class PlayerService extends Service implements ServiceInterface {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.i("Service_", "onCreate");
         context = getApplicationContext();
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
     }
@@ -106,8 +108,8 @@ public class PlayerService extends Service implements ServiceInterface {
 
         if (intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
-            position = extras.getInt("position");
             String str = extras.getString("tab");
+            position = extras.getInt("position");
             switch (str) {
                 case Constants.TAB.FAVORITE:
                     playlist = MediaLoader.loadFavorite();
@@ -117,6 +119,8 @@ public class PlayerService extends Service implements ServiceInterface {
                     break;
                 case Constants.TAB.SONG:
                     playlist = MediaLoader.musics;
+//                    playlist = (List<Music>) extras.getSerializable("playlist");
+//                    playlist = extras.getParcelableArrayList("playlist");
                     break;
                 case Constants.TAB.ALBUM:
                     //playlist = MediaLoader.loadAlbum(context); // TODO: 탭에 알맞은 Playlist 변경
@@ -131,10 +135,15 @@ public class PlayerService extends Service implements ServiceInterface {
                     playlist = MediaLoader.musics;
             }
             String strUri = playlist.get(position).getMusicUri();
+//            music = intent.getParcelableExtra("music");
+//            String strUri = music.getMusicUri();
             Log.i("Service_init()", "" + strUri);
-            for (int i = 0; i < playlist.size(); i++) {
-                Log.i("Service_init()", "" + playlist.get(i).getPath());
-            }
+
+//            ArrayList<String> test = new ArrayList<>();
+//            assert test != null;
+//            for (int i = 0; i < test.size(); i++) {
+//                Log.i("Service_", ""+test.get(i));
+//            }
 
             mMediaPlayer = MediaPlayer.create(this, Uri.parse(strUri));
             mMediaPlayer.setOnCompletionListener(mp -> {

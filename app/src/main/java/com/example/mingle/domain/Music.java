@@ -25,6 +25,9 @@ public class Music extends Common {
     private long date_added;  // MediaStore.Audio.Media.DATE_ADDED
 
 
+    public Music() {
+    }
+
     public long getDate_added() {
         return date_added;
     }

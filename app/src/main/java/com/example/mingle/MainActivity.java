@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     @Override
     public void onRecyclerViewItemClicked(List<Music> musics, int position) {
         playlist = musics;
-        Log.i("MainService_Recycler", "pos: "+position+ " | size: " +playlist.size()+" | "+musics.size());
+        //Log.i("MainService_Recycler", "pos: "+position+ " | size: " +playlist.size()+" | "+musics.size());
         this.position = position;
         setMusicInfo(position);
     }
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
      * Main 하단부 Now Playing Music 레이아웃 세팅
      */
     public void setMusicInfo(int position) {
-        Log.i("MainService_MusicInfo", ""+playlist.size()+" pos: "+position);
+        //Log.i("MainService_MusicInfo", ""+playlist.size()+" pos: "+position);
         this.position = position;
 
         // TODO: Service 가 Main 보다 나중에 실행되므로 isPlaying 은 false 임. 수정하기.
@@ -230,9 +230,9 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
             if (PlayerService.mMediaPlayer != null) {
                 if (PlayerService.mMediaPlayer.isPlaying()) {
                     btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
-                    Log.i("MainService_MusicInfo", "if if");
+                    //Log.i("MainService_MusicInfo", "if if");
                 } else {
-                    Log.i("MainService_MusicInfo", "if else");
+                    //Log.i("MainService_MusicInfo", "if else");
                     btn_playPause.setImageResource(android.R.drawable.ic_media_play);
                 }
             } else btn_playPause.setImageResource(android.R.drawable.ic_media_play);
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
             tv_title.setText(playlist.get(position).getTitle());
             tv_artist.setText(playlist.get(position).getArtist());
         } else {
-            Log.i("MainService_MusicInfo", "else");
+            //Log.i("MainService_MusicInfo", "else");
             btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
         }
     }

@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -25,7 +24,6 @@ import com.example.mingle.domain.Music;
 
 import java.text.Collator;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -159,8 +157,12 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 
 
                 extras.putString("tab", TAB_NAME); // TODO: switch value
+//                extras.putSerializable("playlist", (Serializable) musics);
+//                extras.putParcelableArrayList("playlist", (ArrayList<? extends Parcelable>) musics);
                 extras.putInt("position", pos_view);
                 intent.putExtras(extras);
+//                intent.putParcelableArrayListExtra("playlist", (ArrayList<? extends Parcelable>) musics);
+//                intent.putExtra("music", musics.get(pos_view));
 
 
                 intent.setAction(PlayerService.ACTION_PLAY);

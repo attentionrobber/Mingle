@@ -1,5 +1,6 @@
 package com.example.mingle.domain;
 
+
 public class Artist extends Music {
 
     private long artist_id; // MediaStore.Audio.Media.ARTIST_ID
