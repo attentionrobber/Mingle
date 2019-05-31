@@ -4,9 +4,7 @@
 
     <!-- Added -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- for OrmLite -->
-    <!-- Added -->
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -16,9 +14,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".PlayerService"
+            android:name=".MusicService"
             android:enabled="true"
             android:exported="true"></service>
+        <service
+            android:name=".PlayerService"
+            android:enabled="true"
+            android:exported="true" />
 
         <activity android:name=".PlayerActivity" />
         <activity

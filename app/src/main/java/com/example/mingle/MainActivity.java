@@ -1,16 +1,17 @@
 package com.example.mingle;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +27,6 @@ import com.example.mingle.data.DBHelper;
 import com.example.mingle.domain.Favorite;
 import com.example.mingle.domain.Music;
 import com.example.mingle.ui.main.FragmentListener;
-import com.example.mingle.ui.main.PlaylistFragment;
 import com.example.mingle.ui.main.TabPagerAdapter;
 import com.example.mingle.ui.main.OnBackPressedListener;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -64,8 +64,6 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     public static List<Favorite> favorites = new ArrayList<>();
     DBHelper dbHelper;
     Dao<Favorite, Integer> favoriteDao;
-
-    // TODO: RecyclerView 위에 정렬버튼, 재생버튼 만들기ㅇ
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         //Log.i("MainService_Recycler", "pos: "+position+ " | size: " +playlist.size()+" | "+musics.size());
         this.position = position;
         setMusicInfo(position);
+        songPicked();
     }
 
     /**
@@ -257,7 +256,6 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     public void onBackPressed() {
         // Fragment 에서도 onBackPressed()를 쓸 수 있도록 한다.
         Fragment fragment = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.view_pager + ":"+viewPager.getCurrentItem());
-        //Log.i("MainFragment","fragName: "+fragment.toString());
         String fragmentName = "";
         if (fragment instanceof OnBackPressedListener) {
             fragmentName = ((OnBackPressedListener) fragment).onBackPressed();
@@ -289,6 +287,11 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     @Override
     protected void onStart() {
         super.onStart();
+
+        playIntent = new Intent(this, MusicService.class);
+        bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+        startService(playIntent);
+
         LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(PlayerService.SERVICE_RESULT));
     }
 
@@ -310,7 +313,43 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     @Override
     protected void onDestroy() {
         favorites.clear();
+        stopService(playIntent);
+        musicSrv = null;
         super.onDestroy();
     }
+
+
+
+    // -----------
+    //connect to the service
+    private MusicService musicSrv;
+    private Intent playIntent;
+    private boolean musicBound = false;
+
+    private ServiceConnection musicConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
+            //get service
+            musicSrv = binder.getService();
+            //pass list
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
+
+    public void songPicked(){
+        //musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        musicSrv.setList(playlist);
+        musicSrv.setSong(position);
+        musicSrv.playSong();
+    }
+
+
 
 }

@@ -17,11 +17,13 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.mingle.Constants;
+import com.example.mingle.MusicService;
 import com.example.mingle.PlayerService;
 import com.example.mingle.R;
 import com.example.mingle.domain.Common;
 import com.example.mingle.domain.Music;
 
+import java.io.Serializable;
 import java.text.Collator;
 import java.util.Collections;
 import java.util.List;
@@ -152,22 +154,21 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 //                .into(holder.iv_albumCover);
 
             holder.layout_item.setOnClickListener(v -> {
-                Intent intent = new Intent(context, PlayerService.class);
-                Bundle extras = new Bundle();
-
-
-                extras.putString("tab", TAB_NAME); // TODO: switch value
+//                Intent intent = new Intent(context, PlayerService.class);
+//                Bundle extras = new Bundle();
+//
+//
+//                extras.putString("tab", TAB_NAME); // TODO: switch value
+//                extras.putInt("position", pos_view);
+//                //extras.putSerializable("song", musics.get(pos_view));
 //                extras.putSerializable("playlist", (Serializable) musics);
-//                extras.putParcelableArrayList("playlist", (ArrayList<? extends Parcelable>) musics);
-                extras.putInt("position", pos_view);
-                intent.putExtras(extras);
-//                intent.putParcelableArrayListExtra("playlist", (ArrayList<? extends Parcelable>) musics);
-//                intent.putExtra("music", musics.get(pos_view));
+//                intent.putExtras(extras);
+//
+//
+//                intent.setAction(PlayerService.ACTION_PLAY);
+//                context.startService(intent);
+//                Log.i("Service - TabAdapter", "" + pos_view + " | " + ((Common) musics.get(pos_view)).getMusicUri());
 
-
-                intent.setAction(PlayerService.ACTION_PLAY);
-                context.startService(intent);
-                Log.i("Service - TabAdapter", "" + pos_view + " | " + ((Common) musics.get(pos_view)).getMusicUri());
 
                 // MainActivity 로 보냄
                 if (adapterListener != null) {

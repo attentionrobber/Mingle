@@ -4,8 +4,10 @@ package com.example.mingle.domain;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import java.io.Serializable;
 
-public class Music extends Common {
+
+public class Music extends Common implements Serializable {
 
     // Music Info.
     private String path; // MediaStore.Audio.Media.DATA

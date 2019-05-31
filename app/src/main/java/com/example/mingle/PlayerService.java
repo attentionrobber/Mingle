@@ -38,7 +38,7 @@ public class PlayerService extends Service implements ServiceInterface {
     // Media
     public static MediaPlayer mMediaPlayer = null;
     public static List<Music> playlist = new ArrayList<>(); // Current Music Playlist
-    public static Music music;
+    public static Music music = null;
     public static int position = 0; // Current Music List's Position
 
     // Actions to control media
@@ -118,7 +118,8 @@ public class PlayerService extends Service implements ServiceInterface {
                     playlist = MediaLoader.musics;
                     break;
                 case Constants.TAB.SONG:
-                    playlist = MediaLoader.musics;
+                    music = (Music) extras.getSerializable("song");
+                    //playlist = MediaLoader.musics;
 //                    playlist = (List<Music>) extras.getSerializable("playlist");
 //                    playlist = extras.getParcelableArrayList("playlist");
                     break;
@@ -134,16 +135,8 @@ public class PlayerService extends Service implements ServiceInterface {
                 default:
                     playlist = MediaLoader.musics;
             }
-            String strUri = playlist.get(position).getMusicUri();
-//            music = intent.getParcelableExtra("music");
-//            String strUri = music.getMusicUri();
+            String strUri = music.getMusicUri();
             Log.i("Service_init()", "" + strUri);
-
-//            ArrayList<String> test = new ArrayList<>();
-//            assert test != null;
-//            for (int i = 0; i < test.size(); i++) {
-//                Log.i("Service_", ""+test.get(i));
-//            }
 
             mMediaPlayer = MediaPlayer.create(this, Uri.parse(strUri));
             mMediaPlayer.setOnCompletionListener(mp -> {
