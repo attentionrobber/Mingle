@@ -39,7 +39,7 @@ public class PlayerService extends Service implements ServiceInterface {
     public static MediaPlayer mMediaPlayer = null;
     public static List<Music> playlist = new ArrayList<>(); // Current Music Playlist
     public static Music music = null;
-    public static int position = 0; // Current Music List's Position
+    public int position = 0; // Current Music List's Position
 
     // Actions to control media
     public static final String ACTION_INIT = "ACTION_INIT";
@@ -85,7 +85,7 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.i("Service_", "onBind");
+        Log.i("PlayerService_", "onBind");
         // Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
@@ -93,21 +93,24 @@ public class PlayerService extends Service implements ServiceInterface {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i("Service_", "onCreate");
+        Log.i("PlayerService_", "onCreate");
         context = getApplicationContext();
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("Service_", "StartCommand. flags:"+flags+" startId: "+startId);
+        Log.i("PlayerService_", "StartCommand. flags:"+flags+" startId: "+startId);
 
-        if (intent.getExtras() != null && intent.getAction() != null) {
-            init(intent); // both extras and action
-            handleAction(intent);
-        } else if (intent.getExtras() == null && intent.getAction() != null) {
-            handleAction(intent); // only action
+        if (intent.getAction() == null) {
+            initMediaPlayer(); // both extras and action
+            // TODO: handleACTION
+            setUpNotification();
+            play();
         }
+        else
+            handleAction(intent); // only action
+
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -115,24 +118,22 @@ public class PlayerService extends Service implements ServiceInterface {
     /**
      * 초기화
      */
-    private void init(Intent intent) {
-        if(intent == null || intent.getExtras() == null)
-            return;
-
+    private void initMediaPlayer() {
+        Log.i("PlayerService_", "init()");
         if (mMediaPlayer != null)
             mMediaPlayer.release();
 
         // TODO: 아래꺼 MusicService 참고해서 최적화하기.
-        String str = intent.getStringExtra("tab");
         music = playlist.get(position);
         String strUri = music.getMusicUri();
-        Log.i("Service_init()", "" + strUri);
 
         mMediaPlayer = MediaPlayer.create(this, Uri.parse(strUri));
         mMediaPlayer.setOnCompletionListener(mp -> {
             next();
             sendToMainActivity(position);
         });
+
+
     }
 
     // Intent Action 에 넘어온 명령어를 분기시키는 함수
@@ -303,10 +304,10 @@ public class PlayerService extends Service implements ServiceInterface {
             mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_play); // 노티바 버튼 변경
 
         // 앨범아트가 있는지 없는지 검사한다. 없으면 null 반환
-        Uri albumArtUri = existAlbumArt(getBaseContext(), playlist.get(position).getAlbumImgUri());
-        if (albumArtUri != null)
-            mRemoteViews.setImageViewUri(R.id.iv_noti, albumArtUri); // set Album Artwork
-        else
+        //Uri albumArtUri = existAlbumArt(getBaseContext(), playlist.get(position).getAlbumImgUri());
+//        if (albumArtUri != null)
+//            mRemoteViews.setImageViewUri(R.id.iv_noti, albumArtUri); // set Album Artwork
+//        else
             mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // set default image
 
         mRemoteViews.setTextViewText(R.id.tv_notiTitle, playlist.get(position).getTitle()); /// update the title
@@ -318,6 +319,8 @@ public class PlayerService extends Service implements ServiceInterface {
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());  // update the notification
     }
 
+
+    // TODO: Notifications 느려지는거 이게 문제였음. 없애거나 수정하자.
     /**
      * check if AlbumArt is exist
      * 앨범아트가 존재하는지 검사하는 함수.
@@ -341,6 +344,7 @@ public class PlayerService extends Service implements ServiceInterface {
         }
         return mUri;
     }
+
 
     @Override
     public void play() {

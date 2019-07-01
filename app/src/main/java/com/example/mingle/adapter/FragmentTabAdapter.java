@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.mingle.Constants;
+import com.example.mingle.MainActivity;
 import com.example.mingle.MusicService;
 import com.example.mingle.PlayerService;
 import com.example.mingle.R;
@@ -115,7 +116,8 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
             holder.btn_play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //playMusicService();
+//                    playMusicService();
+
                 }
             });
         } else {

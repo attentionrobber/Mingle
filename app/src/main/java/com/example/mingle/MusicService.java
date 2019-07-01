@@ -1,20 +1,17 @@
 package com.example.mingle;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -26,7 +23,6 @@ import java.util.List;
 public class MusicService extends Service {
 
     private Context context;
-
     private final IBinder musicBind = new MusicBinder();
 
     // Control Music
@@ -34,10 +30,11 @@ public class MusicService extends Service {
     private List<Music> playlist; // song list
     private Music song;
     private int position; // current position
+    public boolean isPlaying = false;
 
     // Actions to control media
-    public static final String ACTION_INIT = "ACTION_INIT";
-    public static final String ACTION_MAIN = "ACTION_MAIN";
+    //public static final String ACTION_INIT = "ACTION_INIT";
+    //public static final String ACTION_MAIN = "ACTION_MAIN";
     public static final String ACTION_PLAY = "ACTION_PLAY";
     public static final String ACTION_PAUSE = "ACTION_PAUSE";
     public static final String ACTION_PLAYPAUSE = "ACTION_PLAYPAUSE";
@@ -50,67 +47,22 @@ public class MusicService extends Service {
     private NotificationCompat.Builder mBuilder;
     private NotificationManager mNotificationManager;
     private RemoteViews mRemoteViews;
-    private Notification mNotification;
+    //private Notification mNotification;
+
+    // Communicate with MainActivity(PlayerService -> MainActivity)
+    private LocalBroadcastManager localBroadcastManager;
+    public static final String SERVICE_RESULT = "com.service.result";
+    public static final String SERVICE_MESSAGE = "com.service.message";
 
 
     public MusicService() {
 
     }
 
-    public class MusicBinder extends Binder {
+    class MusicBinder extends Binder {
         MusicService getService() {
             return MusicService.this;
         }
-    }
-
-    public void setList(List<Music> musics) {
-        playlist = musics;
-    }
-
-    public void setSong(int songIndex) {
-        position = songIndex;
-    }
-
-    public boolean isPlaying() {
-        if (player != null)
-            return player.isPlaying();
-        return false;
-    }
-
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Log.i("MusicService_" ,"onCreate");
-        context = getApplicationContext();
-        position = 0;
-        player = new MediaPlayer();
-
-        initMediaPlayer();
-    }
-
-    private void initMediaPlayer() {
-        //player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-        player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-        player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mp.start();
-            }
-        });
-        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-
-            }
-        });
-        player.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-            @Override
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                return false;
-            }
-        });
     }
 
     @Override
@@ -125,13 +77,58 @@ public class MusicService extends Service {
         return false;
     }
 
+    public void setList(List<Music> musics) {
+        playlist = musics;
+    }
+
+    public void setSong(int songIndex) {
+        position = songIndex;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.i("MusicService_" ,"onCreate");
+        context = getApplicationContext();
+        localBroadcastManager = LocalBroadcastManager.getInstance(this);
+
+        position = 0;
+        player = new MediaPlayer();
+
+        initMediaPlayer();
+    }
+
+    private void initMediaPlayer() {
+        //player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+        player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+        player.setOnPreparedListener(mp -> {
+            isPlaying = true;
+            mp.start();
+        });
+        player.setOnCompletionListener(mp -> {
+            next();
+            sendToMainActivity(position);
+        });
+        player.setOnErrorListener((mp, what, extra) -> false);
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i("MusicService_" ,"onStartCommand");
         if (intent != null && intent.getAction() != null)
             handleAction(intent);
 
-        return super.onStartCommand(intent, flags, startId);
+        //return super.onStartCommand(intent, flags, startId);
+        return START_NOT_STICKY;
     }
     // Intent Action 에 넘어온 명령어를 분기시키는 함수
     private void handleAction(Intent intent) {
@@ -141,21 +138,19 @@ public class MusicService extends Service {
         String action = intent.getAction();
         if (action.equalsIgnoreCase(ACTION_PLAY)) {
             play();
-            //sendToMainActivity(position);
         } else if (action.equalsIgnoreCase(ACTION_PAUSE)) {
             pause();
-            //sendToMainActivity(position);
         }
         else if (action.equalsIgnoreCase(ACTION_PLAYPAUSE)) {
             playPause();
-            //sendToMainActivity(position);
+            sendToMainActivity(position);
         }
         else if (action.equalsIgnoreCase(ACTION_PREV)) {
             prev();
-            //sendToMainActivity(position);
+            sendToMainActivity(position);
         } else if (action.equalsIgnoreCase(ACTION_NEXT)) {
             next();
-            //sendToMainActivity(position);
+            sendToMainActivity(position);
         }
         else if (action.equalsIgnoreCase(ACTION_STOP)) {
             stop();
@@ -188,37 +183,71 @@ public class MusicService extends Service {
     public void pause() {
         Log.i("MusicService_", "pause()");
         player.pause();
+        isPlaying = false;
         updateNotification(song);
     }
 
     public void playPause() {
         Log.i("MusicService_", "playPause()");
-        if (player.isPlaying())
-            player.pause();
-        else player.start();
-        updateNotification(song);
+        if (player != null) {
+            if (isPlaying) {
+                player.pause();
+                isPlaying = false;
+                mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_play); // 노티바 버튼 변경
+            }
+            else {
+                player.start();
+                isPlaying = true;
+                mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_pause); // 노티바 버튼 변경
+            }
+
+            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());  // update the notification
+        }
     }
 
     public void prev() {
         Log.i("MusicService_", "prev()");
         if (position > 0) position = position - 1;
-        play();
+        //play();
+
+        if (player != null && playlist.size() != 0) {
+            song = playlist.get(position); // get song
+            String path = song.getPath();
+            try {
+                player.reset();
+                player.setDataSource(path);
+                player.prepareAsync();
+                isPlaying = true;
+                updateNotification(song);
+            } catch (IOException e) { e.printStackTrace(); }
+        }
     }
 
     public void next() {
         Log.i("MusicService_", "next()");
         if (playlist.size()-1 > position) position = position + 1;
-        play();
+        //play();
+        if (player != null && playlist.size() != 0) {
+            song = playlist.get(position); // get song
+            String path = song.getPath();
+            try {
+                player.reset();
+                player.setDataSource(path);
+                player.prepareAsync();
+                isPlaying = true;
+                updateNotification(song);
+            } catch (IOException e) { e.printStackTrace(); }
+        }
     }
 
     public void stop() {
         Log.i("MusicService_", "stop()");
         if (player != null) {
             player.stop();
-            stopForeground(true);
-            stopSelf(); // Stop Service
-            Log.i("MusicService_", "stop if()");
         }
+
+        stopSelf();
+        stopForeground(true);
     }
 
     @Override
@@ -235,7 +264,6 @@ public class MusicService extends Service {
      * init Notification
      */
     private void setUpNotification(Music song) {
-        // TODO 위에있는 노티바함수 이걸로 바꾸기
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Create Notification
@@ -287,19 +315,17 @@ public class MusicService extends Service {
         startForeground(NOTIFICATION_ID, mBuilder.build()); // starting service with notification in foreground mode
     }
 
-    // update the Notification's UI
-    private void updateNotification(Music song){
-        // 현재 음악 재생중이면
-        if (player.isPlaying())
+    // Update the Notification's UI
+    private void updateNotification(Music song) {
+        if (isPlaying)
             mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_pause); // 노티바 버튼 변경
-        else if (!player.isPlaying())
+        else
             mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_play); // 노티바 버튼 변경
 
-        // 앨범아트가 있는지 없는지 검사한다. 없으면 null 반환
-        Uri albumArtUri = existAlbumArt(getBaseContext(), song.getAlbumImgUri());
-        if (albumArtUri != null)
-            mRemoteViews.setImageViewUri(R.id.iv_noti, albumArtUri); // set Album Artwork
-        else
+        // 앨범아트가 있는지 없는지 검사하는 함수 삭제함(성능문제)
+//        if (albumArtUri != null)
+//            mRemoteViews.setImageViewUri(R.id.iv_noti, Uri.parse(song.getAlbumImgUri())); // set Album Artwork
+//        else
             mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // set default image
 
         mRemoteViews.setTextViewText(R.id.tv_notiTitle, song.getTitle()); /// update the title
@@ -310,28 +336,16 @@ public class MusicService extends Service {
 
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());  // update the notification
     }
-    /**
-     * check if AlbumArt is exist
-     * 앨범아트가 존재하는지 검사하는 함수.
-     */
-    private Uri existAlbumArt(Context context, String strUri) {
-        Uri mUri = Uri.parse(strUri);
-        Drawable d = null;
-        if (mUri != null) {
-            if ("content".equals(mUri.getScheme())) {
-                try {
-                    d = Drawable.createFromStream(context.getContentResolver().openInputStream(mUri), null);
-                } catch (Exception e) {
-                    Log.w("checkUriExists", "Unable to open content: " + mUri, e);
-                    mUri = null;
-                }
-            } else
-                d = Drawable.createFromPath(mUri.toString());
 
-            if (d == null)
-                mUri = null;
-        }
-        return mUri;
+    /**
+     * MainActivity 에 명령을 보내는 함수
+     */
+    private void sendToMainActivity(int position) {
+        Intent intent = new Intent(SERVICE_RESULT);
+        if (position >= 0)
+            intent.putExtra(SERVICE_MESSAGE, position);
+
+        localBroadcastManager.sendBroadcast(intent);
     }
 
 }
