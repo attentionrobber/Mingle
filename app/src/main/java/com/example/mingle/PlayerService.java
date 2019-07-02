@@ -32,6 +32,7 @@ import java.util.List;
  */
 public class PlayerService extends Service implements ServiceInterface {
 
+    private String TAG = "PlayerService_";
     // Resource
     private Context context;
 
@@ -39,7 +40,7 @@ public class PlayerService extends Service implements ServiceInterface {
     public static MediaPlayer mMediaPlayer = null;
     public static List<Music> playlist = new ArrayList<>(); // Current Music Playlist
     public static Music music = null;
-    public int position = 0; // Current Music List's Position
+    public int position; // Current Music List's Position
 
     // Actions to control media
     public static final String ACTION_INIT = "ACTION_INIT";
@@ -104,9 +105,6 @@ public class PlayerService extends Service implements ServiceInterface {
 
         if (intent.getAction() == null) {
             initMediaPlayer(); // both extras and action
-            // TODO: handleACTION
-            setUpNotification();
-            play();
         }
         else
             handleAction(intent); // only action
@@ -308,7 +306,7 @@ public class PlayerService extends Service implements ServiceInterface {
 //        if (albumArtUri != null)
 //            mRemoteViews.setImageViewUri(R.id.iv_noti, albumArtUri); // set Album Artwork
 //        else
-            mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // set default image
+        mRemoteViews.setImageViewResource(R.id.iv_noti, R.drawable.default_album_image); // set default image
 
         mRemoteViews.setTextViewText(R.id.tv_notiTitle, playlist.get(position).getTitle()); /// update the title
         mRemoteViews.setTextViewText(R.id.tv_notiContent, playlist.get(position).getArtist()); // update the content
@@ -348,9 +346,30 @@ public class PlayerService extends Service implements ServiceInterface {
 
     @Override
     public void play() {
-        if (mMediaPlayer != null) {
+        Log.i(TAG, "play()");
+//        if (mMediaPlayer != null) {
+//            mMediaPlayer.start();
+//            updateNotification();
+//        }
+        if (mMediaPlayer == null)
+            initMediaPlayer();
+
+        mMediaPlayer.reset();
+
+        if (playlist.size() != 0) {
+            music = playlist.get(position); // get song
+            Uri songUri = Uri.parse(music.getMusicUri()); // get Music URI
+
+            try {
+                mMediaPlayer.setDataSource(context, songUri);
+            } catch (Exception e) {
+                Log.e("MusicService_", "Error setting data source", e);
+            }
             mMediaPlayer.start();
-            updateNotification();
+
+            if (mNotificationManager == null)
+                setUpNotification();
+            else updateNotification();
         }
     }
 

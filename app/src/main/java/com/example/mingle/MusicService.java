@@ -101,12 +101,12 @@ public class MusicService extends Service {
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
 
         position = 0;
-        player = new MediaPlayer();
 
         initMediaPlayer();
     }
 
     private void initMediaPlayer() {
+        player = new MediaPlayer();
         //player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
@@ -115,6 +115,7 @@ public class MusicService extends Service {
             mp.start();
         });
         player.setOnCompletionListener(mp -> {
+            Log.i("MusicService_" ,"onCompletionListener");
             next();
             sendToMainActivity(position);
         });
@@ -128,7 +129,7 @@ public class MusicService extends Service {
             handleAction(intent);
 
         //return super.onStartCommand(intent, flags, startId);
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
     // Intent Action 에 넘어온 명령어를 분기시키는 함수
     private void handleAction(Intent intent) {
@@ -140,27 +141,26 @@ public class MusicService extends Service {
             play();
         } else if (action.equalsIgnoreCase(ACTION_PAUSE)) {
             pause();
-        }
-        else if (action.equalsIgnoreCase(ACTION_PLAYPAUSE)) {
+        } else if (action.equalsIgnoreCase(ACTION_PLAYPAUSE)) {
             playPause();
             sendToMainActivity(position);
-        }
-        else if (action.equalsIgnoreCase(ACTION_PREV)) {
+        } else if (action.equalsIgnoreCase(ACTION_PREV)) {
             prev();
             sendToMainActivity(position);
         } else if (action.equalsIgnoreCase(ACTION_NEXT)) {
             next();
             sendToMainActivity(position);
-        }
-        else if (action.equalsIgnoreCase(ACTION_STOP)) {
+        } else if (action.equalsIgnoreCase(ACTION_STOP)) {
+            Log.i("MusicService_", "ACTION_STOP");
             stop();
         }
     }
 
     public void play() {
         Log.i("MusicService_", "play()");
-//        if (player != null)
-//            player.release();
+        if (player == null)
+            initMediaPlayer();
+
         player.reset();
 
         if (playlist.size() != 0) {
@@ -242,12 +242,12 @@ public class MusicService extends Service {
 
     public void stop() {
         Log.i("MusicService_", "stop()");
-        if (player != null) {
+        if (player!= null) {
             player.stop();
+            mNotificationManager.cancelAll();
+            stopForeground(true);
+            stopSelf(); // Stop Service
         }
-
-        stopSelf();
-        stopForeground(true);
     }
 
     @Override
@@ -342,7 +342,7 @@ public class MusicService extends Service {
      */
     private void sendToMainActivity(int position) {
         Intent intent = new Intent(SERVICE_RESULT);
-        if (position >= 0)
+        //if (position >= 0)
             intent.putExtra(SERVICE_MESSAGE, position);
 
         localBroadcastManager.sendBroadcast(intent);

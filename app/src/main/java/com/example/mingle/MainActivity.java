@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     private Intent srvIntent;
     private boolean musicBound = false;
 
-    // 중요 포인트: 서비스는 RecyclerView 에서 클릭을 해도
+    // 포인트: 서비스는 RecyclerView 에서 클릭을 해도
     // MainActivity 에서 cur_musics 를 접근하는것 보다 서비스가 나중에 실행되므로
     // 서비스에서 cur_musics 를 초기화 해줘도 cur_musics 는 초기화되지 않아 size 가 0 인 상태이다.
 
@@ -83,8 +83,9 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.i("MainService BroadCast",""+position);
+                Log.i("MusicService_", "broadcastReceiver: " + position);
                 position = intent.getIntExtra(PlayerService.SERVICE_MESSAGE, 0);
+
                 setMusicInfo(position);
             }
         };
@@ -97,13 +98,16 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
-        iv_albumArtMain = findViewById(R.id.iv_albumArtMain); iv_albumArtMain.setOnClickListener(this::btnClick);
+        iv_albumArtMain = findViewById(R.id.iv_albumArtMain);
+        iv_albumArtMain.setOnClickListener(this::btnClick);
         tv_artist = findViewById(R.id.tv_artist);
         tv_title = findViewById(R.id.tv_title);
 
         findViewById(R.id.layout_titleArtist).setOnClickListener(this::btnClick);
-        btn_favorite = findViewById(R.id.btn_favorite); btn_favorite.setOnClickListener(this::btnClick);
-        btn_playPause = findViewById(R.id.btn_playPause); btn_playPause.setOnClickListener(this::btnClick);
+        btn_favorite = findViewById(R.id.btn_favorite);
+        btn_favorite.setOnClickListener(this::btnClick);
+        btn_playPause = findViewById(R.id.btn_playPause);
+        btn_playPause.setOnClickListener(this::btnClick);
         findViewById(R.id.btn_prev).setOnClickListener(this::btnClick);
         findViewById(R.id.btn_next).setOnClickListener(this::btnClick);
         findViewById(R.id.btn_shuffle).setOnClickListener(this::btnClick);
@@ -112,8 +116,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     private void init() {
 
         glideRequestManger = Glide.with(this); // Glide RequestManager
-        playerService = new PlayerService();
-//        serviceInterface = new PlayerService(); // To communicate with PlayerService
+        initService(); // start and bind Service
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC); // Volume 조절시 Ringtone 이 아닌 Media Volume 이 조절되도록 설정
 
@@ -123,7 +126,9 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 
         try {
             loadDB(); // DB에 저장된 Favorite 로드
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadDB() throws SQLException {
@@ -136,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     private void addFavorite(Favorite favorite) throws SQLException {
         favoriteDao.create(favorite);
         favorites = favoriteDao.queryForAll();
-        Log.i("Main_DB", "size: "+favorites.size());
+        Log.i("Main_DB", "size: " + favorites.size());
     }
 
     private void deleteFavorite(String musicUri) throws SQLException {
@@ -159,8 +164,8 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     }
 
     private void check() {
-        for (int i = 0; i < favorites.size(); i++ ) {
-            Log.i("Main_DBCheck", ""+favorites.size()+" | "+favorites.get(i).getMusicUri());
+        for (int i = 0; i < favorites.size(); i++) {
+            Log.i("Main_DBCheck", "" + favorites.size() + " | " + favorites.get(i).getMusicUri());
         }
     }
 
@@ -168,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         switch (v.getId()) {
             case R.id.btn_prev:
                 musicSrv.prev();
-                if (position > 0) position = position-1;
+                if (position > 0) position = position - 1;
                 setMusicInfo(position);
                 break;
 
@@ -179,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 
             case R.id.btn_next:
                 musicSrv.next();
-                if (playlist.size()-1 > position) position = position+1;
+                if (playlist.size() - 1 > position) position = position + 1;
                 setMusicInfo(position);
                 break;
 
@@ -192,16 +197,20 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
                         addFavorite(new Favorite(playlist.get(position))); // 해당 곡을 Favorite 에 추가 후 DB에 저장
                         btn_favorite.setImageResource(android.R.drawable.btn_star_big_on); // 버튼 아이콘 set OFF
                     }
-                } catch (SQLException e) { e.printStackTrace(); }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 break;
 
-            case R.id.btn_shuffle: check();
+            case R.id.btn_shuffle:
+                check();
                 break;
             case R.id.iv_albumArtMain:
             case R.id.layout_titleArtist:
                 // TODO: 위 두개 레이아웃 터치시 PlayerActivity 로 가도록 설정하기
                 break;
-            default: break;
+            default:
+                break;
         }
     }
 
@@ -212,18 +221,21 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
      */
     @Override
     public void onRecyclerViewItemClicked(List<Music> musics, int position) {
-//        playerService.setList(musics);
-//        playerService.setPosition(position);
-//        Intent intent = new Intent(this, PlayerService.class);
-//        intent.putExtra("tab", Constants.TAB.FAVORITE);
-//        startService(intent);
-
         playlist = musics;
         this.position = position;
 
-        songPicked();
-
+        songPicked(); // for bindService
+        //setService(); // for start Service(not bind)
         setMusicInfo(position);
+    }
+
+    /**
+     * set playlist, position in PlayerService and start
+     */
+    private void setService() {
+        Intent intent = new Intent(this, PlayerService.class);
+        intent.putExtra("tab", Constants.TAB.FAVORITE);
+        startService(intent);
     }
 
     /**
@@ -257,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     @Override
     public void onBackPressed() {
         // Fragment 에서도 onBackPressed()를 쓸 수 있도록 한다.
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.view_pager + ":"+viewPager.getCurrentItem());
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.view_pager + ":" + viewPager.getCurrentItem());
         String fragmentName = "";
         if (fragment instanceof OnBackPressedListener) {
             fragmentName = ((OnBackPressedListener) fragment).onBackPressed();
@@ -270,19 +282,23 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 //            }
 //        }
         switch (fragmentName) {
-            case Constants.TAB.FAVORITE: super.onBackPressed();
+            case Constants.TAB.FAVORITE:
+                super.onBackPressed();
                 break;
             case Constants.TAB.PLAYLIST:
                 break;
-            case Constants.TAB.SONG: super.onBackPressed();
+            case Constants.TAB.SONG:
+                super.onBackPressed();
                 break;
             case Constants.TAB.ALBUM:
                 break;
             case Constants.TAB.ARTIST:
                 break;
-            case Constants.TAB.FOLDER: super.onBackPressed();
+            case Constants.TAB.FOLDER:
+                super.onBackPressed();
                 break;
-            default: super.onBackPressed();
+            default:
+                super.onBackPressed();
         }
     }
 
@@ -290,9 +306,8 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     protected void onStart() {
         super.onStart();
 
-        initService();
-        LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(MusicService.SERVICE_RESULT));
-        //LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(PlayerService.SERVICE_RESULT));
+        //LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(MusicService.SERVICE_RESULT));
+        LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(PlayerService.SERVICE_RESULT));
 
     }
 
@@ -306,22 +321,23 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.i("MainActivity_", "onRestart");
-        if (playlist.size() > 0)
-            setMusicInfo(musicSrv.getPosition());
+        //if (playlist.size() > 0)
+            //setMusicInfo(musicSrv.getPosition());
+
     }
 
     @Override
     protected void onDestroy() {
         favorites.clear();
         stopService(srvIntent);
+        unbindService(musicConnection);
         musicSrv = null;
         super.onDestroy();
     }
 
 
     /**
-     * Related MusicService
+     * Related BindService
      */
     private ServiceConnection musicConnection = new ServiceConnection() {
 
@@ -335,13 +351,12 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             musicBound = false;
-            Log.i("MusicService_", "serviceDisconnected");
         }
     };
 
     private void initService() {
+        Log.i("MusicService_", "initService");
         if (srvIntent == null) {
-            Log.i("MusicService_", "initService");
             srvIntent = new Intent(this, MusicService.class);
             bindService(srvIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(srvIntent);
@@ -349,7 +364,6 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     }
 
     public void songPicked() {
-        initService();
         //musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.setList(playlist);
         musicSrv.setSong(position);

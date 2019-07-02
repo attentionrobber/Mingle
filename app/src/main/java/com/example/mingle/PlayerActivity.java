@@ -14,7 +14,7 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        serviceInterface = new PlayerService();
+        //serviceInterface = new PlayerService();
 
         setWidget();
     }
