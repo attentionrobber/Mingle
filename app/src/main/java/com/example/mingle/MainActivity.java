@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     PlayerService playerService;
 
     // connect to the music service
-    private MusicService musicSrv;
+    private MusicService musicService;
     private Intent srvIntent;
     private boolean musicBound = false;
 
@@ -78,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 
         setWidget();
         init();
+
+        setVolumeControlStream(AudioManager.STREAM_MUSIC); // Volume 조절시 Ringtone 이 아닌 Media Volume 이 조절되도록 설정
 
         // Service 에서 넘어온 Message 를 처리하는 Receiver
         broadcastReceiver = new BroadcastReceiver() {
@@ -114,15 +116,10 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     }
 
     private void init() {
-
         glideRequestManger = Glide.with(this); // Glide RequestManager
         initService(); // start and bind Service
 
-        setVolumeControlStream(AudioManager.STREAM_MUSIC); // Volume 조절시 Ringtone 이 아닌 Media Volume 이 조절되도록 설정
-
-        // TODO: Load 할때 전체 다 로드 말고
-        //  최근 플레이한(savedInstance 필요)플레이리스트 로드로 변경
-        MediaLoader.loadMusic(this); // 전체 곡 로드
+        MediaLoader.loadMusic(this); // 전체 곡 로드 // TODO: Load 할때 전체 다 로드 말고 최근 플레이한(savedInstance 필요)플레이리스트 로드로 변경
 
         try {
             loadDB(); // DB에 저장된 Favorite 로드
@@ -172,20 +169,20 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     private void btnClick(View v) {
         switch (v.getId()) {
             case R.id.btn_prev:
-                musicSrv.prev();
                 if (position > 0) position = position - 1;
                 setMusicInfo(position);
+                musicService.prev();
                 break;
 
             case R.id.btn_playPause:
-                musicSrv.playPause();
                 setMusicInfo(position);
+                musicService.playPause();
                 break;
 
             case R.id.btn_next:
-                musicSrv.next();
                 if (playlist.size() - 1 > position) position = position + 1;
                 setMusicInfo(position);
+                musicService.next();
                 break;
 
             case R.id.btn_favorite:
@@ -205,10 +202,12 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
             case R.id.btn_shuffle:
                 check();
                 break;
+
             case R.id.iv_albumArtMain:
             case R.id.layout_titleArtist:
                 // TODO: 위 두개 레이아웃 터치시 PlayerActivity 로 가도록 설정하기
                 break;
+
             default:
                 break;
         }
@@ -245,15 +244,16 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         this.position = position;
 
         if (playlist.size() != 0) {
-            if (!musicSrv.isPlaying())
-                btn_playPause.setImageResource(android.R.drawable.ic_media_play);
-            else
+            if (musicService.isPlaying())
                 btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
+            else
+                btn_playPause.setImageResource(android.R.drawable.ic_media_play);
 
 //            Glide.with(this)
 //                .load(Uri.parse(cur_musics.get(position).getAlbumImgUri()))
 //                .placeholder(R.drawable.default_album_image)
 //                .into(iv_albumArtMain);
+
             iv_albumArtMain.setImageURI(Uri.parse(playlist.get(position).getAlbumImgUri()));
             if (isFavorite(playlist.get(position).getMusicUri()))
                 btn_favorite.setImageResource(android.R.drawable.btn_star_big_on);
@@ -306,9 +306,8 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     protected void onStart() {
         super.onStart();
 
-        //LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(MusicService.SERVICE_RESULT));
-        LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(PlayerService.SERVICE_RESULT));
-
+        LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(MusicService.SERVICE_RESULT));
+        //LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(PlayerService.SERVICE_RESULT));
     }
 
     @Override
@@ -321,9 +320,8 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     @Override
     protected void onRestart() {
         super.onRestart();
-        //if (playlist.size() > 0)
-            //setMusicInfo(musicSrv.getPosition());
-
+        if (playlist.size() > 0)
+            setMusicInfo(musicService.getPosition());
     }
 
     @Override
@@ -331,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         favorites.clear();
         stopService(srvIntent);
         unbindService(musicConnection);
-        musicSrv = null;
+        musicService = null;
         super.onDestroy();
     }
 
@@ -344,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
-            musicSrv = binder.getService(); // get service
+            musicService = binder.getService(); // get service
             musicBound = true;
         }
 
@@ -355,7 +353,6 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     };
 
     private void initService() {
-        Log.i("MusicService_", "initService");
         if (srvIntent == null) {
             srvIntent = new Intent(this, MusicService.class);
             bindService(srvIntent, musicConnection, Context.BIND_AUTO_CREATE);
@@ -364,10 +361,10 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     }
 
     public void songPicked() {
-        //musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
-        musicSrv.setList(playlist);
-        musicSrv.setSong(position);
-        musicSrv.play();
+        //musicService.setSong(Integer.parseInt(view.getTag().toString()));
+        musicService.setList(playlist);
+        musicService.setSong(position);
+        musicService.play();
     }
 
 

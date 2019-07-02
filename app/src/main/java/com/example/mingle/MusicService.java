@@ -22,6 +22,8 @@ import java.util.List;
 
 public class MusicService extends Service {
 
+    private String TAG = "MusicService_";
+
     private Context context;
     private final IBinder musicBind = new MusicBinder();
 
@@ -96,7 +98,7 @@ public class MusicService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i("MusicService_" ,"onCreate");
+        Log.i(TAG ,"onCreate");
         context = getApplicationContext();
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
 
@@ -115,7 +117,6 @@ public class MusicService extends Service {
             mp.start();
         });
         player.setOnCompletionListener(mp -> {
-            Log.i("MusicService_" ,"onCompletionListener");
             next();
             sendToMainActivity(position);
         });
@@ -124,12 +125,12 @@ public class MusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("MusicService_" ,"onStartCommand");
+        Log.i(TAG ,"onStartCommand");
         if (intent != null && intent.getAction() != null)
             handleAction(intent);
 
-        //return super.onStartCommand(intent, flags, startId);
-        return START_STICKY;
+        return super.onStartCommand(intent, flags, startId);
+        //return START_STICKY;
     }
     // Intent Action 에 넘어온 명령어를 분기시키는 함수
     private void handleAction(Intent intent) {
@@ -151,13 +152,12 @@ public class MusicService extends Service {
             next();
             sendToMainActivity(position);
         } else if (action.equalsIgnoreCase(ACTION_STOP)) {
-            Log.i("MusicService_", "ACTION_STOP");
             stop();
         }
     }
 
     public void play() {
-        Log.i("MusicService_", "play()");
+        Log.i(TAG, "play()");
         if (player == null)
             initMediaPlayer();
 
@@ -170,7 +170,7 @@ public class MusicService extends Service {
             try {
                 player.setDataSource(context, songUri);
             } catch (Exception e) {
-                Log.e("MusicService_", "Error setting data source", e);
+                Log.e(TAG, "Error setting data source", e);
             }
             player.prepareAsync();
 
@@ -181,14 +181,14 @@ public class MusicService extends Service {
     }
 
     public void pause() {
-        Log.i("MusicService_", "pause()");
+        Log.i(TAG, "pause()");
         player.pause();
         isPlaying = false;
         updateNotification(song);
     }
 
     public void playPause() {
-        Log.i("MusicService_", "playPause()");
+        Log.i(TAG, "playPause()");
         if (player != null) {
             if (isPlaying) {
                 player.pause();
@@ -206,7 +206,7 @@ public class MusicService extends Service {
     }
 
     public void prev() {
-        Log.i("MusicService_", "prev()");
+        Log.i(TAG, "prev()");
         if (position > 0) position = position - 1;
         //play();
 
@@ -224,7 +224,7 @@ public class MusicService extends Service {
     }
 
     public void next() {
-        Log.i("MusicService_", "next()");
+        Log.i(TAG, "next()");
         if (playlist.size()-1 > position) position = position + 1;
         //play();
         if (player != null && playlist.size() != 0) {
@@ -241,7 +241,7 @@ public class MusicService extends Service {
     }
 
     public void stop() {
-        Log.i("MusicService_", "stop()");
+        Log.i(TAG, "stop()");
         if (player!= null) {
             player.stop();
             mNotificationManager.cancelAll();
@@ -252,7 +252,7 @@ public class MusicService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.i("MusicService_", "onDestroy");
+        Log.i(TAG, "onDestroy");
         if (player != null) {
             player.release();
             player = null;
@@ -342,7 +342,7 @@ public class MusicService extends Service {
      */
     private void sendToMainActivity(int position) {
         Intent intent = new Intent(SERVICE_RESULT);
-        //if (position >= 0)
+        if (position >= 0)
             intent.putExtra(SERVICE_MESSAGE, position);
 
         localBroadcastManager.sendBroadcast(intent);
