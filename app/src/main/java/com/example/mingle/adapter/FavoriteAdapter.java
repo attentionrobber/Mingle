@@ -26,6 +26,8 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     private List<Music> musics;
     private AdapterListener adapterListener;
 
+    private boolean isShuffle = false;
+
     public FavoriteAdapter(Context context, List<Music> music, AdapterListener listener) {
         this.context = context;
         this.musics = music;
@@ -59,7 +61,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 //            context.startService(intent);
 
             if (adapterListener != null) // MainActivity 로 보냄
-                adapterListener.onRecyclerViewItemClicked(musics, position);
+                adapterListener.onRecyclerViewItemClicked(musics, position, isShuffle);
         });
     }
 

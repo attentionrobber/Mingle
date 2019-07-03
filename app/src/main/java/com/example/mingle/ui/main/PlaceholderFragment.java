@@ -42,8 +42,7 @@ public class PlaceholderFragment extends Fragment {
 
     private FragmentListener fragmentListener;
 
-    public PlaceholderFragment() {
-    }
+    public PlaceholderFragment() { }
 
     public static PlaceholderFragment newInstance(int index) {
         PlaceholderFragment fragment = new PlaceholderFragment();
@@ -142,8 +141,8 @@ public class PlaceholderFragment extends Fragment {
      */
     AdapterListener adapterListener = new AdapterListener() {
         @Override
-        public void onRecyclerViewItemClicked(List<Music> musics, int position) {
-            fragmentListener.onRecyclerViewItemClicked(musics, position);
+        public void onRecyclerViewItemClicked(List<Music> musics, int position, boolean isShuffle) {
+            fragmentListener.onRecyclerViewItemClicked(musics, position, isShuffle);
         }
 
         @Override

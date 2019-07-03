@@ -85,8 +85,8 @@ public class AlbumFragment extends Fragment implements OnBackPressedListener {
      */
     AdapterListener adapterListener = new AdapterListener() {
         @Override
-        public void onRecyclerViewItemClicked(List<Music> musics, int position) {
-            fragmentListener.onRecyclerViewItemClicked(musics, position);
+        public void onRecyclerViewItemClicked(List<Music> musics, int position, boolean isShuffle) {
+            fragmentListener.onRecyclerViewItemClicked(musics, position, isShuffle);
         }
 
         @Override

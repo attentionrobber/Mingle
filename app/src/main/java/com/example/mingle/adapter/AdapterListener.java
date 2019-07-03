@@ -1,8 +1,6 @@
 package com.example.mingle.adapter;
 
-import com.example.mingle.domain.Album;
 import com.example.mingle.domain.Music;
-import com.example.mingle.domain.Playlist;
 
 import java.util.List;
 
@@ -11,6 +9,6 @@ import java.util.List;
  * Adapter 에서 사용, Fragment 에서 생성 및 정의한다.
  */
 public interface AdapterListener {
-    void onRecyclerViewItemClicked(List<Music> musics, int position);
+    void onRecyclerViewItemClicked(List<Music> musics, int position, boolean isShuffle);
     void onBucketItemClicked(String bucketID);
 }

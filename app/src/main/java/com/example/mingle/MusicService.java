@@ -19,6 +19,7 @@ import com.example.mingle.domain.Music;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 
 public class MusicService extends Service {
 
@@ -33,6 +34,7 @@ public class MusicService extends Service {
     private Music song;
     private int position; // current position
     public boolean isPlaying = false;
+    private boolean isShuffle = false;
 
     // Actions to control media
     //public static final String ACTION_INIT = "ACTION_INIT";
@@ -84,6 +86,10 @@ public class MusicService extends Service {
 
     public void setSong(int songIndex) {
         position = songIndex;
+    }
+
+    public void setShuffle(boolean isShuffle) {
+        this.isShuffle = isShuffle;
     }
 
     public int getPosition() {
@@ -143,13 +149,10 @@ public class MusicService extends Service {
             pause();
         } else if (action.equalsIgnoreCase(ACTION_PLAYPAUSE)) {
             playPause();
-            sendToMainActivity(position);
         } else if (action.equalsIgnoreCase(ACTION_PREV)) {
             prev();
-            sendToMainActivity(position);
         } else if (action.equalsIgnoreCase(ACTION_NEXT)) {
             next();
-            sendToMainActivity(position);
         } else if (action.equalsIgnoreCase(ACTION_STOP)) {
             stop();
             sendToMainActivity(position);
@@ -157,7 +160,7 @@ public class MusicService extends Service {
     }
 
     public void play() {
-        Log.i(TAG, "play()");
+        Log.i(TAG, "play() size: "+playlist.size() + " | pos: " + position);
         if (player == null)
             initMediaPlayer();
 
@@ -195,21 +198,23 @@ public class MusicService extends Service {
                 isPlaying = false;
                 mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_play); // 노티바 버튼 변경
             } else {
-                player.prepareAsync();
+                player.start();
                 isPlaying = true;
                 mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_pause); // 노티바 버튼 변경
             }
-
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());  // update the notification
-        } else {
+        } else
             play();
-        }
+
+        sendToMainActivity(position);
     }
 
     public void prev() {
-        Log.i(TAG, "prev()");
-        if (position > 0) position = position - 1;
-        //play();
+        Log.i(TAG, "prev() size: "+playlist.size() + " | pos: " + position);
+        if (position > 0) {
+            if (!isShuffle) position = position - 1; // 셔플이 아닌 경우 이전곡 재생
+            else position = new Random().nextInt(playlist.size()); // 셔플인 경우 랜덤 재생
+        }
 
         if (player != null && playlist.size() != 0) {
             song = playlist.get(position); // get song
@@ -222,12 +227,16 @@ public class MusicService extends Service {
                 updateNotification(song);
             } catch (IOException e) { e.printStackTrace(); }
         }
+        sendToMainActivity(position); // 메인액티비티에도 곡 변경사항을 알려준다.
     }
 
     public void next() {
-        Log.i(TAG, "next()");
-        if (playlist.size()-1 > position) position = position + 1;
-        //play();
+        Log.i(TAG, "next() size: "+playlist.size() + " | pos: " + position);
+        if (playlist.size()-1 > position) {
+            if (!isShuffle) position = position + 1; // 셔플이 아닌 경우 다음곡 재생
+            else position = new Random().nextInt(playlist.size()); // 셔플인 경우 랜덤 재생
+        }
+
         if (player != null && playlist.size() != 0) {
             song = playlist.get(position); // get song
             String path = song.getPath();
@@ -239,6 +248,7 @@ public class MusicService extends Service {
                 updateNotification(song);
             } catch (IOException e) { e.printStackTrace(); }
         }
+        sendToMainActivity(position); // 메인액티비티에도 곡 변경사항을 알려준다.
     }
 
     public void stop() {
