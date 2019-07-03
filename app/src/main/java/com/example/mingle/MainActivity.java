@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     private ImageButton btn_playPause, btn_favorite, btn_shuffle;
 
     private List<Music> playlist = new ArrayList<>(); // Current Music Playlist
+    private Music song = null;
     private int position = 0; // Current Music Playlist's Position
     private boolean isShuffle = false;
 
@@ -88,8 +89,10 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                position = intent.getIntExtra(PlayerService.SERVICE_MESSAGE, 0);
-                setMusicInfo(position);
+                //Log.i("MusicService_", "onReceive: "+song.getTitle()+" | "+song.getMusicUri());
+                //position = intent.getIntExtra(PlayerService.SERVICE_MESSAGE, 0);
+                song = (Music) intent.getSerializableExtra(PlayerService.SERVICE_MESSAGE);
+                setMusicInfo(song);
             }
         };
     }
@@ -175,9 +178,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     /**
      * Main 하단부 Now Playing Music 레이아웃 세팅
      */
-    public void setMusicInfo(int position) {
-        this.position = position;
-
+    public void setMusicInfo(Music song) {
         if (playlist.size() != 0) {
             new Handler().postDelayed(() -> {
                 if (musicService.isPlaying())
@@ -192,12 +193,12 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 //                .into(iv_albumArtMain);
 
             iv_albumArtMain.setImageURI(Uri.parse(playlist.get(position).getAlbumImgUri()));
-            if (isFavorite(playlist.get(position).getMusicUri()))
+            if (isFavorite(song.getMusicUri()))
                 btn_favorite.setImageResource(android.R.drawable.btn_star_big_on);
             else
                 btn_favorite.setImageResource(android.R.drawable.btn_star_big_off);
-            tv_title.setText(playlist.get(position).getTitle());
-            tv_artist.setText(playlist.get(position).getArtist());
+            tv_title.setText(song.getTitle());
+            tv_artist.setText(song.getArtist());
         } else {
             btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
         }
@@ -265,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 
         //setService(); // for start Service(not bind)
         songPicked(); // for bindService
-        setMusicInfo(position);
+        setMusicInfo(musics.get(position));
     }
 
     @Override
@@ -323,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     protected void onRestart() {
         super.onRestart();
         if (playlist.size() > 0)
-            setMusicInfo(musicService.getPosition());
+            setMusicInfo(musicService.getSong());
     }
 
     @Override

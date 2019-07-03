@@ -18,6 +18,8 @@ import android.widget.RemoteViews;
 import com.example.mingle.domain.Music;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -75,8 +77,7 @@ public class MusicService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        player.stop();
-        player.reset();
+        stop();
         return false;
     }
 
@@ -86,6 +87,10 @@ public class MusicService extends Service {
 
     public void setSong(int songIndex) {
         position = songIndex;
+    }
+
+    public Music getSong() {
+        return song;
     }
 
     public void setShuffle(boolean isShuffle) {
@@ -123,7 +128,7 @@ public class MusicService extends Service {
         });
         player.setOnCompletionListener(mp -> {
             next();
-            sendToMainActivity(position);
+            sendToMainActivity(song);
         });
         player.setOnErrorListener((mp, what, extra) -> false);
     }
@@ -155,7 +160,7 @@ public class MusicService extends Service {
             next();
         } else if (action.equalsIgnoreCase(ACTION_STOP)) {
             stop();
-            sendToMainActivity(position);
+            sendToMainActivity(song);
         }
     }
 
@@ -206,7 +211,7 @@ public class MusicService extends Service {
         } else
             play();
 
-        sendToMainActivity(position);
+        sendToMainActivity(song);
     }
 
     public void prev() {
@@ -227,18 +232,25 @@ public class MusicService extends Service {
                 updateNotification(song);
             } catch (IOException e) { e.printStackTrace(); }
         }
-        sendToMainActivity(position); // 메인액티비티에도 곡 변경사항을 알려준다.
+        sendToMainActivity(song); // 메인액티비티에도 곡 변경사항을 알려준다.
     }
 
     public void next() {
         Log.i(TAG, "next() size: "+playlist.size() + " | pos: " + position);
         if (playlist.size()-1 > position) {
-            if (!isShuffle) position = position + 1; // 셔플이 아닌 경우 다음곡 재생
-            else position = new Random().nextInt(playlist.size()); // 셔플인 경우 랜덤 재생
+            if (!isShuffle) {
+                position = position + 1; // 셔플이 아닌 경우 다음곡 재생
+                song = playlist.get(position); // get song
+            } else { // 셔플인 경우 랜덤 재생
+                position = new Random().nextInt(playlist.size());
+//                List<Music> shuffledList = new ArrayList<>(playlist);
+//                Collections.shuffle(shuffledList, new Random(System.nanoTime()));
+                song = playlist.get(position); // get song
+            }
         }
 
         if (player != null && playlist.size() != 0) {
-            song = playlist.get(position); // get song
+            //song = playlist.get(position); // get song
             String path = song.getPath();
             try {
                 player.reset();
@@ -248,7 +260,7 @@ public class MusicService extends Service {
                 updateNotification(song);
             } catch (IOException e) { e.printStackTrace(); }
         }
-        sendToMainActivity(position); // 메인액티비티에도 곡 변경사항을 알려준다.
+        sendToMainActivity(song); // 메인액티비티에도 곡 변경사항을 알려준다.
     }
 
     public void stop() {
@@ -268,7 +280,6 @@ public class MusicService extends Service {
         Log.i(TAG, "onDestroy");
         stop();
     }
-
 
     /**
      * init Notification
@@ -350,10 +361,10 @@ public class MusicService extends Service {
     /**
      * MainActivity 에 명령을 보내는 함수
      */
-    private void sendToMainActivity(int position) {
+    private void sendToMainActivity(Music song) {
         Intent intent = new Intent(SERVICE_RESULT);
         //if (position >= 0)
-        intent.putExtra(SERVICE_MESSAGE, position);
+        intent.putExtra(SERVICE_MESSAGE, song);
 
         localBroadcastManager.sendBroadcast(intent);
     }
