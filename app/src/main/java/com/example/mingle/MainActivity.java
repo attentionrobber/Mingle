@@ -9,6 +9,7 @@ import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -229,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     }
 
     /**
-     * set playlist, position in PlayerService and start
+     * set playlist, position in PlayerService and start Service(not bind)
      */
     private void setService() {
         Intent intent = new Intent(this, PlayerService.class);
@@ -244,10 +245,15 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         this.position = position;
 
         if (playlist.size() != 0) {
-            if (musicService.isPlaying())
-                btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
-            else
-                btn_playPause.setImageResource(android.R.drawable.ic_media_play);
+            new Handler().postDelayed(() -> {
+                Log.i("MusicService_", "isPlaying: "+musicService.isPlaying);
+                if (musicService.isPlaying())
+                    btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
+                //else if (position == -1)
+                    //btn_playPause.setImageResource(android.R.drawable.ic_media_play);
+                else
+                    btn_playPause.setImageResource(android.R.drawable.ic_media_play);
+            }, 100);
 
 //            Glide.with(this)
 //                .load(Uri.parse(cur_musics.get(position).getAlbumImgUri()))

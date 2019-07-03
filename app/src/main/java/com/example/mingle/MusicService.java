@@ -55,11 +55,10 @@ public class MusicService extends Service {
     private LocalBroadcastManager localBroadcastManager;
     public static final String SERVICE_RESULT = "com.service.result";
     public static final String SERVICE_MESSAGE = "com.service.message";
+    private final int STOPPED_SERVICE = -1; // using sendToMainActivity
 
 
-    public MusicService() {
-
-    }
+    public MusicService() { }
 
     class MusicBinder extends Binder {
         MusicService getService() {
@@ -153,6 +152,7 @@ public class MusicService extends Service {
             sendToMainActivity(position);
         } else if (action.equalsIgnoreCase(ACTION_STOP)) {
             stop();
+            sendToMainActivity(position);
         }
     }
 
@@ -194,14 +194,15 @@ public class MusicService extends Service {
                 player.pause();
                 isPlaying = false;
                 mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_play); // 노티바 버튼 변경
-            }
-            else {
-                player.start();
+            } else {
+                player.prepareAsync();
                 isPlaying = true;
                 mRemoteViews.setImageViewResource(R.id.btn_notiPlayPause, android.R.drawable.ic_media_pause); // 노티바 버튼 변경
             }
 
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());  // update the notification
+        } else {
+            play();
         }
     }
 
@@ -244,6 +245,8 @@ public class MusicService extends Service {
         Log.i(TAG, "stop()");
         if (player!= null) {
             player.stop();
+            player = null;
+            isPlaying = false;
             mNotificationManager.cancelAll();
             stopForeground(true);
             stopSelf(); // Stop Service
@@ -253,10 +256,7 @@ public class MusicService extends Service {
     @Override
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
-        if (player != null) {
-            player.release();
-            player = null;
-        }
+        stop();
     }
 
 
@@ -342,8 +342,8 @@ public class MusicService extends Service {
      */
     private void sendToMainActivity(int position) {
         Intent intent = new Intent(SERVICE_RESULT);
-        if (position >= 0)
-            intent.putExtra(SERVICE_MESSAGE, position);
+        //if (position >= 0)
+        intent.putExtra(SERVICE_MESSAGE, position);
 
         localBroadcastManager.sendBroadcast(intent);
     }
