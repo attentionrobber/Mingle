@@ -215,13 +215,13 @@ public class MusicService extends Service {
     }
 
     public void prev() {
-        Log.i(TAG, "prev() size: "+playlist.size() + " | pos: " + position);
-        if (position > 0) {
-            if (!isShuffle) position = position - 1; // 셔플이 아닌 경우 이전곡 재생
-            else position = new Random().nextInt(playlist.size()); // 셔플인 경우 랜덤 재생
-        }
-
         if (player != null && playlist.size() != 0) {
+            Log.i(TAG, "prev() size: " + playlist.size() + " | pos: " + position);
+            if (position > 0) {
+                if (!isShuffle) position = position - 1; // 셔플이 아닌 경우 이전곡 재생
+                else position = new Random().nextInt(playlist.size()); // 셔플인 경우 랜덤 재생
+            }
+
             song = playlist.get(position); // get song
             String path = song.getPath();
             try {
@@ -230,27 +230,28 @@ public class MusicService extends Service {
                 player.prepareAsync();
                 isPlaying = true;
                 updateNotification(song);
-            } catch (IOException e) { e.printStackTrace(); }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            sendToMainActivity(song); // 메인액티비티에도 곡 변경사항을 알려준다.
         }
-        sendToMainActivity(song); // 메인액티비티에도 곡 변경사항을 알려준다.
     }
 
     public void next() {
-        Log.i(TAG, "next() size: "+playlist.size() + " | pos: " + position);
-        if (playlist.size()-1 > position) {
-            if (!isShuffle) {
-                position = position + 1; // 셔플이 아닌 경우 다음곡 재생
-                song = playlist.get(position); // get song
-            } else { // 셔플인 경우 랜덤 재생
-                position = new Random().nextInt(playlist.size());
+        if (player != null && playlist.size() != 0) {
+            Log.i(TAG, "next() size: " + playlist.size() + " | pos: " + position);
+            if (playlist.size() - 1 > position) {
+                if (!isShuffle) {
+                    position = position + 1; // 셔플이 아닌 경우 다음곡 재생
+                    song = playlist.get(position); // get song
+                } else { // 셔플인 경우 랜덤 재생
+                    position = new Random().nextInt(playlist.size());
 //                List<Music> shuffledList = new ArrayList<>(playlist);
 //                Collections.shuffle(shuffledList, new Random(System.nanoTime()));
-                song = playlist.get(position); // get song
+                    song = playlist.get(position); // get song
+                }
             }
-        }
 
-        if (player != null && playlist.size() != 0) {
-            //song = playlist.get(position); // get song
             String path = song.getPath();
             try {
                 player.reset();
@@ -258,9 +259,11 @@ public class MusicService extends Service {
                 player.prepareAsync();
                 isPlaying = true;
                 updateNotification(song);
-            } catch (IOException e) { e.printStackTrace(); }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            sendToMainActivity(song); // 메인액티비티에도 곡 변경사항을 알려준다.
         }
-        sendToMainActivity(song); // 메인액티비티에도 곡 변경사항을 알려준다.
     }
 
     public void stop() {
@@ -269,7 +272,8 @@ public class MusicService extends Service {
             player.stop();
             player = null;
             isPlaying = false;
-            mNotificationManager.cancelAll();
+            if (mNotificationManager != null)
+                mNotificationManager.cancelAll();
             stopForeground(true);
             stopSelf(); // Stop Service
         }

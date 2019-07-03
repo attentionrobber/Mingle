@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 //                .placeholder(R.drawable.default_album_image)
 //                .into(iv_albumArtMain);
 
-            iv_albumArtMain.setImageURI(Uri.parse(playlist.get(position).getAlbumImgUri()));
+            iv_albumArtMain.setImageURI(Uri.parse(song.getAlbumImgUri()));
             if (isFavorite(song.getMusicUri()))
                 btn_favorite.setImageResource(android.R.drawable.btn_star_big_on);
             else
@@ -220,11 +220,11 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 
             case R.id.btn_favorite:
                 try {
-                    if (isFavorite(playlist.get(position).getMusicUri())) { // 해당 곡이 Favorite 인 경우
+                    if (isFavorite(song.getMusicUri())) { // 해당 곡이 Favorite 인 경우
                         btn_favorite.setImageResource(android.R.drawable.btn_star_big_off); // 버튼 아이콘 set OFF
-                        deleteFavorite(playlist.get(position).getMusicUri()); // 해당 곡을 Favorite 에서 제거
+                        deleteFavorite(song.getMusicUri()); // 해당 곡을 Favorite 에서 제거
                     } else {
-                        addFavorite(new Favorite(playlist.get(position))); // 해당 곡을 Favorite 에 추가 후 DB에 저장
+                        addFavorite(new Favorite(song)); // 해당 곡을 Favorite 에 추가 후 DB에 저장
                         btn_favorite.setImageResource(android.R.drawable.btn_star_big_on); // 버튼 아이콘 set OFF
                     }
                 } catch (SQLException e) {
@@ -263,10 +263,11 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         playlist = musics;
         this.position = position;
         this.isShuffle = isShuffle;
+        song = musics.get(position);
 
         //setService(); // for start Service(not bind)
         songPicked(); // for bindService
-        setMusicInfo(musics.get(position));
+        setMusicInfo(song);
     }
 
     @Override
@@ -341,7 +342,6 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
      * Related BindService
      */
     private ServiceConnection musicConnection = new ServiceConnection() {
-
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
@@ -364,7 +364,6 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     }
 
     public void songPicked() {
-        //musicService.setSong(Integer.parseInt(view.getTag().toString()));
         musicService.setList(playlist);
         musicService.setSong(position);
         musicService.setShuffle(isShuffle);
