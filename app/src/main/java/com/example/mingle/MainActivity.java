@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.i("MusicService_", "onCreate");
+
         setWidget();
         init();
 
@@ -179,29 +181,25 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
      * Main 하단부 Now Playing Music 레이아웃 세팅
      */
     public void setMusicInfo(Music song) {
-        if (playlist.size() != 0) {
-            new Handler().postDelayed(() -> {
-                if (musicService.isPlaying())
-                    btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
-                else
-                    btn_playPause.setImageResource(android.R.drawable.ic_media_play);
-            }, 100);
-
-//            Glide.with(this)
-//                .load(Uri.parse(cur_musics.get(position).getAlbumImgUri()))
-//                .placeholder(R.drawable.default_album_image)
-//                .into(iv_albumArtMain);
-
-            iv_albumArtMain.setImageURI(Uri.parse(song.getAlbumImgUri()));
-            if (isFavorite(song.getMusicUri()))
-                btn_favorite.setImageResource(android.R.drawable.btn_star_big_on);
+        new Handler().postDelayed(() -> {
+            if (musicService.isPlaying())
+                btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
             else
-                btn_favorite.setImageResource(android.R.drawable.btn_star_big_off);
-            tv_title.setText(song.getTitle());
-            tv_artist.setText(song.getArtist());
-        } else {
-            btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
-        }
+                btn_playPause.setImageResource(android.R.drawable.ic_media_play);
+        }, 100);
+
+//        Glide.with(this)
+//            .load(Uri.parse(cur_musics.get(position).getAlbumImgUri()))
+//            .placeholder(R.drawable.default_album_image)
+//            .into(iv_albumArtMain);
+
+        iv_albumArtMain.setImageURI(Uri.parse(song.getAlbumImgUri()));
+        if (isFavorite(song.getMusicUri()))
+            btn_favorite.setImageResource(android.R.drawable.btn_star_big_on);
+        else
+            btn_favorite.setImageResource(android.R.drawable.btn_star_big_off);
+        tv_title.setText(song.getTitle());
+        tv_artist.setText(song.getArtist());
     }
 
     private void btnClick(View v) {
@@ -262,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     public void onRecyclerViewItemClicked(List<Music> musics, int position, boolean isShuffle) {
         playlist = musics;
         this.position = position;
-        this.isShuffle = isShuffle;
+        if (isShuffle) this.isShuffle = true;
         song = musics.get(position);
 
         //setService(); // for start Service(not bind)
@@ -309,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     @Override
     protected void onStart() {
         super.onStart();
-
+        Log.i("MusicService_", "onStart");
         LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(MusicService.SERVICE_RESULT));
         //LocalBroadcastManager.getInstance(this).registerReceiver((broadcastReceiver), new IntentFilter(PlayerService.SERVICE_RESULT));
     }
@@ -324,16 +322,16 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     @Override
     protected void onRestart() {
         super.onRestart();
-        if (playlist.size() > 0)
-            setMusicInfo(musicService.getSong());
+        Log.i("MusicService_", "onRestart");
+        setMusicInfo(musicService.getSong());
     }
 
     @Override
     protected void onDestroy() {
-        favorites.clear();
-        stopService(srvIntent);
-        unbindService(musicConnection);
-        musicService = null;
+        Log.i("MusicService_", "Main_onDestroy");
+//        favorites.clear();
+        //stopService(srvIntent);
+        //musicService = null;
         super.onDestroy();
     }
 
@@ -346,6 +344,10 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
             musicService = binder.getService(); // get service
+            if (musicService != null) {
+                setMusicInfo(musicService.getSong());
+                Log.i("MusicService_", "bounded successfully"+musicService.getSong().getTitle());
+            }
             musicBound = true;
         }
 
@@ -357,6 +359,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 
     private void initService() {
         if (srvIntent == null) {
+            Log.i("MusicService_", "initService()");
             srvIntent = new Intent(this, MusicService.class);
             bindService(srvIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(srvIntent);
@@ -369,6 +372,5 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         musicService.setShuffle(isShuffle);
         musicService.play();
     }
-
 
 }

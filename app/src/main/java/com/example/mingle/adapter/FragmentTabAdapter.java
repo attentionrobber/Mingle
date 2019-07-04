@@ -26,21 +26,21 @@ import java.util.Random;
 
 public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.ViewHolder> {
 
-    private static final int TYPE_BUTTON = 0;
-    private static final int TYPE_ITEM = 1;
-
     private Context context;
     private List<Music> musics;
     private int layout_item;
     private String TAB_NAME = Constants.TAB.SONG;
+
+    private AdapterListener adapterListener;
+
+    private static final int TYPE_BUTTON = 0;
+    private static final int TYPE_ITEM = 1;
 
     private boolean isShuffle = false;
     private String sortedBy = "";
     private final String TITLE = "TITLE";
     private final String ARTIST = "ARTIST";
     private final String ADDED = "ADDED";
-
-    private AdapterListener adapterListener;
 
     public FragmentTabAdapter(Context context, List<Music> musics, int layoutRes, AdapterListener listener) {
         this.context = context;
@@ -86,9 +86,9 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
-        if (viewType == TYPE_BUTTON) {
+        if (viewType == TYPE_BUTTON)
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_button_in_recycler_view, parent, false);
-        } else
+        else
             view = LayoutInflater.from(parent.getContext()).inflate(layout_item, parent, false);
         return new ViewHolder(view);
     }
@@ -127,8 +127,8 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
                 }
             });
         } else { // TYPE_ITEM index 1 ~ ..
-            int pos_view = position-1; // -1 because index 0 is button layout
-            Common common = musics.get(pos_view);
+            int pos_item = position-1; // -1 because index 0 is button layout
+            Common common = musics.get(pos_item);
 
             holder.tv_title.setText(common.getTitle());
             holder.tv_artist.setText(common.getArtist());
@@ -163,7 +163,7 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
 
             holder.layout_item.setOnClickListener(v -> {
                 if (adapterListener != null) { // MainActivity 로 보냄
-                    adapterListener.onRecyclerViewItemClicked(musics, pos_view, isShuffle);
+                    adapterListener.onRecyclerViewItemClicked(musics, pos_item, isShuffle);
                 }
             });
         }

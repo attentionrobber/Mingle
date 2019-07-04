@@ -33,7 +33,8 @@ public class MusicService extends Service {
     // Control Music
     private MediaPlayer player; // media player
     private List<Music> playlist; // song list
-    private Music song;
+    private List<Music> shuffledList; // shuffled playlist
+    private Music song; // playlist.get(position)
     private int position; // current position
     public boolean isPlaying = false;
     private boolean isShuffle = false;
@@ -77,12 +78,17 @@ public class MusicService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        stop();
+        Log.i(TAG, "onUnbind");
+        // activity onDestroy 될 때 unBind 되는게 정상인지 확인해보기.
+        //player.stop();
+        //player.reset();
         return false;
     }
 
     public void setList(List<Music> musics) {
         playlist = musics;
+        shuffledList = new ArrayList<>(playlist);
+        Collections.shuffle(shuffledList, new Random(System.nanoTime()));
     }
 
     public void setSong(int songIndex) {
@@ -135,7 +141,7 @@ public class MusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG ,"onStartCommand");
+        //Log.i(TAG ,"onStartCommand");
         if (intent != null && intent.getAction() != null)
             handleAction(intent);
 
@@ -218,11 +224,15 @@ public class MusicService extends Service {
         if (player != null && playlist.size() != 0) {
             Log.i(TAG, "prev() size: " + playlist.size() + " | pos: " + position);
             if (position > 0) {
-                if (!isShuffle) position = position - 1; // 셔플이 아닌 경우 이전곡 재생
-                else position = new Random().nextInt(playlist.size()); // 셔플인 경우 랜덤 재생
+                if (!isShuffle) {
+                    position = position - 1; // 셔플이 아닌 경우 이전곡 재생
+                    song = playlist.get(position); // get song
+                } else {
+                    position = position - 1;
+                    song = shuffledList.get(position);
+                }
             }
 
-            song = playlist.get(position); // get song
             String path = song.getPath();
             try {
                 player.reset();
@@ -245,10 +255,9 @@ public class MusicService extends Service {
                     position = position + 1; // 셔플이 아닌 경우 다음곡 재생
                     song = playlist.get(position); // get song
                 } else { // 셔플인 경우 랜덤 재생
-                    position = new Random().nextInt(playlist.size());
-//                List<Music> shuffledList = new ArrayList<>(playlist);
-//                Collections.shuffle(shuffledList, new Random(System.nanoTime()));
-                    song = playlist.get(position); // get song
+                    //position = new Random().nextInt(playlist.size());
+                    position = position + 1; // 셔플이 아닌 경우 다음곡 재생
+                    song = shuffledList.get(position); // get song
                 }
             }
 
@@ -279,11 +288,11 @@ public class MusicService extends Service {
         }
     }
 
-    @Override
-    public void onDestroy() {
-        Log.i(TAG, "onDestroy");
-        stop();
-    }
+//    @Override
+//    public void onDestroy() {
+//        Log.i(TAG, "onDestroy");
+//        stop();
+//    }
 
     /**
      * init Notification
