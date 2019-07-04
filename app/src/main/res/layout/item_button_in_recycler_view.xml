@@ -1,21 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
+    android:layout_height="40dp"
     android:orientation="horizontal">
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_sort"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <Button
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="5dp"
+        android:src="@drawable/sort"
+        android:scaleType="fitXY"
+        android:background="?attr/selectableItemBackgroundBorderless" />
+    <ImageButton
         android:id="@+id/btn_playAll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <Button
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="5dp"
+        android:layout_toLeftOf="@+id/btn_shuffle"
+        android:src="@drawable/play"
+        android:scaleType="fitXY"
+        android:background="?attr/selectableItemBackgroundBorderless" />
+    <ImageButton
         android:id="@+id/btn_shuffle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="5dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/shuffle"
+        android:scaleType="fitXY"
+        android:background="?attr/selectableItemBackgroundBorderless" />
 
-</LinearLayout>
+</RelativeLayout>

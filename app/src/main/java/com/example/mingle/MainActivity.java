@@ -181,25 +181,27 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
      * Main 하단부 Now Playing Music 레이아웃 세팅
      */
     public void setMusicInfo(Music song) {
-        new Handler().postDelayed(() -> {
-            if (musicService.isPlaying())
-                btn_playPause.setImageResource(android.R.drawable.ic_media_pause);
-            else
-                btn_playPause.setImageResource(android.R.drawable.ic_media_play);
-        }, 100);
+        if (song != null) {
+            new Handler().postDelayed(() -> {
+                if (musicService.isPlaying())
+                    btn_playPause.setImageResource(R.drawable.pause);
+                else
+                    btn_playPause.setImageResource(R.drawable.play);
+            }, 100);
 
 //        Glide.with(this)
 //            .load(Uri.parse(cur_musics.get(position).getAlbumImgUri()))
 //            .placeholder(R.drawable.default_album_image)
 //            .into(iv_albumArtMain);
 
-        iv_albumArtMain.setImageURI(Uri.parse(song.getAlbumImgUri()));
-        if (isFavorite(song.getMusicUri()))
-            btn_favorite.setImageResource(android.R.drawable.btn_star_big_on);
-        else
-            btn_favorite.setImageResource(android.R.drawable.btn_star_big_off);
-        tv_title.setText(song.getTitle());
-        tv_artist.setText(song.getArtist());
+            iv_albumArtMain.setImageURI(Uri.parse(song.getAlbumImgUri()));
+            if (isFavorite(song.getMusicUri()))
+                btn_favorite.setImageResource(android.R.drawable.btn_star_big_on);
+            else
+                btn_favorite.setImageResource(android.R.drawable.btn_star_big_off);
+            tv_title.setText(song.getTitle());
+            tv_artist.setText(song.getArtist());
+        }
     }
 
     private void btnClick(View v) {
@@ -346,7 +348,6 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
             musicService = binder.getService(); // get service
             if (musicService != null) {
                 setMusicInfo(musicService.getSong());
-                Log.i("MusicService_", "bounded successfully"+musicService.getSong().getTitle());
             }
             musicBound = true;
         }

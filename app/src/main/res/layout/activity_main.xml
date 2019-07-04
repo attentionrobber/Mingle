@@ -96,26 +96,30 @@
                     android:id="@+id/btn_prev"
                     android:layout_height="50dp"
                     android:layout_width="50dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:src="@android:drawable/ic_media_previous" />
+                    android:src="@drawable/prev2"
+                    android:scaleType="fitXY"
+                    android:background="?attr/selectableItemBackground" />
                 <ImageButton
                     android:id="@+id/btn_playPause"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:src="@android:drawable/ic_media_play" />
+                    android:src="@drawable/play"
+                    android:scaleType="fitXY"
+                    android:background="?attr/selectableItemBackground" />
                 <ImageButton
                     android:id="@+id/btn_next"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:src="@android:drawable/ic_media_next" />
+                    android:src="@drawable/next2"
+                    android:scaleType="fitXY"
+                    android:background="?attr/selectableItemBackground" />
                 <ImageButton
                     android:id="@+id/btn_shuffle"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:src="@android:drawable/stat_notify_sync"/>
+                    android:src="@drawable/shuffle"
+                    android:scaleType="fitXY"
+                    android:background="?attr/selectableItemBackground"/>
             </LinearLayout>
         </GridLayout>
     </LinearLayout>

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
@@ -180,7 +181,7 @@ public class FragmentTabAdapter extends RecyclerView.Adapter<FragmentTabAdapter.
         ImageView iv_albumCover;
         TextView tv_title, tv_artist;
 
-        Button btn_sort, btn_playAll, btn_shuffle;
+        ImageButton btn_sort, btn_playAll, btn_shuffle;
 
         ViewHolder(View view) { // position == getAdapterPosition();
             super(view);
