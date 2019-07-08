@@ -90,13 +90,14 @@
                     android:id="@+id/btn_favorite"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
+                    android:scaleType="fitXY"
                     android:background="?attr/selectableItemBackground"
-                    android:src="@android:drawable/btn_star_big_off"/>
+                    android:src="@drawable/favorite_off"/>
                 <ImageButton
                     android:id="@+id/btn_prev"
                     android:layout_height="50dp"
                     android:layout_width="50dp"
-                    android:src="@drawable/prev2"
+                    android:src="@drawable/prev"
                     android:scaleType="fitXY"
                     android:background="?attr/selectableItemBackground" />
                 <ImageButton
@@ -110,7 +111,7 @@
                     android:id="@+id/btn_next"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@drawable/next2"
+                    android:src="@drawable/next"
                     android:scaleType="fitXY"
                     android:background="?attr/selectableItemBackground" />
                 <ImageButton

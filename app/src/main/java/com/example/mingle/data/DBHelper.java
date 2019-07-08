@@ -16,7 +16,7 @@ import java.sql.SQLException;
 public class DBHelper extends OrmLiteSqliteOpenHelper {
 
     private static final String DB_NAME = "mingle.db";
-    private static final int DB_VERSION = 6; // Field 를 수정했을 경우 이것을 바꿔주면 onUpgrade 호출됨.
+    private static final int DB_VERSION = 7; // Field 를 수정했을 경우 이것을 바꿔주면 onUpgrade 호출됨.
 
     private Dao<Favorite, Integer> favoriteDao = null;
     private Dao<Playlist, Integer> playlistDao = null;
@@ -29,7 +29,7 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
             TableUtils.createTable(connectionSource, Favorite.class);
-            TableUtils.createTable(connectionSource, Playlist.class);
+            //TableUtils.createTable(connectionSource, Playlist.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -39,7 +39,7 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         try {
             TableUtils.dropTable(connectionSource, Favorite.class, false); // Table 삭제 후
-            TableUtils.dropTable(connectionSource, Playlist.class, false);
+            //TableUtils.dropTable(connectionSource, Playlist.class, false);
             onCreate(database, connectionSource); // Table Create 한다.
         } catch (SQLException e) {
             e.printStackTrace();

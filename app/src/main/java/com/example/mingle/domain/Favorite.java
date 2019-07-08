@@ -31,6 +31,9 @@ public class Favorite extends Music {
     @DatabaseField
     private String albumImgUri;
 
+    @DatabaseField
+    private String duration;
+
     // 있어야함. 그래야 DBHelper 에서 getDao 가능.
     public Favorite() {
 
@@ -43,6 +46,7 @@ public class Favorite extends Music {
         artist = music.getArtist();
         album = music.getAlbum();
         albumImgUri = music.getAlbumImgUri();
+        duration = Long.toString(music.getDuration());
     }
 
     public String getMusicUri() {
@@ -101,5 +105,14 @@ public class Favorite extends Music {
     @Override
     public void setAlbumImgUri(String albumImgUri) {
         this.albumImgUri = albumImgUri;
+    }
+
+    @Override
+    public long getDuration() {
+        return Long.parseLong(duration);
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
 }

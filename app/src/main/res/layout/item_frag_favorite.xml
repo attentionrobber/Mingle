@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_item"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
+    android:layout_height="55dp"
     android:orientation="horizontal"
     android:clickable="true"
     android:focusable="true"
@@ -12,34 +12,36 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
         <ImageView
             android:id="@+id/iv_albumCover"
             app:srcCompat="@android:drawable/ic_menu_report_image"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:scaleType="fitXY" />
     </LinearLayout>
     <GridLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="5dp"
         android:orientation="vertical"
         android:background="@drawable/bg_transparent_underline">
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="30dp"
             android:gravity="bottom"
             android:singleLine="true"
             android:text="TITLE"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textColor="#000000"/>
         <TextView
             android:id="@+id/tv_artist"
             android:layout_width="wrap_content"
             android:layout_height="25dp"
-            android:layout_gravity="center_vertical"
+            android:gravity="center_horizontal"
             android:text="artist" />
 
     </GridLayout>

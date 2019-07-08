@@ -60,8 +60,6 @@ public class MusicService extends Service {
     private LocalBroadcastManager localBroadcastManager;
     public static final String SERVICE_RESULT = "com.service.result";
     public static final String SERVICE_MESSAGE = "com.service.message";
-    private final int STOPPED_SERVICE = -1; // using sendToMainActivity
-
 
     public MusicService() { }
 
@@ -378,6 +376,7 @@ public class MusicService extends Service {
         Intent intent = new Intent(SERVICE_RESULT);
         //if (position >= 0)
         intent.putExtra(SERVICE_MESSAGE, song);
+        intent.putExtra("position", position);
 
         localBroadcastManager.sendBroadcast(intent);
     }

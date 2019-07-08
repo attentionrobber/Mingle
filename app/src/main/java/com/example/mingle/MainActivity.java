@@ -34,6 +34,7 @@ import com.example.mingle.ui.main.OnBackPressedListener;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
     private ViewPager viewPager; // fragment 를 담는 view
     private TextView tv_title, tv_artist; // 하단
     private ImageView iv_albumArtMain;
-    private ImageButton btn_playPause, btn_favorite, btn_shuffle;
+    private ImageButton btn_playPause, btn_favorite;
 
     private List<Music> playlist = new ArrayList<>(); // Current Music Playlist
     private Music song = null;
@@ -91,10 +92,10 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                //Log.i("MusicService_", "onReceive: "+song.getTitle()+" | "+song.getMusicUri());
-                //position = intent.getIntExtra(PlayerService.SERVICE_MESSAGE, 0);
                 song = (Music) intent.getSerializableExtra(PlayerService.SERVICE_MESSAGE);
+                position = intent.getIntExtra(PlayerService.SERVICE_MESSAGE, 0);
                 setMusicInfo(song);
+                //Log.i("MusicService_", "onReceive: "+song.getTitle()+" | "+position);
             }
         };
     }
@@ -114,10 +115,8 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         findViewById(R.id.layout_titleArtist).setOnClickListener(this::btnClick);
         btn_favorite = findViewById(R.id.btn_favorite);
         btn_playPause = findViewById(R.id.btn_playPause);
-        btn_shuffle = findViewById(R.id.btn_shuffle);
         btn_favorite.setOnClickListener(this::btnClick);
         btn_playPause.setOnClickListener(this::btnClick);
-        btn_shuffle.setOnClickListener(this::btnClick);
         findViewById(R.id.btn_prev).setOnClickListener(this::btnClick);
         findViewById(R.id.btn_next).setOnClickListener(this::btnClick);
         findViewById(R.id.btn_shuffle).setOnClickListener(this::btnClick);
@@ -196,9 +195,9 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 
             iv_albumArtMain.setImageURI(Uri.parse(song.getAlbumImgUri()));
             if (isFavorite(song.getMusicUri()))
-                btn_favorite.setImageResource(android.R.drawable.btn_star_big_on);
+                btn_favorite.setImageResource(R.drawable.favorite_on);
             else
-                btn_favorite.setImageResource(android.R.drawable.btn_star_big_off);
+                btn_favorite.setImageResource(R.drawable.favorite_off);
             tv_title.setText(song.getTitle());
             tv_artist.setText(song.getArtist());
         }
@@ -221,11 +220,11 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
             case R.id.btn_favorite:
                 try {
                     if (isFavorite(song.getMusicUri())) { // 해당 곡이 Favorite 인 경우
-                        btn_favorite.setImageResource(android.R.drawable.btn_star_big_off); // 버튼 아이콘 set OFF
+                        btn_favorite.setImageResource(R.drawable.favorite_off); // 버튼 아이콘 set OFF
                         deleteFavorite(song.getMusicUri()); // 해당 곡을 Favorite 에서 제거
                     } else {
                         addFavorite(new Favorite(song)); // 해당 곡을 Favorite 에 추가 후 DB에 저장
-                        btn_favorite.setImageResource(android.R.drawable.btn_star_big_on); // 버튼 아이콘 set OFF
+                        btn_favorite.setImageResource(R.drawable.favorite_on); // 버튼 아이콘 set OFF
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -245,9 +244,16 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
 
             case R.id.iv_albumArtMain:
             case R.id.layout_titleArtist:
-                // TODO: 위 두개 레이아웃 터치시 PlayerActivity 로 가도록 설정하기
-                break;
+                Intent intent = new Intent(this, PlayerActivity.class);
+                // TODO: 곡탭에서는 PlayerActivity 가지지 않음. putExtra 대신 다른 방법 사용하자.
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("playlist", (Serializable) playlist);
+                bundle.putInt("position", position);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                //PlayerActivity playerActivity = new PlayerActivity(playlist, position, isShuffle);
 
+                break;
             default:
                 break;
         }
@@ -264,6 +270,10 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         this.position = position;
         if (isShuffle) this.isShuffle = true;
         song = musics.get(position);
+
+        //Toast.makeText(this, "clicked"+song.getDuration(), Toast.LENGTH_SHORT).show();
+
+        //Log.i("MusicService_", "onRecyclerViewItemClicked: "+playlist.size());
 
         //setService(); // for start Service(not bind)
         songPicked(); // for bindService
