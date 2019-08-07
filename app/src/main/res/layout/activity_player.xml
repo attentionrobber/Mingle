@@ -16,8 +16,9 @@
         android:orientation="vertical">
         <ImageView
             android:id="@+id/iv_albumArt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="350dp"
+            android:layout_height="350dp"
+            android:scaleType="fitXY"
             android:src="@drawable/default_album_image"/>
         <TextView
             android:id="@+id/tv_title"
@@ -81,32 +82,32 @@
         android:orientation="horizontal">
         <ImageButton
             android:id="@+id/btn_repeat"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/shuffle"
             android:background="?attr/selectableItemBackgroundBorderless"/>
         <ImageButton
             android:id="@+id/btn_prev"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/prev"
             android:background="?attr/selectableItemBackgroundBorderless"/>
         <ImageButton
             android:id="@+id/btn_play"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/play"
             android:background="?attr/selectableItemBackgroundBorderless"/>
         <ImageButton
             android:id="@+id/btn_next"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/next"
             android:background="?attr/selectableItemBackgroundBorderless"/>
         <ImageButton
             android:id="@+id/btn_shuffle"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/shuffle"
             android:background="?attr/selectableItemBackgroundBorderless"/>
     </LinearLayout>

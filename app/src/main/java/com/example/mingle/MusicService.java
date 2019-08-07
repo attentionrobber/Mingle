@@ -143,8 +143,8 @@ public class MusicService extends Service {
         if (intent != null && intent.getAction() != null)
             handleAction(intent);
 
-        return super.onStartCommand(intent, flags, startId);
-        //return START_STICKY;
+        //return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
     // Intent Action 에 넘어온 명령어를 분기시키는 함수
     private void handleAction(Intent intent) {

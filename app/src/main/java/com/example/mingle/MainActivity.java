@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.i("MusicService_", "onCreate");
+        // TODO: 반복문 안에서 객체 생성한거 다 바꾸기. .set()함수로
 
         setWidget();
         init();
