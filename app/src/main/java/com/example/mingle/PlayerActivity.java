@@ -1,7 +1,7 @@
 package com.example.mingle;
 
-import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.example.mingle.adapter.PlayerAdapter;
 import com.example.mingle.domain.Music;
 
 import java.util.ArrayList;
@@ -20,9 +21,10 @@ public class PlayerActivity extends AppCompatActivity {
     private final String TAG = "PlayerActivity_";
 
     // Widget
-    private ImageView iv_albumArt;
     private SeekBar seekBar;
-    private TextView tv_title, tv_artist, tv_current, tv_duration;
+    private TextView tv_current, tv_duration;
+    private ViewPager viewPager;
+    private PlayerAdapter adapter;
 
     // Player
     private List<Music> playlist = new ArrayList<>();
@@ -57,11 +59,9 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void setWidget() {
         Log.i(TAG, "setWidget: ");
-        iv_albumArt = findViewById(R.id.iv_albumArt);
+        viewPager = findViewById(R.id.viewPager_player);
         seekBar = findViewById(R.id.seekBar);
         //seekBar.setMax();
-        tv_title = findViewById(R.id.tv_title);
-        tv_artist = findViewById(R.id.tv_artist);
         tv_current = findViewById(R.id.tv_current);
         tv_duration = findViewById(R.id.tv_duration);
         findViewById(R.id.btn_prev).setOnClickListener(this::btnClick);
@@ -71,12 +71,13 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void init() {
         Log.i(TAG, "init: ");
-        iv_albumArt.setImageURI(Uri.parse(song.getAlbumImgUri()));
-        tv_title.setText(song.getTitle());
-        tv_artist.setText(song.getArtist());
         String duration = Long.toString(song.getDuration());
         tv_duration.setText(duration);
         Log.i(TAG, "init: "+duration+" | "+song.getDuration());
+
+        adapter = new PlayerAdapter(playlist, this);
+        viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(position);
     }
 
     private void btnClick(View v) {

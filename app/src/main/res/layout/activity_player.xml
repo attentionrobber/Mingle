@@ -8,33 +8,13 @@
     android:orientation="vertical"
     tools:context=".PlayerActivity">
 
-    <LinearLayout
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager_player"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="60"
-        android:gravity="center"
-        android:orientation="vertical">
-        <ImageView
-            android:id="@+id/iv_albumArt"
-            android:layout_width="350dp"
-            android:layout_height="350dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/default_album_image"/>
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="TITLE"
-            android:textColor="#000000"
-            android:textSize="20sp"/>
-        <TextView
-            android:id="@+id/tv_artist"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="TITLE" />
-    </LinearLayout>
+        android:gravity="center">
+    </android.support.v4.view.ViewPager>
 
     <GridLayout
         android:layout_width="match_parent"
